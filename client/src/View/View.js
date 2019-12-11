@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {Tabs, Tab} from '@material-ui/core'
+import {Tabs, Tab} from '@material-ui/core';
 import Live from "../Live/Live";
-import Explore from "../Explore/Explore"
+import Explore from "../Explore/Explore";
+import Status from "../Status/Status";
 
 class View extends Component {
     constructor(props) {
@@ -25,8 +26,9 @@ class View extends Component {
                     variant="fullWidth"
                     aria-label="full width tabs example"
                 >
-                    <Tab label="Live Mode"/>
-                    <Tab label="Explore Mode"/>
+                    <Tab label="Live View"/>
+                    <Tab label="Explore View"/>
+                    <Tab label="Status View"/>
                 </Tabs>
                 {this.state.value === 0 &&
                     <Live/>
@@ -34,6 +36,8 @@ class View extends Component {
                 {this.state.value === 1 &&
                     <Explore/>
                 }
+                {this.state.value ===2 &&
+                    <Status/>}
             </div>
 
         );

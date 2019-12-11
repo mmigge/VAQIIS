@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import { Button, Card } from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
+import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 
 var mqtt = require('mqtt')
 var client
@@ -56,22 +57,77 @@ class Live extends  Component{
 
     render() {
         return (
-            <div>
-            <Button style={{"margin": "15px"}} variant="contained" color="primary">
-                Check if Bike is on Track
-            </Button>
-            {/* If clause to decide which button to display */}
-            {this.state.connected ? <Button style={{"margin": "15px"}} variant="contained" color="secondary" onClick={this.disconnectMQTT}>Disconnect from MQTT</Button>
-                                  : <Button style={{"margin": "15px"}} variant="contained" color="primary" onClick={this.connectMQTT}>Connect to MQTT</Button>}
-            <div>
+            <Container fluid>
+                <div>
                     <OwnMap/>
-            </div>
-            <div>
-                {/* If clause to decide which message to display */}
-                {this.state.lastMessage ? <p>The last message was:{this.state.lastMessage}</p> :<p>No connection established yet</p> }
-            </div>
-            </div>
-
+                </div>
+                <Row style={{'margin-top':'5px'}} fluid>
+                    <Col md={8}>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                            <th>#</th>
+                            <th>Sensor</th>
+                            <th>Messwert</th>
+                            <th>Zeit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>1</td>
+                            <td>Temperatur</td>
+                            <td>33°C</td>
+                            <td>2019-12-09T12:39:00</td>
+                            </tr>
+                            <tr>
+                            <td>2</td>
+                            <td>PM10</td>
+                            <td>22.45µg/m³</td>
+                            <td>2019-12-09T12:39:00</td>
+                            </tr>
+                            <tr>
+                            <td>3</td>
+                            <td>rel. Luftfeuchtigkeit</td>
+                            <td>78%</td>
+                            <td>2019-12-09T12:39:00</td>
+                            </tr>
+                        </tbody>
+                        </Table>
+                    </Col>
+                    <Col md={4}>
+                        <Card >
+                            <Card.Body>
+                                <Card.Title>Connection overview</Card.Title>
+                                <Card.Text>
+                                Click here to manage your connection to the eco bike
+                                </Card.Text>
+                                <Button style={{"margin": "15px"}} variant="contained" color="primary">
+                                Check if Bike is on Track
+                            </Button>
+                            {/* If clause to decide which button to display */}
+                            {this.state.connected 
+                                ? <Button 
+                                    style={{"margin": "15px"}} 
+                                    variant="contained" 
+                                    color="secondary" 
+                                    onClick={this.disconnectMQTT}
+                                    >Disconnect from MQTT
+                                </Button>
+                                : 
+                                <Button 
+                                    style={{"margin": "15px"}} 
+                                    variant="contained"
+                                    color="primary" 
+                                    onClick={this.connectMQTT}
+                                    >Connect to MQTT
+                                </Button>
+                            }                    </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                <Row>
+                </Row>
+            </Container>
         );
     }
 
