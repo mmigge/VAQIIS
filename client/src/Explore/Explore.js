@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
+import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 
 class Explore extends  Component{
     constructor(props){
@@ -33,14 +34,21 @@ class Explore extends  Component{
 
     render() {
         return (
-            <div>
+            <Container fluid>
+                <div>
+                    <OwnMap/>
+                </div>
+                <Row>
+                <Col md={4}>
+                <Card style={{'margin-top':'5px'}}>
+                    <Card.Body>
+                        <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
                 <TextField
                     id="standard-select-date"
                     select
-                    label="Select"
+                    label=""
                     value={this.state.date}
-                    onChange={this.handlechange.bind(this)}
-                    helperText="Please select your date"
+                    onChange={this.handlechange.bind(this)} 
                     margin="normal"
                     variant="outlined"
                 >
@@ -50,10 +58,48 @@ class Explore extends  Component{
                         </MenuItem>
                     ))}
                 </TextField>
-                <div>
-                    <OwnMap/>
-                </div>
-            </div>
+                </Card.Body>
+                </Card>
+                </Col>
+                <Col md={8}>
+                    <Card style={{'margin-top':'5px'}}>
+                        <Card.Body>
+                        <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
+                        <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                            <th>#</th>
+                            <th>Sensor</th>
+                            <th>Messwert</th>
+                            <th>Zeit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td>1</td>
+                            <td>Temperatur</td>
+                            <td>33°C</td>
+                            <td>2019-12-09T12:39:00</td>
+                            </tr>
+                            <tr>
+                            <td>2</td>
+                            <td>PM10</td>
+                            <td>22.45µg/m³</td>
+                            <td>2019-12-09T12:39:00</td>
+                            </tr>
+                            <tr>
+                            <td>3</td>
+                            <td>rel. Luftfeuchtigkeit</td>
+                            <td>78%</td>
+                            <td>2019-12-09T12:39:00</td>
+                            </tr>
+                        </tbody>
+                        </Table>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                </Row>
+            </Container>
 
         );
     }

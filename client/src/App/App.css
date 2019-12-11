@@ -1,7 +1,10 @@
 .App {
   text-align: center;
 }
-
+.Status_Container {
+  text-align: left !important ;
+  margin-left: 0%;
+}
 .App-logo {
   height: 40vmin;
 }
