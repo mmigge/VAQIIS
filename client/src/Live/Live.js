@@ -28,7 +28,7 @@ class Live extends  Component{
         var that = this;
         // On connect handler for mqtt, sets state and gives some logs
         client.on('connect', function () {
-            client.subscribe("/"+this.state.username+"/exampleTopic", function (err,granted) {
+            client.subscribe("/"+that.state.username+"/exampleTopic", function (err,granted) {
              if (!err) {
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.setState({connected:true})
