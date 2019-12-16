@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
-import {Container,Row,Col,Card,Table} from 'react-bootstrap'
+import {Container,Row,Col,Card,Table,Button} from 'react-bootstrap'
 
 class Explore extends  Component{
     constructor(props){
         super(props);
         this.state={date: "12-11-2019"}
+        this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this)
     }
+
 
     dates = [
     {
@@ -32,6 +34,9 @@ class Explore extends  Component{
         this.setState({date: e.target.value})
     }
 
+    downloadSelectedRoute(){
+        console.log("downloadSelectedRoute");
+    }
     render() {
         return (
             <Container fluid>
@@ -39,28 +44,6 @@ class Explore extends  Component{
                     <OwnMap/>
                 </div>
                 <Row>
-                <Col md={4}>
-                <Card style={{'margin-top':'5px'}}>
-                    <Card.Body>
-                        <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
-                <TextField
-                    id="standard-select-date"
-                    select
-                    label=""
-                    value={this.state.date}
-                    onChange={this.handlechange.bind(this)} 
-                    margin="normal"
-                    variant="outlined"
-                >
-                    {this.dates.map(option => (
-                        <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </TextField>
-                </Card.Body>
-                </Card>
-                </Col>
                 <Col md={8}>
                     <Card style={{'margin-top':'5px'}}>
                         <Card.Body>
@@ -97,6 +80,30 @@ class Explore extends  Component{
                         </Table>
                         </Card.Body>
                     </Card>
+                </Col>
+                <Col md={4}>
+                <Card style={{'margin-top':'5px'}}>
+                    <Card.Body>
+                        <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
+                <TextField
+                    id="standard-select-date"
+                    select
+                    label=""
+                    value={this.state.date}
+                    onChange={this.handlechange.bind(this)} 
+                    margin="normal"
+                    variant="outlined"
+                >
+                    {this.dates.map(option => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <br></br>
+                <Button onClick={this.downloadSelectedRoute} variant="primary">Diese Route herunterladen</Button>
+                </Card.Body>
+                </Card>
                 </Col>
                 </Row>
             </Container>

@@ -5,6 +5,7 @@ import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 
 var mqtt = require('mqtt')
 var client
+
 class Live extends  Component{
     constructor(props){
         super(props);
@@ -29,7 +30,7 @@ class Live extends  Component{
         var that = this;
         // On connect handler for mqtt, sets state and gives some logs
         client.on('connect', function () {
-            client.subscribe("/"+that.state.username+"/exampleTopic", function (err,granted) {
+            client.subscribe(["/"+that.state.username+"/time","/"+that.state.username+"/temperature","/"+that.state.username+"/pm10","/"+that.state.username+"/humi"], function (err,granted) {
              if (!err) {
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.setState({connected:true})
@@ -43,8 +44,14 @@ class Live extends  Component{
         
         // if a message of the subscribed topics come in do the following
         client.on('message',function(topic,message){
+            console.log(message);
             let value = message.toString();
-            that.setState({lastMessage:value})
+            console.log(topic);
+            if(topic==='/erictg96@googlemail.com/temperature')that.setState({lastMessageTemp:value})
+            if(topic==='/erictg96@googlemail.com/pm10')that.setState({lastMessagePm10:value})
+            if(topic==='/erictg96@googlemail.com/humi')that.setState({lastMessageHumi:value})
+            if(topic==='/erictg96@googlemail.com/time')that.setState({lastMessageTime:value})
+
             console.log(value);
         })
     }
@@ -76,20 +83,20 @@ class Live extends  Component{
                             <tr>
                             <td>1</td>
                             <td>Temperatur</td>
-                            <td>33°C</td>
-                            <td>2019-12-09T12:39:00</td>
+                            <td>{this.state.lastMessageTemp}°C</td>
+                            <td>{this.state.lastMessageTime}</td>
                             </tr>
                             <tr>
                             <td>2</td>
                             <td>PM10</td>
-                            <td>22.45µg/m³</td>
-                            <td>2019-12-09T12:39:00</td>
+                            <td>{this.state.lastMessagePm10}µg/m³</td>
+                            <td>{this.state.lastMessageTime}</td>
                             </tr>
                             <tr>
                             <td>3</td>
                             <td>rel. Luftfeuchtigkeit</td>
-                            <td>78%</td>
-                            <td>2019-12-09T12:39:00</td>
+                            <td>{this.state.lastMessageHumi}%</td>
+                            <td>{this.state.lastMessageTime}</td>
                             </tr>
                         </tbody>
                         </Table>
