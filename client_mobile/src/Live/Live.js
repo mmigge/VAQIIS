@@ -17,6 +17,7 @@ class Live extends  Component{
         }
         this.connectMQTT = this.connectMQTT.bind(this);
         this.disconnectMQTT = this.disconnectMQTT.bind(this);
+        this.submit = this.submit.bind(this);
     }
 
     connectMQTT(){
@@ -61,7 +62,9 @@ class Live extends  Component{
         this.setState({connected:false})
         client.end()
     }
-
+    submit(){
+        console.log("submit");
+    }
     render() {
         return (
             <Container fluid>
@@ -126,13 +129,33 @@ class Live extends  Component{
                                     variant="contained"
                                     color="primary" 
                                     onClick={this.connectMQTT}
-                                    >Connect to MQTT
+                                    >Connect to the Bike
                                 </Button>
                             }                    </Card.Body>
                             </Card>
                         </Col>
+                        
                     </Row>
+
                 <Row>
+                    <Col md={8}>
+                        
+                    </Col>
+                    <Col md={4}>
+                    <Card>
+                        <Card.Body>
+                            <Card.Title>Add comments to the measured data</Card.Title>
+                            <Card.Text>Crucial information about how to understand the dataset e.g. "High PM10 values because we were standing behind a bus can be added here.</Card.Text>
+                            <form onSubmit={this.submit}>
+                                <label>
+                                    <textarea value={this.state.value} onChange={this.handleChange}></textarea>
+                                </label>
+                                <input style={{"margin": "15px"}} type="submit" value="Submit"/>
+                            </form>
+
+                        </Card.Body>
+                    </Card>
+                    </Col>
                 </Row>
             </Container>
         );
