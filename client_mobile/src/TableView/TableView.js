@@ -3,7 +3,7 @@ import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
 import {Container,Row,Col,Card,Table,Button} from 'react-bootstrap'
 
-class Explore extends  Component{
+class TableView extends  Component{
     constructor(props){
         super(props);
         this.state={date: "12-11-2019"}
@@ -84,7 +84,7 @@ class Explore extends  Component{
                 <Col md={4}>
                 <Card style={{'margin-top':'5px'}}>
                     <Card.Body>
-                        <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
+                        <Card.Title>Wähle eine Route aus um sie auf der Karte anzuzeigen.</Card.Title>
                 <TextField
                     id="standard-select-date"
                     select
@@ -114,4 +114,4 @@ class Explore extends  Component{
 
 }
 
-export default Explore;
+export default TableView;

@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {Tabs, Tab} from '@material-ui/core';
-import Live from "../Live/Live";
-import Explore from "../Explore/Explore";
-import Status from "../Status/Status";
+import LiveView from "../LiveView/LiveView";
+import TableView from "../TableView/TableView";
+import StatusView from "../StatusView/StatusView";
 
 class View extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: 1}
+        this.state = {value: 0}
     }
 
     handleChange = (e, newValue) => {
@@ -26,18 +26,18 @@ class View extends Component {
                     variant="fullWidth"
                     aria-label="full width tabs example"
                 >
-                    <Tab label="Live View"/>
-                    <Tab label="Explore View"/>
+                    <Tab label="Table View"/>
+                    <Tab label="Map View"/>
                     <Tab label="Status View"/>
                 </Tabs>
                 {this.state.value === 0 &&
-                    <Live/>
+                    <TableView/>
                 }
                 {this.state.value === 1 &&
-                    <Explore/>
+                    <LiveView/>
                 }
                 {this.state.value ===2 &&
-                    <Status/>}
+                    <StatusView/>}
             </div>
 
         );

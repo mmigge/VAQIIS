@@ -8,7 +8,7 @@ var client
 
 class Live extends  Component{
     constructor(props){
-        super(props);
+        super(props);   
         this.state = {
             username:'erictg96@googlemail.com',
             password:'9157fbb4',
