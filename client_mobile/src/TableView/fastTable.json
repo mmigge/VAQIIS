@@ -1,0 +1,444 @@
+{
+    "symbols": [
+        {
+            "name": "rmcid",
+            "uri": "dl:fasttable.rmcid",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcutc",
+            "uri": "dl:fasttable.rmcutc",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcstatus",
+            "uri": "dl:fasttable.rmcstatus",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmclatitude",
+            "uri": "dl:fasttable.rmclatitude",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcin_s_ind",
+            "uri": "dl:fasttable.rmcin_s_ind",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmclongitude",
+            "uri": "dl:fasttable.rmclongitude",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmce_w_indicator",
+            "uri": "dl:fasttable.rmce_w_indicator",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcspeed",
+            "uri": "dl:fasttable.rmcspeed",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmccourse",
+            "uri": "dl:fasttable.rmccourse",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcutcdate",
+            "uri": "dl:fasttable.rmcutcdate",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcmagvariation",
+            "uri": "dl:fasttable.rmcmagvariation",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcmage_w",
+            "uri": "dl:fasttable.rmcmage_w",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "rmcchecksum",
+            "uri": "dl:fasttable.rmcchecksum",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "HMR3000string",
+            "uri": "dl:fasttable.HMR3000string",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_mode",
+            "uri": "dl:fasttable.compass_mode",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_heading",
+            "uri": "dl:fasttable.compass_heading",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_headingstat",
+            "uri": "dl:fasttable.compass_headingstat",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_pitch",
+            "uri": "dl:fasttable.compass_pitch",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_pitchstat",
+            "uri": "dl:fasttable.compass_pitchstat",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_roll",
+            "uri": "dl:fasttable.compass_roll",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_rollstat",
+            "uri": "dl:fasttable.compass_rollstat",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "compass_checksum",
+            "uri": "dl:fasttable.compass_checksum",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "Gill_Adr",
+            "uri": "dl:fasttable.Gill_Adr",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "Gill_Diag",
+            "uri": "dl:fasttable.Gill_Diag",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "u",
+            "uri": "dl:fasttable.u",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "v",
+            "uri": "dl:fasttable.v",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "w",
+            "uri": "dl:fasttable.w",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "Ts",
+            "uri": "dl:fasttable.Ts",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "AirTC_Min",
+            "uri": "dl:fasttable.AirTC_Min",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "AirTC_Max",
+            "uri": "dl:fasttable.AirTC_Max",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "AirTC_Avg",
+            "uri": "dl:fasttable.AirTC_Avg",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "RH_Min",
+            "uri": "dl:fasttable.RH_Min",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "RH_Max",
+            "uri": "dl:fasttable.RH_Max",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "RH_Avg",
+            "uri": "dl:fasttable.RH_Avg",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "CPC_aux",
+            "uri": "dl:fasttable.CPC_aux",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_1dM",
+            "uri": "dl:fasttable.LiveBin_1dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_2dM",
+            "uri": "dl:fasttable.LiveBin_2dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_3dM",
+            "uri": "dl:fasttable.LiveBin_3dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_4dM",
+            "uri": "dl:fasttable.LiveBin_4dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_5dM",
+            "uri": "dl:fasttable.LiveBin_5dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_6dM",
+            "uri": "dl:fasttable.LiveBin_6dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_7dM",
+            "uri": "dl:fasttable.LiveBin_7dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_8dM",
+            "uri": "dl:fasttable.LiveBin_8dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_9dM",
+            "uri": "dl:fasttable.LiveBin_9dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_10dM",
+            "uri": "dl:fasttable.LiveBin_10dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_11dM",
+            "uri": "dl:fasttable.LiveBin_11dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_12dM",
+            "uri": "dl:fasttable.LiveBin_12dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_13dM",
+            "uri": "dl:fasttable.LiveBin_13dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_14dM",
+            "uri": "dl:fasttable.LiveBin_14dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_15dM",
+            "uri": "dl:fasttable.LiveBin_15dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "LiveBin_16dM",
+            "uri": "dl:fasttable.LiveBin_16dM",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "CO2",
+            "uri": "dl:fasttable.CO2",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "H2O",
+            "uri": "dl:fasttable.H2O",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "P_LI75",
+            "uri": "dl:fasttable.P_LI75",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        },
+        {
+            "name": "diag_LI75",
+            "uri": "dl:fasttable.diag_LI75",
+            "type": 8,
+            "is_enabled": true,
+            "is_read_only": true,
+            "can_expand": false
+        }
+    ]
+}
