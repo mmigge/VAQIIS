@@ -122,8 +122,6 @@ class TableView extends  Component{
 
         );
     }
-
-
 }
 
 export default TableView;

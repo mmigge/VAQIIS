@@ -6,7 +6,7 @@ import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 var mqtt = require('mqtt')
 var client
 
-class Live extends  Component{
+class MapView extends  Component{
     constructor(props){
         super(props);   
         this.state = {
@@ -19,6 +19,7 @@ class Live extends  Component{
         this.disconnectMQTT = this.disconnectMQTT.bind(this);
         this.submit = this.submit.bind(this);
     }
+
 
     connectMQTT(){
         console.log("connectMQTT");
@@ -164,4 +165,4 @@ class Live extends  Component{
 
 }
 
-export default Live;
+export default MapView;

@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {Tabs, Tab} from '@material-ui/core';
-import LiveView from "../LiveView/LiveView";
+import MapView from "../MapView/MapView";
 import TableView from "../TableView/TableView";
 import StatusView from "../StatusView/StatusView";
 
 class View extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: 0}
+        this.state = {value: 1}
     }
 
     handleChange = (e, newValue) => {
@@ -34,7 +34,7 @@ class View extends Component {
                     <TableView/>
                 }
                 {this.state.value === 1 &&
-                    <LiveView/>
+                    <MapView/>
                 }
                 {this.state.value ===2 &&
                     <StatusView/>}
