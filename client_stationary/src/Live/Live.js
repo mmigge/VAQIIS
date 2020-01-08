@@ -6,6 +6,36 @@ import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 var mqtt = require('mqtt')
 var client
 
+const exampleData= {geojson :{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {temp : 2, humi: 10, pm10: 2, time: new Date("2020-01-01")},
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            7.6100921630859375,
+            51.967115491837404
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01")},
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            7.6306915283203125,
+            51.95230623740452
+          ]
+        }
+      }
+    ]
+  }
+}
+
+
 class Live extends  Component{
     constructor(props){
         super(props);
@@ -56,6 +86,17 @@ class Live extends  Component{
             console.log(value);
         })
     }
+
+    handleSelected= (selectedTemp, selectedHumi, selectedPm10, selectedTime) =>{
+        this.setState({
+            selectedTemp,
+            selectedHumi,
+            selectedPm10,
+            selectedTime,
+        })
+    }
+
+
     // simple disconnect handler, stes state of connected variable
     disconnectMQTT(){
         console.log("Disconnecting from MQTT now")
@@ -69,7 +110,7 @@ class Live extends  Component{
         return (
             <Container fluid>
                 <div>
-                    <OwnMap/>
+                    <OwnMap route={exampleData} handleSelected={this.handleSelected}/>
                 </div>
                 <Row style={{'margin-top':'5px'}} fluid>
                     <Col md={8}>
@@ -86,20 +127,20 @@ class Live extends  Component{
                             <tr>
                             <td>1</td>
                             <td>Temperatur</td>
-                            <td>{this.state.lastMessageTemp}°C</td>
-                            <td>{this.state.lastMessageTime}</td>
+                            <td>{this.state.selectedTemp ? this.state.selectedTemp + " °C" : this.state.lastMessageTemp +" °C"}</td>
+                            <td>{this.state.selectedTime ? this.state.selectedTime + "": this.state.lastMessageTime +""}</td>
                             </tr>
                             <tr>
                             <td>2</td>
                             <td>PM10</td>
-                            <td>{this.state.lastMessagePm10}µg/m³</td>
-                            <td>{this.state.lastMessageTime}</td>
+                            <td>{this.state.selectedPm10 ? this.state.selectedPm10 + " µg/m³": this.state.lastMessagePm10 +" µg/m³"}</td>
+                            <td>{this.state.selectedTime ? this.state.selectedTime + "": this.state.lastMessageTime +""}</td>
                             </tr>
                             <tr>
                             <td>3</td>
                             <td>rel. Luftfeuchtigkeit</td>
-                            <td>{this.state.lastMessageHumi}%</td>
-                            <td>{this.state.lastMessageTime}</td>
+                            <td>{this.state.selectedHumi ? this.state.selectedHumi +" %" : this.state.lastMessageHumi +" %"}</td>
+                            <td>{this.state.selectedTime ? this.state.selectedTime + "": this.state.lastMessageTime +""}</td>
                             </tr>
                         </tbody>
                         </Table>
@@ -131,7 +172,8 @@ class Live extends  Component{
                                     onClick={this.connectMQTT}
                                     >Connect to the Bike
                                 </Button>
-                            }                    </Card.Body>
+                            }                    
+                            </Card.Body>
                             </Card>
                         </Col>
                         
@@ -152,7 +194,6 @@ class Live extends  Component{
                                 </label>
                                 <input style={{"margin": "15px"}} type="submit" value="Submit"/>
                             </form>
-
                         </Card.Body>
                     </Card>
                     </Col>
