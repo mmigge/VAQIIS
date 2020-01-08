@@ -6,34 +6,38 @@ import des from './des.json'
 import fastTable from './fastTable.json'
 import fastTableValues from './fastTableValues'
 
-class TableView extends  Component{
+class TableView extends Component{
+
     constructor(props){
-        super(props);
+        super(props);   
         this.state={
             data:des,
             fastTable:fastTable,
             fastTableValues:fastTableValues
         }
-    }
+    }  
 
     componentDidMount(){
         // pose request to get all fields from the fastdata table 
         let url = 'http://128.176.146.233:3134/logger/command=browseSymbols&format=json'
         var keyNames = Object.keys(this.state.data.symbols)
 
-        // fetch(url)
-        // .then((response)=>{
-        //     console.log(response)
-        //     return response.json()
-        // })
-        // .then((json)=>{
-        //     console.log(json);
-        //     this.setState(
-        //         {
-        //             data:json
-        //         }
-        //     )
-        // })
+        /*
+        fetch(url)
+        .then((response)=>{
+            console.log("here", response)
+            return response.json()
+        })
+        .then((json)=>{
+            console.log(json);
+            this.setState(
+                {
+                    data:json
+                }
+            )
+        })
+
+        */
 
     }
 
@@ -121,6 +125,25 @@ class TableView extends  Component{
             </Container>
 
         );
+    }
+
+    convertGPSData(coordinateObjectString){
+        // Leading zeros not allowed --> string
+        const position = ['5157.88870', '00736.34599'];
+        
+        let lat_temp_1 = parseFloat(position[0].split('.')[0].substring(0,2));
+        let lat_temp_2 = parseFloat(position[0].split(lat_temp_1)[1])/60;
+        let lat = lat_temp_1 + lat_temp_2;
+
+        let long_temp_1 = parseFloat(position[1].split('.')[0].substring(0,3));
+        let long_temp_2 = parseFloat(position[1].split(long_temp_1)[1])/60;
+        let long = long_temp_1 + long_temp_2;
+
+        const coordinates = {
+            latitude: lat,
+            longtitude: long
+        }
+        return coordinates;
     }
 }
 
