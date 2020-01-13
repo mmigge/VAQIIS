@@ -1,130 +1,96 @@
 import React, { Component } from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
-import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap'
-
-
-var exampleData = {
-    data: [
-        {
-            date: "15-11-2019",
-            data: 0,
-            geojson: {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "properties": {},
-                        "geometry": {
-                            "type": "LineString",
-                            "coordinates": [
-                                [
-                                    7.60528564453125,
-                                    51.97155731422007
-                                ],
-                                [
-                                    7.605628967285155,
-                                    51.964577109947506
-                                ],
-                                [
-                                    7.6197052001953125,
-                                    51.95759581845331
-                                ],
-                                [
-                                    7.632408142089844,
-                                    51.96119237712624
-                                ],
-                                [
-                                    7.634468078613281,
-                                    51.96732701717229
-                                ],
-                                [
-                                    7.622451782226563,
-                                    51.97134580885172
-                                ]
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            date: "24-11-2019",
-            data: 1, 
-            geojson: {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "properties": {},
-                        "geometry": {
-                            "type": "LineString",
-                            "coordinates": [
-                                [
-                                    7.6032257080078125,
-                                    51.9599230364245
-                                ],
-                                [
-                                    7.623481750488281,
-                                    51.96690396550418
-                                ],
-                                [
-                                    7.615585327148437,
-                                    51.94638116576159
-                                ]
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
-    ]
-}
+import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
+import OwnDropzone from './Dropzone';
 
 class Explore extends Component {
     constructor(props) {
         super(props);
-        this.state = { date: "null", route: null }
+        this.state = { date: "null", route: null, data:[], dates : [{ value: "null", label: "dd-mm-yyyy" }] }
         this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this)
     }
 
 
-    dates = [{value: "null", label: "dd-mm-yyyy"}];
 
-    componentWillMount(){
-        for (var date of exampleData.data){
-            this.dates.push({value: date.date, label: date.date})
+
+    componentWillMount() {
+        for (var date of this.state.data) {
+            this.dates.push({ value: date.date, label: date.date })
         }
         console.log(this.dates)
     }
+
+    handleSelected= (selectedTemp, selectedHumi, selectedPm10, selectedTime) =>{
+        console.log(selectedHumi)
+        this.setState({
+            selectedTemp,
+            selectedHumi,
+            selectedPm10,
+            selectedTime,
+        })
+    }
+
+    downloadObjectAsJson(exportObj, exportName){
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href",     dataStr);
+        downloadAnchorNode.setAttribute("download", exportName + ".json");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+      }
 
     handlechange = (e) => {
 
         const value = e.target.value
         let route;
-        if (value == null){
-            route= null
+        if (value == "null") {
+            this.handleSelected();
+            route = null;
         }
-        else{
-        for (var data of exampleData.data){
-            if(data.date=== value)
-            {
-                route= data
-            }
+        else {
+        for (var data of this.state.data) {
+              if (data.date === value) {
+                 route = data
+                }
+      }
         }
-    }
-        this.setState({ date: value, route : route })
+        this.setState({ date: value, route: route })
 
     }
+
+    updateState= (state, value) =>{
+        const self=this;
+        this.setState({[state]: value}, () => {
+            const dates= [{ value: "null", label: "dd-mm-yyyy" }]
+            for (var date of self.state.data) {
+                dates.push({ value: date.date, label: this.transfromDate(date.date) })
+            }
+            this.setState({dates})
+        })
+    }
+
+    transfromDate = function(date) {
+        var mm = date.getMonth() + 1; // getMonth() is zero-based
+        var dd = date.getDate();
+      
+        return  (dd>9 ? '' : '0') + dd +"-" +(mm>9 ? '' : '0') + mm + "-" + date.getFullYear();
+      };
 
     downloadSelectedRoute() {
-        console.log("downloadSelectedRoute");
+        if(this.state.route == "null" || this.state.route == null){
+            alert("Please select Route to download");
+            return;
+        }
+        this.downloadObjectAsJson(this.state.route.geoJson, this.transfromDate(this.state.route.date))
     }
+
     render() {
         return (
             <Container fluid>
                 <div>
-                    <OwnMap route={this.state.route} />
+                    <OwnMap route={this.state.route} handleSelected={this.handleSelected}/>
                 </div>
                 <Row>
                     <Col md={8}>
@@ -144,20 +110,20 @@ class Explore extends Component {
                                         <tr>
                                             <td>1</td>
                                             <td>Temperatur</td>
-                                            <td>33°C</td>
-                                            <td>2019-12-09T12:39:00</td>
+                                            <td>{this.state.selectedTemp + " °C"}</td>
+                                            <td>{this.state.selectedTime + ""}</td>
                                         </tr>
                                         <tr>
                                             <td>2</td>
                                             <td>PM10</td>
-                                            <td>22.45µg/m³</td>
-                                            <td>2019-12-09T12:39:00</td>
+                                            <td>{this.state.selectedPm10 + " µg/m³"}</td>
+                                            <td>{this.state.selectedTime + ""}</td>
                                         </tr>
                                         <tr>
                                             <td>3</td>
                                             <td>rel. Luftfeuchtigkeit</td>
-                                            <td>78%</td>
-                                            <td>2019-12-09T12:39:00</td>
+                                            <td>{this.state.selectedHumi +" %" }</td>
+                                            <td>{this.state.selectedTime + ""}</td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -178,7 +144,7 @@ class Explore extends Component {
                                     variant="outlined"
                                     placholder="dd-mm-yyyy"
                                 >
-                                    {this.dates.map(option => (
+                                    {this.state.dates.map(option => (
                                         <MenuItem key={option.value} value={option.value}>
                                             {option.label}
                                         </MenuItem>
@@ -186,6 +152,10 @@ class Explore extends Component {
                                 </TextField>
                                 <br></br>
                                 <Button onClick={this.downloadSelectedRoute} variant="primary">Diese Route herunterladen</Button>
+                                <div>
+                                    <h3>Upload csv Data of Route</h3>
+                                    <OwnDropzone data={this.state.data}  updateState={this.updateState}/>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

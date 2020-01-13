@@ -1,5 +1,6 @@
 import React from 'react'
-import { Map, TileLayer, FeatureGroup,Marker,Popup } from 'react-leaflet'
+import { Map, TileLayer, FeatureGroup, Marker, Popup } from 'react-leaflet'
+
 
 import L from 'leaflet'
 
@@ -23,7 +24,7 @@ var blueIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
-let selected=null
+let selected = null
 
 export let ref;
 
@@ -36,7 +37,7 @@ class OwnMap extends React.Component {
     };
 
     componentDidMount() {
-        firstTime=true
+        firstTime = true
     }
 
 
@@ -51,57 +52,76 @@ class OwnMap extends React.Component {
         let leafletGeoJSON = new L.GeoJSON(GeoJSON);
         const line = this.connectTheDots(leafletGeoJSON)
         var pathLine = L.polyline(line)
-        leafletGeoJSON.on('click', function(e) { 
-            self.handleClick(e.layer, leafletGeoJSON)})
+        leafletGeoJSON.on('click', function (e) {
+            self.handleClick(e.layer, leafletGeoJSON)
+        })
         let leafletFG = this.FG.leafletElement;
         leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
         leafletFG.addLayer(pathLine)
         firstTime = false;
     }
 
-    handleClick= (selectedLayer, allLayers) => {
+    handleClick = (selectedLayer, allLayers) => {
         allLayers.eachLayer(layer => layer.setIcon(blueIcon));
-        if(JSON.stringify(selected) == JSON.stringify(selectedLayer._latlng)){
+        if (JSON.stringify(selected) == JSON.stringify(selectedLayer._latlng)) {
             this.props.handleSelected();
             selected = null;
         }
-        else{
-            const properties= selectedLayer.feature.properties;
-            selected= selectedLayer._latlng
-            console.log(selectedLayer.getIcon()) 
+        else {
+            const properties = selectedLayer.feature.properties;
+            selected = selectedLayer._latlng
             selectedLayer.setIcon(greenIcon)
-            console.log(selectedLayer.getIcon()) 
-            this.props.handleSelected(properties.temp, properties.humi, properties.pm10, properties.time) ;
+            this.props.handleSelected(properties.temp, properties.humi, properties.pm10, properties.time);
         }
     }
 
     componentDidUpdate(prevProps) {
         // Typical usage (don't forget to compare props): 
-        if(JSON.stringify(this.props.route.geojson) === JSON.stringify(prevProps.route.geojson) ){
-            return;
-        }         
-            this.FG = ref;
-            const self =this;
-            let GeoJSON = this.getGeoJson()
-            let leafletGeoJSON = new L.GeoJSON(GeoJSON);
-            leafletGeoJSON.on('click', function(e) {this.handleClick(e.layer, leafletGeoJSON)})
-            let leafletFG = this.FG.leafletElement;
-            leafletFG.clearLayers()
-            leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
-      }
+        this.FG = ref;
+        let leafletFG = this.FG.leafletElement;
+
+        try {
+            if(!this.props.route){
+                leafletFG.clearLayers();
+                return;
+            }
+            if (JSON.stringify(this.props.route.geoJson) === JSON.stringify(prevProps.route.geoJson)) {
+                return;
+            }
+        }
+        catch (e) {
+
+        }
+        console.log("test")
+
+        const self = this;
+        let GeoJSON = this.getGeoJson();
+        console.log(GeoJSON);
+        let leafletGeoJSON = new L.GeoJSON(GeoJSON);
+        leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
+        const line = this.connectTheDots(leafletGeoJSON)
+        var pathLine = L.polyline(line)
+        leafletFG.clearLayers();
+        var layer2;
+        leafletFG.addLayer(pathLine)
+        leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
+        console.log(pathLine)
+        this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
+    }
 
 
 
     getGeoJson = () => {
-        if(this.props.route){
-            return this.props.route.geojson
+        if (this.props.route) {
+            console.log("test2")
+            return this.props.route.geoJson
         }
-        else{ return null}
+        else { return null }
     }
 
-    connectTheDots(data){
+    connectTheDots(data) {
         var c = [];
-        for(var i in data._layers) {
+        for (var i in data._layers) {
             var x = data._layers[i]._latlng.lat;
             var y = data._layers[i]._latlng.lng;
             c.push([x, y]);
@@ -114,7 +134,7 @@ class OwnMap extends React.Component {
 
 
     render() {
-        const position = [51.9688129,7.5922197];
+        const position = [51.9688129, 7.5922197];
 
         return (
             <Map style={{ height: "50vh" }} center={position} zoom={11} ref="map">
@@ -125,7 +145,7 @@ class OwnMap extends React.Component {
                 <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>
                 </FeatureGroup>
             </Map>
-            );
+        );
     }
 }
 

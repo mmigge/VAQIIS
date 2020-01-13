@@ -6,7 +6,7 @@ import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 var mqtt = require('mqtt')
 var client
 
-const exampleData= {geojson :{
+const exampleData= {geoJson :{
     "type": "FeatureCollection",
     "features": [
       {
