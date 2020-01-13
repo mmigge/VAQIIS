@@ -7,7 +7,7 @@ import StatusView from "../StatusView/StatusView";
 class View extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: 1}
+        this.state = {value: 0}
     }
 
     handleChange = (e, newValue) => {
