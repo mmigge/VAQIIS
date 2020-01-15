@@ -90,7 +90,7 @@ class TableView extends Component{
                                 if(this.state.fastTableValues.data[0].vals[index])
                                 {
                                     return(
-                                    <tr>
+                                    <tr key={"id"+index}>
                                         <td>{field.name}</td>   
                                         <td>{this.state.fastTableValues.data[0].vals[index]}</td>
                                     </tr> 

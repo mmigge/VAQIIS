@@ -23,9 +23,6 @@ class MapView extends  Component{
 
     componentDidMount(){
         // interval every 10 seconds
-        var intervalId = setInterval(this._getLocation,10000);
-        this.setState({intervalId});
-        this._getLocation();
         this.connectMQTT();
     }
 
@@ -80,7 +77,7 @@ class MapView extends  Component{
         var that = this;
         // On connect handler for mqtt, sets state and gives some logs
         client.on('connect', function () {
-            client.subscribe(["/"+that.state.username+"/time","/"+that.state.username+"/temperature","/"+that.state.username+"/pm10","/"+that.state.username+"/humi"], function (err,granted) {
+            client.subscribe('sensor4', function (err,granted) {
              if (!err) {
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.setState({connected:true})
