@@ -3,6 +3,7 @@ import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
 import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
+import axios from 'axios';
 
 
 
@@ -17,9 +18,15 @@ class Explore extends Component {
 
 
     componentWillMount() {
-        for (var date of this.state.data) {
-            this.dates.push({ value: date.date, label: date.date })
-        }
+        const self=this;
+        axios.get('http://localhost:9000/api/course')
+                .then(res => {
+                    const dates= self.state.dates
+                    for (var date of res.data) {
+                        dates.push({ value: date.date, label: self.transfromDate(date.date) })
+                    }
+                    self.setState({data: res.data, dates: dates})
+                  })
         console.log(this.dates)
     }
 
@@ -59,22 +66,35 @@ class Explore extends Component {
       }
         }
         this.setState({ date: value, route: route })
-
     }
+
+    uploadRoute = (route) =>{
+                axios.post('http://localhost:9000/api/course', {route})
+                .then(res => {
+                    console.log(res);
+                    console.log(res.data);
+                  })
+
+        };
 
     updateState= (state, value) =>{
         const self=this;
         this.setState({[state]: value}, () => {
+            if(state== "data"){
+            self.uploadRoute(value[value.length -1])
             const dates= [{ value: "null", label: "dd-mm-yyyy" }]
             for (var date of self.state.data) {
                 dates.push({ value: date.date, label: this.transfromDate(date.date) })
             }
-            this.setState({dates})
+            this.setState({dates : dates, date: value[value.length -1].date, route: value[value.length -1]})
+        }
         })
     }
 
     transfromDate = function(date) {
+
         if(!date){return "undefined"}
+        date = new Date(date)
         var mm = date.getMonth() + 1; // getMonth() is zero-based
         var dd = date.getDate();
       
