@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
-import { TextField, MenuItem } from '@material-ui/core'
-import OwnMap from '../Map/OwnMap'
-import {Container,Row,Col,Card,Table,Button,Dropdown,DropdownButton} from 'react-bootstrap'
+import {Container,Table,Dropdown,DropdownButton} from 'react-bootstrap'
 import ReactLoading from 'react-loading'
 //
 class TableView extends Component{
@@ -19,18 +17,13 @@ class TableView extends Component{
         let url = 'http://128.176.146.233:3134/logger/command=browseSymbols&format=json'
         fetch(url)
         .then(response=>response.json())
-        .then(json=>{
-            json.symbols.map((table)=>{
-                this.state.tables.push(table.name);
-            })
-        })
+        .then(json=>{json.symbols.map((table)=>this.state.tables.push(table.name))})
         .then(()=>this._getTableByName(this.state.tables[0]))
 
     }
     _getTableByName(name){
         this.setState({loading:true})
         let url = 'http://128.176.146.233:3134/logger/command=dataQuery&uri=dl:'+name+'&mode=most-recent&format=json';
-        console.log(url);
         fetch(url)
         .then((response)=>response.json())
         .then((json)=>{
@@ -38,7 +31,6 @@ class TableView extends Component{
                 selectedTable:json
             })
         })
-        .then(()=>console.log(this.state.selectedTable))
         .then(()=>this._getSensors(name))
     }
     _getSensors(name)
@@ -116,7 +108,7 @@ class TableView extends Component{
             {this.state.selectedTable.head.fields.map
                 ((field,index)=>
                     {   
-                        if(this.state.selectedTableValues.data.length==0){
+                        if(this.state.selectedTableValues.data.length===0){
                             return(
                                 <tr key={"id"+index}>
                                     <td>{field.name}</td>   
@@ -132,6 +124,7 @@ class TableView extends Component{
                             </tr> 
                             )
                         }
+                        else return null;
                         
                 })
             }
