@@ -28,6 +28,7 @@ class TableView extends Component{
 
     }
     _getTableByName(name){
+        this.setState({loading:true})
         let url = 'http://128.176.146.233:3134/logger/command=dataQuery&uri=dl:'+name+'&mode=most-recent&format=json';
         console.log(url);
         fetch(url)
