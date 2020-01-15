@@ -86,7 +86,12 @@ class TableView extends Component{
     render() {
         if(this.state.loading)
         { 
-            return(<ReactLoading/>)
+            return( 
+
+            <div className="ReactLoading">
+                <ReactLoading className="Spinner" type="spin" color="blue"/>
+            </div>
+            )
         }
         else {
         return(
@@ -110,13 +115,13 @@ class TableView extends Component{
             {this.state.selectedTable.head.fields.map
                 ((field,index)=>
                     {   
-                        // if(this.state.selectedTableValues.data.length==0){
-                        //     return(
-                        //         <tr key={"id"+index}>
-                        //             <td>{field.name}</td>   
-                        //         </tr> 
-                        //         )
-                        // }
+                        if(this.state.selectedTableValues.data.length==0){
+                            return(
+                                <tr key={"id"+index}>
+                                    <td>{field.name}</td>   
+                                </tr> 
+                                )
+                        }
                         if(this.state.selectedTableValues.data[0].vals[index])
                         {
                             return(
