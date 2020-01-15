@@ -1,8 +1,7 @@
 import React, {Component} from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
-import {Container,Row,Col,Card,Table,Button} from 'react-bootstrap'
-import fastTable from './fastTable.json'
+import {Container,Row,Col,Card,Table,Button,Dropdown,DropdownButton} from 'react-bootstrap'
 import ReactLoading from 'react-loading'
 
 class TableView extends Component{
@@ -11,7 +10,6 @@ class TableView extends Component{
         super(props);   
         this.state={
             data:[],
-            fastTable:fastTable,
             loading:true,
             tables:[]
         }
@@ -26,16 +24,31 @@ class TableView extends Component{
                 this.state.tables.push(table.name);
             })
         })
+        .then(()=>this._getTableByName(this.state.tables[0]))
+
     }
-    _getSensors()
+    _getTableByName(name){
+        let url = 'http://128.176.146.233:3134/logger/command=dataQuery&uri=dl:'+name+'&mode=most-recent&format=json';
+        console.log(url);
+        fetch(url)
+        .then((response)=>response.json())
+        .then((json)=>{
+            this.setState({
+                selectedTable:json
+            })
+        })
+        .then(()=>console.log(this.state.selectedTable))
+        .then(()=>this._getSensors(name))
+    }
+    _getSensors(name)
     {
-        let url = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json'
+        let url = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:'+name+'&mode=most-recent&format=json'
         fetch(url)
         .then(response=>response.json())
         .then(json=>{
             this.setState(
                 {
-                    fastTableValues:json,
+                    selectedTableValues:json,
                     loading:false
                 }
             )
@@ -43,10 +56,9 @@ class TableView extends Component{
     }
 
     componentDidMount(){
-        this._getAllTables();
-        this._getSensors();
+        this._getAllTables()
         
-    }
+    }  
 
     _convertGPSData(coordinateObjectString){
         // Leading zeros not allowed --> string
@@ -72,40 +84,57 @@ class TableView extends Component{
     }
 
     render() {
-        return (
+        if(this.state.loading)
+        { 
+            return(<ReactLoading/>)
+        }
+        else {
+        return(
             <Container fluid>
-                {this.state.loading ? 
-                <ReactLoading/>:
-                <Table striped bordered hover>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.fastTableValues.head.fields.map
-                        ((field,index)=>
-                            {
-                                if(this.state.fastTableValues.data[0].vals[index])
-                                {
-                                    return(
-                                    <tr key={"id"+index}>
-                                        <td>{field.name}</td>   
-                                        <td>{this.state.fastTableValues.data[0].vals[index]}</td>
-                                    </tr> 
-                                    )
-                                }
-                        })
-                    }
-                    </tbody>
-                </Table> 
-                } 
-            </Container>
+                <DropdownButton id="dropdown-basic-button" title={this.state.selectedTable.head.environment.table_name}>
+                    {this.state.tables.map((name,index)=>{
+                        return(
+                            <Dropdown.Item onSelect={()=>this._getTableByName(name)} key={"id"+index}>{name}</Dropdown.Item>
+                        )
+                    })}
 
-        );
+                </DropdownButton>
+            <Table striped bordered hover>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+            {this.state.selectedTable.head.fields.map
+                ((field,index)=>
+                    {   
+                        if(this.state.selectedTableValues.data.length==0){
+                            return(
+                                <tr key={"id"+index}>
+                                    <td>{field.name}</td>   
+                                </tr> 
+                                )
+                        }
+                        if(this.state.selectedTableValues.data[0].vals[index])
+                        {
+                            return(
+                            <tr key={"id"+index}>
+                                <td>{field.name}</td>   
+                                <td>{this.state.selectedTableValues.data[0].vals[index]}</td>
+                            </tr> 
+                            )
+                        }
+                        
+                })
+            }
+            </tbody>
+        </Table> 
+        </Container>
+        )
     }
-
+    }
 
 }
 
