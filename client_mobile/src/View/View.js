@@ -3,7 +3,7 @@ import {Tabs, Tab} from '@material-ui/core';
 import MapView from "../MapView/MapView";
 import TableView from "../TableView/TableView";
 import StatusView from "../StatusView/StatusView";
-
+import ErrorBoundary from "../ErrorBoundary/ErrorBoundary"
 class View extends Component {
     constructor(props) {
         super(props);
@@ -17,6 +17,7 @@ class View extends Component {
 
     render() {
         return (
+            <ErrorBoundary>
             <div>
                 <Tabs
                     value={this.state.value}
@@ -39,7 +40,7 @@ class View extends Component {
                 {this.state.value ===2 &&
                     <StatusView/>}
             </div>
-
+            </ErrorBoundary>
         );
     }
 

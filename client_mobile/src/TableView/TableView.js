@@ -3,7 +3,7 @@ import { TextField, MenuItem } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
 import {Container,Row,Col,Card,Table,Button,Dropdown,DropdownButton} from 'react-bootstrap'
 import ReactLoading from 'react-loading'
-
+//
 class TableView extends Component{
 
     constructor(props){
@@ -110,13 +110,13 @@ class TableView extends Component{
             {this.state.selectedTable.head.fields.map
                 ((field,index)=>
                     {   
-                        if(this.state.selectedTableValues.data.length==0){
-                            return(
-                                <tr key={"id"+index}>
-                                    <td>{field.name}</td>   
-                                </tr> 
-                                )
-                        }
+                        // if(this.state.selectedTableValues.data.length==0){
+                        //     return(
+                        //         <tr key={"id"+index}>
+                        //             <td>{field.name}</td>   
+                        //         </tr> 
+                        //         )
+                        // }
                         if(this.state.selectedTableValues.data[0].vals[index])
                         {
                             return(
