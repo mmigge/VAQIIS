@@ -26,6 +26,7 @@ class MapView extends  Component{
         var intervalId = setInterval(this._getLocation,10000);
         this.setState({intervalId});
         this._getLocation();
+        this.connectMQTT();
     }
 
     componentWillUnmount(){
@@ -75,10 +76,7 @@ class MapView extends  Component{
         console.log("connectMQTT");
 
         // Creation of client object with the username and password supplied by mqtt.dioty.co
-        client = mqtt.connect("mqtt://mqtt.dioty.co:8080",{
-            username:this.state.username,
-            password:this.state.password
-        })
+        client = mqtt.connect("mqtt://10.6.4.7:9001")
         var that = this;
         // On connect handler for mqtt, sets state and gives some logs
         client.on('connect', function () {
