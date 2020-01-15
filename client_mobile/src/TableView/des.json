@@ -1,5 +1,0 @@
-{"symbols": [{"name": "Status","uri": "dl:Status","type": 6,"is_enabled": true,"is_read_only": false,"can_expand":
-    true},{"name": "fasttable","uri": "dl:fasttable","type": 6,"is_enabled": true,"is_read_only": false,"can_expand":
-    true},{"name": "OPSData","uri": "dl:OPSData","type": 6,"is_enabled": true,"is_read_only": false,"can_expand":
-    true},{"name": "slowdata","uri": "dl:slowdata","type": 6,"is_enabled": true,"is_read_only": false,"can_expand":
-    true},{"name": "Public","uri": "dl:Public","type": 6,"is_enabled": true,"is_read_only": false,"can_expand": true}]}
