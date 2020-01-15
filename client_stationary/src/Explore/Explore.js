@@ -4,6 +4,8 @@ import OwnMap from '../Map/OwnMap'
 import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 
+
+
 class Explore extends Component {
     constructor(props) {
         super(props);
@@ -72,10 +74,11 @@ class Explore extends Component {
     }
 
     transfromDate = function(date) {
+        if(!date){return "undefined"}
         var mm = date.getMonth() + 1; // getMonth() is zero-based
         var dd = date.getDate();
       
-        return  (dd>9 ? '' : '0') + dd +"-" +(mm>9 ? '' : '0') + mm + "-" + date.getFullYear();
+        return  (dd>9 ? '' : '0') + dd +"-" +(mm>9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + date.getHours() + ":" +date.getMinutes();
       };
 
     downloadSelectedRoute() {
@@ -111,19 +114,19 @@ class Explore extends Component {
                                             <td>1</td>
                                             <td>Temperatur</td>
                                             <td>{this.state.selectedTemp + " °C"}</td>
-                                            <td>{this.state.selectedTime + ""}</td>
+                                            <td>{this.transfromDate(this.state.selectedTime) + ""}</td>
                                         </tr>
                                         <tr>
                                             <td>2</td>
                                             <td>PM10</td>
                                             <td>{this.state.selectedPm10 + " µg/m³"}</td>
-                                            <td>{this.state.selectedTime + ""}</td>
+                                            <td>{this.transfromDate(this.state.selectedTime) + ""}</td>
                                         </tr>
                                         <tr>
                                             <td>3</td>
                                             <td>rel. Luftfeuchtigkeit</td>
                                             <td>{this.state.selectedHumi +" %" }</td>
-                                            <td>{this.state.selectedTime + ""}</td>
+                                            <td>{this.transfromDate(this.state.selectedTime) + ""}</td>
                                         </tr>
                                     </tbody>
                                 </Table>

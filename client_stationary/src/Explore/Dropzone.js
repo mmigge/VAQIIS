@@ -1,9 +1,12 @@
 
 import React, { Component } from 'react';
-import { Button, Dialog, DialogContent, DialogTitle, DialogActions, CircularProgress, Chip } from '@material-ui/core';
+import { Avatar, Button, Dialog, DialogContent, DialogTitle, DialogActions, CircularProgress, Chip } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import Dropzone from 'react-dropzone';
-import csv from 'csvtojson'
+import csv from 'csvtojson';
+
+import CheckIcon from '@material-ui/icons/Check';
+import ClearIcon from '@material-ui/icons/Clear';
 
 //import './Dropzone.css';
 
@@ -21,7 +24,7 @@ const style = {
     color: '#bdbdbd',
     outline: 'none',
     transition: 'border .24s ease-in-out'
-  };
+};
 
 
 class OwnDropzone extends Component {
@@ -35,7 +38,7 @@ class OwnDropzone extends Component {
 
     handleChange(files) {
         this.setState({
-            file: files[files.length -1]
+            file: files[files.length - 1]
         });
     }
 
@@ -53,6 +56,8 @@ class OwnDropzone extends Component {
     }
 
     transformJson = (json) => {
+        const self =this;
+        try{
         const data = this.props.data;
         const label = new Date(json[2].TIMESTAMP);
         const geoJson = {
@@ -79,20 +84,25 @@ class OwnDropzone extends Component {
         data.push({ date: label, geoJson: geoJson })
         console.log(data)
         this.props.updateState("data", data);
-        this.setState({ open: false, loading:false })
-
+        this.setState({ success: true, loading: false })
+        setTimeout(function(){ self.handleClose(); }, 3000);
+    }
+        catch(e){
+            this.setState({ failed: true, loading: false })}
+            setTimeout(function(){ self.handleClose(); }, 3000);
+        
     }
 
     handleClose() {
-        this.setState({ open: false, file: null, loading: false })
+        this.setState({ open: false, file: null, loading: false, success: false, failed: false })
     }
 
     handleDelete() {
-        this.setState({ file: null})
+        this.setState({ file: null })
     }
 
-    openDialog(){
-        this.setState({open:true})
+    openDialog() {
+        this.setState({ open: true })
     }
 
     convertGPSData(coordinateObjectString) {
@@ -123,7 +133,7 @@ class OwnDropzone extends Component {
                     onClick={this.openDialog.bind(this)}>
                     Upload CSV
                 </Button>
-                <Dialog open={this.state.open}>
+                <Dialog open={this.state.open} onClose={() => this.handleClose()} >
                     <DialogTitle> {this.state.title}</DialogTitle>
                     {this.state.errorMessage ?
                         <div>
@@ -140,29 +150,40 @@ class OwnDropzone extends Component {
                             <Dropzone onDrop={acceptedFiles => this.handleChange(acceptedFiles)}>
                                 {({ getRootProps, getInputProps }) => (
                                     <section>
-                                        <div {...getRootProps({style})}>
+                                        <div {...getRootProps({ style })}>
                                             <input {...getInputProps()} />
-                                           { !this.state.file ?  <p>Drag 'n' drop some files here, or click to select files</p> : 
-                                                 <Chip
-                                                 label={this.state.file.name}
-                                                 onDelete={() => this.handleDelete()}
-                                               />
-    }
+                                            {!this.state.file ? <p>Drag 'n' drop some files here, or click to select files</p> :
+                                                <Chip
+                                                    label={this.state.file.name}
+                                                    onDelete={() => this.handleDelete()}
+                                                />
+                                            }
                                         </div>
                                     </section>
                                 )}
                             </Dropzone>
-                            <br/>
+                            <br />
                             <Button
-                                className="uploadButton" variant="contained" color="primary" style={{left: "40%"}}
-                                onClick={this.uploadFolder.bind(this)} disabled={!this.state.file}>
+                                className="uploadButton" variant="contained" color="primary" style={{ left: "40%" }}
+                                onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed}>
                                 Load
                              </Button>
-                             <br/>
-                            {this.state.loading ? <CircularProgress style={{left: "40%"}}/> : ""}
+                            <br />
+                            <br/>
+                            {this.state.loading ? <CircularProgress style={{ marginLeft: "45%" }} /> : ""}
+                            {this.state.success ? 
+                            <Avatar style={{backgroundColor: "green", color: "white", left: "45%"}}>
+                                <CheckIcon />
+                            </Avatar>
+                            : ""}
+                            {this.state.failed ? 
+                            <Avatar style={{backgroundColor: "red", color: "white", left: "45%"}}>
+                                <ClearIcon />
+                            </Avatar>
+                            : ""}
                         </DialogContent>
                     }
-                </Dialog>:
+                </Dialog>
 
       </div>
         )
