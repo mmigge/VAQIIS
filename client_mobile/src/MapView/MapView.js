@@ -23,7 +23,7 @@ class MapView extends  Component{
 
     componentDidMount(){
         // interval every 10 seconds
-        this.connectMQTT();
+       // this.connectMQTT();
     }
 
     componentWillUnmount(){
