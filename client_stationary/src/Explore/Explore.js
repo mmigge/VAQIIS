@@ -19,7 +19,7 @@ class Explore extends Component {
 
     componentWillMount() {
         const self=this;
-        axios.get('http://localhost:9000/api/course')
+        axios.get('http://giv-project2:9000/api/course')
                 .then(res => {
                     const dates= self.state.dates
                     for (var date of res.data) {
@@ -69,7 +69,7 @@ class Explore extends Component {
     }
 
     uploadRoute = (route) =>{
-                axios.post('http://localhost:9000/api/course', {route})
+                axios.post('http://giv-project2:9000/api/course', {route})
                 .then(res => {
                     console.log(res);
                     console.log(res.data);
