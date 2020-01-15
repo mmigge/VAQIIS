@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import { Avatar, Button, Dialog, DialogContent, DialogTitle, DialogActions, CircularProgress, Chip } from '@material-ui/core';
+import { Avatar, Button, Dialog, DialogContent, DialogTitle, DialogActions, CircularProgress, Chip, TextField } from '@material-ui/core';
 import { withRouter } from 'react-router-dom';
 import Dropzone from 'react-dropzone';
 import csv from 'csvtojson';
@@ -33,6 +33,7 @@ class OwnDropzone extends Component {
         super(props);
         this.state = {
             file: null,
+            steps:60
         };
     }
 
@@ -55,42 +56,52 @@ class OwnDropzone extends Component {
         reader.readAsText(this.state.file);
     }
 
-    transformJson = (json) => {
-        const self =this;
-        try{
-        const data = this.props.data;
-        const label = new Date(json[2].TIMESTAMP);
-        const geoJson = {
-            "type": "FeatureCollection",
-            "features": []
+    onChange(value){
+        value= parseInt(value)
+        let error = false;
+        if(value< 0){
+            error = true;
         }
-        for (var i = 2; i < json.length; i += 60) {
-            console.log(i)
-            const coordinates = [json[i].rmclatitude, json[i].rmclongitude]
-            const transformedCoordinates = this.convertGPSData(coordinates)
-            const feature = {
-                "type": "Feature",
-                "properties": { temp: json[i].AirTC_Avg, humi: json[i].RH_Avg, pm10: json[i].LiveBin_10dM, time: new Date(json[i].TIMESTAMP) },
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [
-                        transformedCoordinates.longitude,
-                        transformedCoordinates.latitude
-                    ]
-                }
-            }
-            geoJson.features.push(feature);
-        }
-        data.push({ date: label, geoJson: geoJson })
-        console.log(data)
-        this.props.updateState("data", data);
-        this.setState({ success: true, loading: false })
-        setTimeout(function(){ self.handleClose(); }, 3000);
+        this.setState({steps: value, error})
     }
-        catch(e){
-            this.setState({ failed: true, loading: false })}
-            setTimeout(function(){ self.handleClose(); }, 3000);
-        
+
+    transformJson = (json) => {
+        const self = this;
+        try {
+            const data = this.props.data;
+            const label = new Date(json[2].TIMESTAMP);
+            const geoJson = {
+                "type": "FeatureCollection",
+                "features": []
+            }
+            for (var i = 2; i < json.length; i += this.state.steps) {
+                console.log(i)
+                const coordinates = [json[i].rmclatitude, json[i].rmclongitude]
+                const transformedCoordinates = this.convertGPSData(coordinates)
+                const feature = {
+                    "type": "Feature",
+                    "properties": { temp: json[i].AirTC_Avg, humi: json[i].RH_Avg, pm10: json[i].LiveBin_10dM, time: new Date(json[i].TIMESTAMP) },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            transformedCoordinates.longitude,
+                            transformedCoordinates.latitude
+                        ]
+                    }
+                }
+                geoJson.features.push(feature);
+            }
+            data.push({ date: label, geoJson: geoJson })
+            console.log(data)
+            this.props.updateState("data", data);
+            this.setState({ success: true, loading: false })
+            setTimeout(function () { self.handleClose(); }, 3000);
+        }
+        catch (e) {
+            this.setState({ failed: true, loading: false })
+        }
+        setTimeout(function () { self.handleClose(); }, 3000);
+
     }
 
     handleClose() {
@@ -146,7 +157,7 @@ class OwnDropzone extends Component {
                              </Button>
 
                             </DialogActions> </div> :
-                        <DialogContent style={{ "align-self": "center", "overflow-y": "unset" }}>
+                        <DialogContent style={{ textAlign: "center", "overflow-y": "unset" }}>
                             <Dropzone onDrop={acceptedFiles => this.handleChange(acceptedFiles)}>
                                 {({ getRootProps, getInputProps }) => (
                                     <section>
@@ -162,30 +173,48 @@ class OwnDropzone extends Component {
                                     </section>
                                 )}
                             </Dropzone>
+                            <br/>
+                            <TextField
+                                style={{width: "170px"}}
+                                id="outlined-number"
+                                label="Time Steps in Seconds"
+                                type="number"
+                                value={this.state.steps}
+                                onChange={(e) => this.onChange(e.target.value)}
+                                inputProps={{ min: "0", step: "10", style:{textAlign : "center"}}}
+                                defaultValue={60}
+                                error={this.state.error}
+                                InputLabelProps={{
+                                    style:{textAlign : "center"},
+                                    shrink: true,
+                                }}
+                                variant="outlined"
+                            />
                             <br />
+                            <br/>
                             <Button
-                                className="uploadButton" variant="contained" color="primary" style={{ left: "40%" }}
-                                onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed}>
+                                className="uploadButton" variant="contained" color="primary" 
+                                onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
                                 Load
                              </Button>
                             <br />
-                            <br/>
-                            {this.state.loading ? <CircularProgress style={{ marginLeft: "45%" }} /> : ""}
-                            {this.state.success ? 
-                            <Avatar style={{backgroundColor: "green", color: "white", left: "45%"}}>
-                                <CheckIcon />
-                            </Avatar>
-                            : ""}
-                            {this.state.failed ? 
-                            <Avatar style={{backgroundColor: "red", color: "white", left: "45%"}}>
-                                <ClearIcon />
-                            </Avatar>
-                            : ""}
+                            <br />
+                            {this.state.loading ? <CircularProgress  /> : ""}
+                            {this.state.success ?
+                                <Avatar style={{ backgroundColor: "green", color: "white", left:"45%" }}>
+                                    <CheckIcon />
+                                </Avatar>
+                                : ""}
+                            {this.state.failed ?
+                                <Avatar style={{ backgroundColor: "red", color: "white", left:"45%"}}>
+                                    <ClearIcon />
+                                </Avatar>
+                                : ""}
                         </DialogContent>
                     }
                 </Dialog>
 
-      </div>
+            </div>
         )
     }
 }
