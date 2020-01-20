@@ -3,36 +3,22 @@ import { Button } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
 import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 
-var mqtt = require('mqtt')
-var client
+var client;
 
-const exampleData= {geoJson :{
+var Paho = require('paho-mqtt');
+
+const server_ip = '10.6.4.7';
+const server_port = 9001;
+
+var client = null;
+var topic = '#';
+var topic = 'TestNick';
+
+const featureGroup = {geoJson: {
     "type": "FeatureCollection",
     "features": [
-      {
-        "type": "Feature",
-        "properties": {temp : 2, humi: 10, pm10: 2, time: new Date("2020-01-01")},
-        "geometry": {
-          "type": "Point",
-          "coordinates": [
-            7.6100921630859375,
-            51.967115491837404
-          ]
-        }
-      },
-      {
-        "type": "Feature",
-        "properties": {temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01")},
-        "geometry": {
-          "type": "Point",
-          "coordinates": [
-            7.6306915283203125,
-            51.95230623740452
-          ]
-        }
-      }
     ]
-  }
+}
 }
 
 
@@ -40,52 +26,20 @@ class Live extends  Component{
     constructor(props){
         super(props);
         this.state = {
-            username:'erictg96@googlemail.com',
-            password:'9157fbb4',
-            connected:false
+            connected:false,
+            liveRoute: featureGroup
 
         }
         this.connectMQTT = this.connectMQTT.bind(this);
         this.disconnectMQTT = this.disconnectMQTT.bind(this);
         this.submit = this.submit.bind(this);
+
     }
 
-    connectMQTT(){
-        console.log("connectMQTT");
-
-        // Creation of client object with the username and password supplied by mqtt.dioty.co
-        client = mqtt.connect("mqtt://mqtt.dioty.co:8080",{
-            username:this.state.username,
-            password:this.state.password
-        })
-        var that = this;
-        // On connect handler for mqtt, sets state and gives some logs
-        client.on('connect', function () {
-            client.subscribe(["/"+that.state.username+"/time","/"+that.state.username+"/temperature","/"+that.state.username+"/pm10","/"+that.state.username+"/humi"], function (err,granted) {
-             if (!err) {
-                console.log("Client Subscribe:","Succesfully connected to the given topics!")
-                that.setState({connected:true})
-                console.log("Done!Showing values(if there are any)now!")
-            }
-            else{
-                console.log("Error found when subscribing:",err.message)
-            }
-            })
-        })
-        
-        // if a message of the subscribed topics come in do the following
-        client.on('message',function(topic,message){
-            console.log(message);
-            let value = message.toString();
-            console.log(topic);
-            if(topic==='/erictg96@googlemail.com/temperature')that.setState({lastMessageTemp:value})
-            if(topic==='/erictg96@googlemail.com/pm10')that.setState({lastMessagePm10:value})
-            if(topic==='/erictg96@googlemail.com/humi')that.setState({lastMessageHumi:value})
-            if(topic==='/erictg96@googlemail.com/time')that.setState({lastMessageTime:value})
-
-            console.log(value);
-        })
+    componentDidMount= () => {
+        this.connectMQTT();
     }
+
 
     handleSelected= (selectedTemp, selectedHumi, selectedPm10, selectedTime) =>{
         this.setState({
@@ -96,6 +50,52 @@ class Live extends  Component{
         })
     }
 
+    addMarker = (values) => {
+        console.log(values)
+        const geoJSON = JSON.parse(JSON.stringify(this.state.liveRoute));
+
+        geoJSON.geoJson.features.push(values);
+        this.setState({ liveRoute: geoJSON, lastMeasurement: values })
+    }
+
+    connectMQTT() {
+        const self=this;
+        // generating random clientID
+        var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        var uniqid = randLetter + Date.now();
+
+        client = new Paho.Client(server_ip, server_port, uniqid);
+        client.onConnectionLost = this.onConnectionLost;
+        client.onMessageArrived = this.onMessageArrived;
+
+        // connect the client
+        client.connect({ onSuccess: this.onConnect.bind(this) });
+    };
+
+ // called when a message arrives
+       onMessageArrived= (message) => {
+
+         //  if(message.destinationName === "TestNick"){
+             this.addMarker(JSON.parse(message.payloadString))
+         //  }
+       }
+
+    // called when the client loses its connection
+    onConnectionLost(responseObject) {
+        const self=this;
+        if (responseObject.errorCode !== 0) {
+            console.log("onConnectionLost: " + responseObject.errorMessage);
+            //self.setState({connected: false})
+            //TODO connectMQTT + delay
+        }
+    };
+
+    // called when the client connects
+    onConnect() {
+        console.log("MQTT Broker Connect: Success");
+        client.subscribe(topic);
+        this.setState({connected: true})
+    };
 
     // simple disconnect handler, stes state of connected variable
     disconnectMQTT(){
@@ -107,10 +107,18 @@ class Live extends  Component{
         console.log("submit");
     }
     render() {
+        var temp,humi, pm10, time;
+        if(this.state.lastMeasurement){
+            temp = this.state.lastMeasurement.properties.temp;
+            humi = this.state.lastMeasurement.properties.humi;
+            pm10 = this.state.lastMeasurement.properties.pm10;
+            time = this.state.lastMeasurement.properties.time;
+
+        }
         return (
             <Container fluid>
                 <div>
-                    <OwnMap route={exampleData} handleSelected={this.handleSelected}/>
+                    <OwnMap route={this.state.liveRoute} handleSelected={this.handleSelected}/>
                 </div>
                 <Row style={{'margin-top':'5px'}} fluid>
                     <Col md={8}>
@@ -127,20 +135,20 @@ class Live extends  Component{
                             <tr>
                             <td>1</td>
                             <td>Temperatur</td>
-                            <td>{this.state.selectedTemp ? this.state.selectedTemp + " °C" : this.state.lastMessageTemp +" °C"}</td>
-                            <td>{this.state.selectedTime ? this.state.selectedTime + "": this.state.lastMessageTime +""}</td>
+                            <td>{this.state.selectedTemp ? this.state.selectedTemp + " °C" : temp +" °C"}</td>
+                            <td>{this.state.selectedTime ? this.state.selectedTime + "": time +""}</td>
                             </tr>
                             <tr>
                             <td>2</td>
                             <td>PM10</td>
-                            <td>{this.state.selectedPm10 ? this.state.selectedPm10 + " µg/m³": this.state.lastMessagePm10 +" µg/m³"}</td>
-                            <td>{this.state.selectedTime ? this.state.selectedTime + "": this.state.lastMessageTime +""}</td>
+                            <td>{this.state.selectedPm10 ? this.state.selectedPm10 + " µg/m³": pm10 +" µg/m³"}</td>
+                            <td>{this.state.selectedTime ? this.state.selectedTime + "": time +""}</td>
                             </tr>
                             <tr>
                             <td>3</td>
                             <td>rel. Luftfeuchtigkeit</td>
-                            <td>{this.state.selectedHumi ? this.state.selectedHumi +" %" : this.state.lastMessageHumi +" %"}</td>
-                            <td>{this.state.selectedTime ? this.state.selectedTime + "": this.state.lastMessageTime +""}</td>
+                            <td>{this.state.selectedHumi ? this.state.selectedHumi +" %" : humi +" %"}</td>
+                            <td>{this.state.selectedTime ? this.state.selectedTime + "": time +""}</td>
                             </tr>
                         </tbody>
                         </Table>

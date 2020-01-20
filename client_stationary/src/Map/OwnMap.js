@@ -79,7 +79,6 @@ class OwnMap extends React.Component {
         // Typical usage (don't forget to compare props): 
         this.FG = ref;
         let leafletFG = this.FG.leafletElement;
-
         try {
             if(!this.props.route){
                 leafletFG.clearLayers();
@@ -90,23 +89,22 @@ class OwnMap extends React.Component {
             }
         }
         catch (e) {
-
+            console.log(e)
         }
-        console.log("test")
-
         const self = this;
         let GeoJSON = this.getGeoJson();
         console.log(GeoJSON);
         let leafletGeoJSON = new L.GeoJSON(GeoJSON);
         leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
+        leafletFG.clearLayers();
+        leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
+
+        if(this.props.route.geoJson.features.length > 1){
         const line = this.connectTheDots(leafletGeoJSON)
         var pathLine = L.polyline(line)
-        leafletFG.clearLayers();
-        var layer2;
-        leafletFG.addLayer(pathLine)
-        leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
-        console.log(pathLine)
+        leafletFG.addLayer(pathLine)     
         this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
+        }
     }
 
 
