@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Container,Row,Col} from 'react-bootstrap'
 
-class Status extends Component{
+class StatusView extends Component{
     constructor(props){
         super(props)
         this.state = {
@@ -41,4 +41,4 @@ class Status extends Component{
     }
 
 }
-export default Status
+export default StatusView

@@ -6,9 +6,9 @@ import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 var mqtt = require('mqtt')
 var client
 
-class Live extends  Component{
+class MapView extends  Component{
     constructor(props){
-        super(props);
+        super(props);   
         this.state = {
             username:'erictg96@googlemail.com',
             password:'9157fbb4',
@@ -18,20 +18,66 @@ class Live extends  Component{
         this.connectMQTT = this.connectMQTT.bind(this);
         this.disconnectMQTT = this.disconnectMQTT.bind(this);
         this.submit = this.submit.bind(this);
+        this._getLocation = this._getLocation.bind(this);
     }
+
+    componentDidMount(){
+        // interval every 10 seconds
+        this.connectMQTT();
+    }
+
+    componentWillUnmount(){
+        clearInterval(this.state.intervalId)
+    }
+
+    _getLocation(){
+        console.log("getLocation()");
+        let url_longitude = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.rmclongitude&mode=most-recent&format=json';
+        let url_latitude = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.rmclatitude&mode=most-recent&format=json';
+
+        fetch(url_latitude)
+        .then((response)=>response.json())
+        .then(json=>{
+            this.setState({latitude:json.data[0].vals})
+        })
+
+        fetch(url_longitude)
+        .then((response)=>response.json())
+        .then(json=>{
+            this.setState({longitude:json.data[0].vals})
+        })
+                
+    }
+
+    _convertGPSData(lati,lon){
+        // Leading zeros not allowed --> string
+        const position = ['5157.88870', '00736.34599'];
+        
+        let lat_temp_1 = parseFloat(position[0].split('.')[0].substring(0,2));
+        let lat_temp_2 = parseFloat(position[0].split(lat_temp_1)[1])/60;
+        let lat = lat_temp_1 + lat_temp_2;
+
+        let long_temp_1 = parseFloat(position[1].split('.')[0].substring(0,3));
+        let long_temp_2 = parseFloat(position[1].split(long_temp_1)[1])/60;
+        let long = long_temp_1 + long_temp_2;
+
+        const coordinates = {
+            latitude: lat,
+            longtitude: long
+        }
+        return coordinates;
+    }
+
 
     connectMQTT(){
         console.log("connectMQTT");
 
         // Creation of client object with the username and password supplied by mqtt.dioty.co
-        client = mqtt.connect("mqtt://mqtt.dioty.co:8080",{
-            username:this.state.username,
-            password:this.state.password
-        })
+        client = mqtt.connect("mqtt://10.6.4.7:9001")
         var that = this;
         // On connect handler for mqtt, sets state and gives some logs
         client.on('connect', function () {
-            client.subscribe(["/"+that.state.username+"/time","/"+that.state.username+"/temperature","/"+that.state.username+"/pm10","/"+that.state.username+"/humi"], function (err,granted) {
+            client.subscribe('sensor4', function (err,granted) {
              if (!err) {
                 console.log("Client Subscribe:","Succesfully connected to the given topics!")
                 that.setState({connected:true})
@@ -71,7 +117,7 @@ class Live extends  Component{
                 <div>
                     <OwnMap/>
                 </div>
-                <Row style={{'margin-top':'5px'}} fluid>
+                <Row style={{'marginTop':'5px'}}>
                     <Col md={8}>
                     <Table striped bordered hover>
                         <thead>
@@ -164,4 +210,4 @@ class Live extends  Component{
 
 }
 
-export default Live;
+export default MapView;
