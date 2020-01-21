@@ -11,11 +11,12 @@ res.send("API is working properly");
 router.post("/course", async function (req, res){
     const route = req.body.route
 
-    var newCourse = new Course({
-        date: route.date,
-        geoJson: route.geoJson
-    });
+
     try {
+        var newCourse = new Course({
+            date: route.date,
+            geoJson: route.geoJson
+        });
         console.log(newCourse);
         await newCourse.save();
         res.status(200).send();

@@ -6,6 +6,7 @@ import StatusView from "../StatusView/StatusView";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import Footer from "./Footer"
 import ReactLoading from 'react-loading'
+import axios from 'axios';
 
 import './../index.css'
 
@@ -71,7 +72,7 @@ class View extends Component {
     }
 
     componentDidMount = () => {
-        this.startPullLoop();
+        //this.startPullLoop();
         this.connectMQTT();
         // Demo Data
           const timer = setTimeout(
@@ -130,7 +131,7 @@ class View extends Component {
             );
         this.publishMQTT(JSON.stringify(marker));
         if(this.state.riding){
-            featureGroup.geoJson.features.push(marker);
+            featureGroup.geoJson.features.push(values);
         }
         this.setState({ liveRoute: geoJSON, lastMeasurement: values //marker normally demo
          })
@@ -283,11 +284,15 @@ class View extends Component {
 
     handleSave = () => {
         const self=this;
-        const object= {geoJson: featureGroup, date: featureGroup.geoJson.features[0].properties.time}
+        const object= {geoJson: featureGroup.geoJson, date: featureGroup.geoJson.features[0].properties.time}
         console.log(object)
         this.setState({saving: true})
-        fetch("http://giv-project2:9000/api/course", {method: "POST", body: {object}})
-        .then(() => self.setState({saving: false}))
+        axios.post('http://giv-project2:9000/api/course', {route: object})
+            .then(res => {
+                console.log(res);
+                this.setState({saving:false})
+            })
+
     }
 
 
