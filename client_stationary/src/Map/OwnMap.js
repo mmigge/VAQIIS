@@ -76,9 +76,9 @@ class OwnMap extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        // Typical usage (don't forget to compare props): 
         this.FG = ref;
         let leafletFG = this.FG.leafletElement;
+        console.log(this.props.route)
         try {
             if(!this.props.route){
                 leafletFG.clearLayers();
@@ -105,6 +105,7 @@ class OwnMap extends React.Component {
         leafletFG.addLayer(pathLine)     
         this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
         }
+
     }
 
 

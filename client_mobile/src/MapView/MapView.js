@@ -25,6 +25,12 @@ class MapView extends  Component{
     submit(){
         console.log("submit");
     }
+
+    componentDidUpdate(prevProps) {
+        if(JSON.stringify(this.props.liveRoute) !== JSON.stringify(prevProps.liveRoute) || JSON.stringify(this.props.startpoint) !== JSON.stringify(prevProps.startpoint) || JSON.stringify(this.props.endpoint) !== JSON.stringify(prevProps.endpoint))
+        this.setState(this.props)
+    }
+
     render() {
 
         var temp,humi, pm10, time;
@@ -38,7 +44,7 @@ class MapView extends  Component{
         return (
             <Container fluid>
                 <div>
-                    <OwnMap/>
+                    <OwnMap route={this.state.liveRoute} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected}/>
                 </div>
                 <Row style={{'marginTop':'5px'}}>
                     <Col md={8}>

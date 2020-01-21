@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
-import { Tabs, Tab } from '@material-ui/core';
+import { Tabs, Tab, ButtonGroup, Button } from '@material-ui/core';
 import MapView from "../MapView/MapView";
 import TableView from "../TableView/TableView";
 import StatusView from "../StatusView/StatusView";
-import ErrorBoundary from "../ErrorBoundary/ErrorBoundary"
+import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
+import Footer from "./Footer"
+import ReactLoading from 'react-loading'
+
+import './../index.css'
 
 
 var Paho = require('paho-mqtt');
@@ -15,59 +19,76 @@ var client = null;
 var topic = '#';
 var topic = 'TestNick';
 
-const featureGroup = {geojson: {
-    "type": "FeatureCollection",
-    "features": [
-    ]
-}
+const featureGroup = {
+    geoJson: {
+        "type": "FeatureCollection",
+        "features": [
+        ]
+    }
 }
 
-const example=       {
+const example = {
     "type": "Feature",
-    "properties": {temp : 2, humi: 10, pm10: 2, time: new Date("2020-01-01")},
+    "properties": { temp: 2, humi: 10, pm10: 2, time: new Date("2020-01-01") },
     "geometry": {
-      "type": "Point",
-      "coordinates": [
-        7.6100921630859375,
-        51.967115491837404
-      ]
+        "type": "Point",
+        "coordinates": [
+            7.6100921630859375,
+            51.967115491837404
+        ]
     }
-  }
+}
 
-  const example2 =       {
+const example2 = {
     "type": "Feature",
-    "properties": {temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01")},
+    "properties": { temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01") },
     "geometry": {
-      "type": "Point",
-      "coordinates": [
-        7.6306915283203125,
-        51.95230623740452
-      ]
+        "type": "Point",
+        "coordinates": [
+            7.6306915283203125,
+            51.95230623740452
+        ]
     }
-  }
+}
+const example3 = {
+    "type": "Feature",
+    "properties": { temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01") },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            7.6006915283203125,
+            51.95230623740452
+        ]
+    }
+}
 
 
 class View extends Component {
     constructor(props) {
         super(props);
-        this.state = { value: 0, liveRoute: featureGroup }
+        this.state = { value: 0, liveRoute: featureGroup, startpoint: null, endpoint: null }
 
     }
 
     componentDidMount = () => {
         this.startPullLoop();
         this.connectMQTT();
-        const timer = setTimeout(
-            () => this.publishMQTT(JSON.stringify(example)),
+        // Demo Data
+          const timer = setTimeout(
+            () => {this.publishMQTT(JSON.stringify(example)); this.addMarker(example)},
             5000,
         );
         const timer2 = setTimeout(
-            () => this.publishMQTT(JSON.stringify(example2)),
+            () => {this.publishMQTT(JSON.stringify(example2)); this.addMarker(example2)},
             10000,
+        );
+        const timer3 = setTimeout(
+            () => {this.publishMQTT(JSON.stringify(example3)); this.addMarker(example3)},
+            15000,
         );
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         clearInterval(this.timer)
     }
 
@@ -78,7 +99,7 @@ class View extends Component {
     startPullLoop = () => {
         this.getDataFromPie();
         this.timer = setInterval(
-            () =>this.getDataFromPie(),
+            () => this.getDataFromPie(),
             5000,
         );
     }
@@ -99,15 +120,20 @@ class View extends Component {
             "geometry": {
                 "type": "Point",
                 "coordinates": [
-                    coordinates.latitude,
-                    coordinates.longtitude
+                    coordinates.longtitude,
+                    coordinates.latitude
                 ]
             }
         }
 
-        geoJSON.features.push(marker);
+        geoJSON.geoJson.features.push(values //marker normally demo
+            );
         this.publishMQTT(JSON.stringify(marker));
-        this.setState({ liveRoute: geoJSON, lastMeasurement: marker })
+        if(this.state.riding){
+            featureGroup.geoJson.features.push(marker);
+        }
+        this.setState({ liveRoute: geoJSON, lastMeasurement: values //marker normally demo
+         })
     }
 
     _getLat = () => {
@@ -208,11 +234,12 @@ class View extends Component {
     };
 
     publishMQTT(_message) {
-        if(this.state.connected){
-        const message = new Paho.Message(_message);
-        message.destinationName = topic;
-        client.send(message);}
-        else{
+        if (this.state.connected) {
+            const message = new Paho.Message(_message);
+            message.destinationName = topic;
+            client.send(message);
+        }
+        else {
             console.log(_message)
         }
     }
@@ -223,10 +250,10 @@ class View extends Component {
        }; */
 
     // called when the client loses its connection
-    onConnectionLost(responseObject) {
+    onConnectionLost = (responseObject) => {
         if (responseObject.errorCode !== 0) {
             console.log("onConnectionLost: " + responseObject.errorMessage);
-            this.setState({connected: false})
+            this.setState({ connected: false })
             //TODO connectMQTT + delay
         }
     };
@@ -235,8 +262,33 @@ class View extends Component {
     onConnect() {
         console.log("MQTT Broker Connect: Success");
         client.subscribe(topic);
-        this.setState({connected: true})
+        this.setState({ connected: true })
     };
+
+    handleStart = () =>{
+        const startpoint=this.state.lastMeasurement;
+        featureGroup.geoJson.features.push(this.state.lastMeasurement);
+        this.setState({riding: true, startpoint})
+    }
+
+    handleStop = () => {
+        const endpoint=this.state.lastMeasurement;
+        this.setState({riding: false, endpoint, route: true})
+    }
+
+    handleClear = () =>{
+        featureGroup.geoJson.features = [];
+        this.setState({liveRoute: featureGroup, startpoint: null, endpoint: null, route:false})
+    }
+
+    handleSave = () => {
+        const self=this;
+        const object= {geoJson: featureGroup, date: featureGroup.geoJson.features[0].properties.time}
+        console.log(object)
+        this.setState({saving: true})
+        fetch("http://giv-project2:9000/api/course", {method: "POST", body: {object}})
+        .then(() => self.setState({saving: false}))
+    }
 
 
     render() {
@@ -259,10 +311,23 @@ class View extends Component {
                         <TableView />
                     }
                     {this.state.value === 1 &&
-                        <MapView liveRoute={this.state.liveRoute} lastMeasurement={this.state.lastMeasurement} />
+                        <MapView liveRoute={this.state.liveRoute} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint}/>
                     }
                     {this.state.value === 2 &&
                         <StatusView />}
+                        <Footer>
+                    {this.state.saving? 
+
+                        <ReactLoading type={"bubbles"} color="blue" style={{position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }}/>:
+    
+                    <ButtonGroup fullWidth color="primary" >
+                        <Button onClick = {this.handleStart} disabled={this.state.riding || this.state.route}>Start</Button>
+                        <Button onClick = {this.handleStop}  disabled={!this.state.riding || this.state.route}>Stop</Button>
+                        <Button onClick = {this.handleClear}  disabled={this.state.riding}>Clear</Button>
+                        <Button onClick = {this.handleSave}  disabled={this.state.riding || !this.state.route || this.state.loading}>Send</Button>
+                    </ButtonGroup>
+    }
+                    </Footer>
                 </div>
             </ErrorBoundary>
         );
