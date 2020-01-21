@@ -10,9 +10,9 @@ class MapView extends  Component{
     constructor(props){
         super(props);   
         this.state = {
-            username:'erictg96@googlemail.com',
-            password:'9157fbb4',
-            connected:false
+            username: 'erictg96@googlemail.com',
+            password: '9157fbb4',
+            connected: false
 
         }
         this.connectMQTT = this.connectMQTT.bind(this);
@@ -79,36 +79,47 @@ class MapView extends  Component{
         client.on('connect', function () {
             client.subscribe('sensor4', function (err,granted) {
              if (!err) {
-                console.log("Client Subscribe:","Succesfully connected to the given topics!")
-                that.setState({connected:true})
+                        console.log("Client Subscribe:", "Succesfully connected to the given topics!")
+                        that.setState({
+                            connected: true
+                        })
                 console.log("Done!Showing values(if there are any)now!")
-            }
-            else{
-                console.log("Error found when subscribing:",err.message)
+                    } else {
+                        console.log("Error found when subscribing:", err.message)
             }
             })
         })
         
         // if a message of the subscribed topics come in do the following
-        client.on('message',function(topic,message){
+            client.on('message', function(topic, message) {
             console.log(message);
             let value = message.toString();
             console.log(topic);
-            if(topic==='/erictg96@googlemail.com/temperature')that.setState({lastMessageTemp:value})
-            if(topic==='/erictg96@googlemail.com/pm10')that.setState({lastMessagePm10:value})
-            if(topic==='/erictg96@googlemail.com/humi')that.setState({lastMessageHumi:value})
-            if(topic==='/erictg96@googlemail.com/time')that.setState({lastMessageTime:value})
+                if (topic === '/erictg96@googlemail.com/temperature') that.setState({
+                    lastMessageTemp: value
+                })
+                if (topic === '/erictg96@googlemail.com/pm10') that.setState({
+                    lastMessagePm10: value
+                })
+                if (topic === '/erictg96@googlemail.com/humi') that.setState({
+                    lastMessageHumi: value
+                })
+                if (topic === '/erictg96@googlemail.com/time') that.setState({
+                    lastMessageTime: value
+                })
 
             console.log(value);
         })
     }
     // simple disconnect handler, stes state of connected variable
-    disconnectMQTT(){
+    disconnectMQTT() {
         console.log("Disconnecting from MQTT now")
-        this.setState({connected:false})
+        this.setState({
+            connected: false
+        })
         client.end()
     }
-    submit(){
+    submit() {
         console.log("submit");
     }
     render() {
