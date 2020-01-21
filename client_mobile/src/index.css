@@ -12,9 +12,12 @@ code {
     monospace;
 }
 
+th { position: sticky; top: 0; background:#fff; }
+
 .ReactLoading{
   text-align:center
 }
+
 .Spinner{
   margin:auto;
   padding:200px 0;}

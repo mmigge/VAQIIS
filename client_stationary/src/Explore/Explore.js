@@ -5,12 +5,20 @@ import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
 
+import '../index.css'
 
+
+const featureGroup = {geoJson: {
+    "type": "FeatureCollection",
+    "features": [
+    ]
+}
+}
 
 class Explore extends Component {
     constructor(props) {
         super(props);
-        this.state = { date: "null", route: null, data:[], dates : [{ value: "null", label: "dd-mm-yyyy" }] }
+        this.state = { date: "null", route: featureGroup, data:[], dates : [{ value: "null", label: "dd-mm-yyyy" }] }
         this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this)
     }
 
@@ -26,6 +34,7 @@ class Explore extends Component {
                         dates.push({ value: date.date, label: self.transfromDate(date.date) })
                     }
                     self.setState({data: res.data, dates: dates})
+                    console.log(this.dates)
                   })
         console.log(this.dates)
     }
@@ -56,7 +65,7 @@ class Explore extends Component {
         let route;
         if (value == "null") {
             this.handleSelected();
-            route = null;
+            route = featureGroup;
         }
         else {
         for (var data of this.state.data) {
@@ -93,7 +102,7 @@ class Explore extends Component {
 
     transfromDate = function(date) {
 
-        if(!date){return "undefined"}
+        if(!date){return ""}
         date = new Date(date)
         var mm = date.getMonth() + 1; // getMonth() is zero-based
         var dd = date.getDate();
@@ -102,7 +111,7 @@ class Explore extends Component {
       };
 
     downloadSelectedRoute() {
-        if(this.state.route == "null" || this.state.route == null){
+        if(JSON.stringify(this.state.route) == JSON.stringify(featureGroup) || this.state.route == null){
             alert("Please select Route to download");
             return;
         }
@@ -120,38 +129,45 @@ class Explore extends Component {
                         <Card style={{ 'margin-top': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
-                                <Table striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Sensor</th>
-                                            <th>Messwert</th>
-                                            <th>Zeit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Temperatur</td>
-                                            <td>{this.state.selectedTemp + " °C"}</td>
-                                            <td>{this.transfromDate(this.state.selectedTime) + ""}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>PM10</td>
-                                            <td>{this.state.selectedPm10 + " µg/m³"}</td>
-                                            <td>{this.transfromDate(this.state.selectedTime) + ""}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>rel. Luftfeuchtigkeit</td>
-                                            <td>{this.state.selectedHumi +" %" }</td>
-                                            <td>{this.transfromDate(this.state.selectedTime) + ""}</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
+                                <div style={{maxHeight : "300px", overflow: "auto"}}>
+                        <Table striped bordered hover style={{ width: "100%"}}>
+                            <thead>
+                                <tr >
+                                    <th>#</th>
+                                    <th>Temp °C</th>
+                                    <th>PM10 µg/m³</th>
+                                    <th>r.F. %</th>
+                                    <th>Zeit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                <tr >
+                                    <td>Selected</td>
+                                    <td>{this.state.selectedTemp}</td>
+                                    <td>{this.state.selectedPm10}</td>
+                                    <td>{this.state.selectedHumi}</td>
+                                    <td>{this.transfromDate(this.state.selectedTime)}</td>
+                                </tr>
+                                {this.state.route.geoJson.features.map((item, i) => {
+                                    return (<tr>
+                                        <td>{i}</td>
+                                        <td>{item.properties.temp}</td>
+                                        <td>{item.properties.pm10}</td>
+                                        <td>{item.properties.humi}</td>
+                                        <td>{this.transfromDate(item.properties.time)}</td>
+                                    </tr>)
+                                })}
+                                
+                               
+                            </tbody>
+                          
+                        </Table>
+                        </div>
+                        
                             </Card.Body>
                         </Card>
+                        
                     </Col>
                     <Col md={4}>
                         <Card style={{ 'margin-top': '5px' }}>

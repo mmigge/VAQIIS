@@ -3,6 +3,8 @@ import { Button } from '@material-ui/core'
 import OwnMap from '../Map/OwnMap'
 import {Container,Row,Col,Card,Table} from 'react-bootstrap'
 
+import '../index.css'
+
 var client;
 
 var Paho = require('paho-mqtt');
@@ -106,52 +108,59 @@ class Live extends  Component{
     submit(){
         console.log("submit");
     }
-    render() {
-        var temp,humi, pm10, time;
-        if(this.state.lastMeasurement){
-            temp = this.state.lastMeasurement.properties.temp;
-            humi = this.state.lastMeasurement.properties.humi;
-            pm10 = this.state.lastMeasurement.properties.pm10;
-            time = this.state.lastMeasurement.properties.time;
 
-        }
-        return (
+    transfromDate = function(date) {
+
+        if(!date){return ""}
+        date = new Date(date)
+        var mm = date.getMonth() + 1; // getMonth() is zero-based
+        var dd = date.getDate();
+      
+        return  (dd>9 ? '' : '0') + dd +"-" +(mm>9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + date.getHours() + ":" +date.getMinutes();
+      };
+    render() {
+               return (
             <Container fluid>
                 <div>
                     <OwnMap route={this.state.liveRoute} handleSelected={this.handleSelected}/>
                 </div>
                 <Row style={{'margin-top':'5px'}} fluid>
                     <Col md={8}>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                            <th>#</th>
-                            <th>Sensor</th>
-                            <th>Messwert</th>
-                            <th>Zeit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                            <td>1</td>
-                            <td>Temperatur</td>
-                            <td>{this.state.selectedTemp ? this.state.selectedTemp + " °C" : temp +" °C"}</td>
-                            <td>{this.state.selectedTime ? this.state.selectedTime + "": time +""}</td>
-                            </tr>
-                            <tr>
-                            <td>2</td>
-                            <td>PM10</td>
-                            <td>{this.state.selectedPm10 ? this.state.selectedPm10 + " µg/m³": pm10 +" µg/m³"}</td>
-                            <td>{this.state.selectedTime ? this.state.selectedTime + "": time +""}</td>
-                            </tr>
-                            <tr>
-                            <td>3</td>
-                            <td>rel. Luftfeuchtigkeit</td>
-                            <td>{this.state.selectedHumi ? this.state.selectedHumi +" %" : humi +" %"}</td>
-                            <td>{this.state.selectedTime ? this.state.selectedTime + "": time +""}</td>
-                            </tr>
-                        </tbody>
+                    <div style={{maxHeight : "300px", overflow: "auto"}}>
+                        <Table striped bordered hover style={{ width: "100%"}}>
+                            <thead>
+                                <tr >
+                                    <th>#</th>
+                                    <th>Temp °C</th>
+                                    <th>PM10 µg/m³</th>
+                                    <th>r.F. %</th>
+                                    <th>Zeit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                <tr >
+                                    <td>Selected</td>
+                                    <td>{this.state.selectedTemp}</td>
+                                    <td>{this.state.selectedPm10}</td>
+                                    <td>{this.state.selectedHumi}</td>
+                                    <td>{this.transfromDate(this.state.selectedTime)}</td>
+                                </tr>
+                                {this.state.liveRoute.geoJson.features.map((item, i) => {
+                                    return (<tr>
+                                        <td>{i}</td>
+                                        <td>{item.properties.temp}</td>
+                                        <td>{item.properties.pm10}</td>
+                                        <td>{item.properties.humi}</td>
+                                        <td>{this.transfromDate(item.properties.time)}</td>
+                                    </tr>)
+                                })}
+                                
+                               
+                            </tbody>
+                          
                         </Table>
+                        </div>
                     </Col>
                     <Col md={4}>
                         <Card >

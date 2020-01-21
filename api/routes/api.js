@@ -10,8 +10,6 @@ res.send("API is working properly");
 
 router.post("/course", async function (req, res){
     const route = req.body.route
-
-
     try {
         var newCourse = new Course({
             date: route.date,
