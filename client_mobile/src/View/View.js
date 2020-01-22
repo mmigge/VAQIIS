@@ -13,80 +13,38 @@ import './../index.css'
 
 var Paho = require('paho-mqtt');
 
-const server_ip = '10.6.4.7';
-const server_port = 9001;
-
-var client = null;
-var topic = '#';
-var topic = 'TestNick';
-
-const featureGroup = {
-    geoJson: {
-        "type": "FeatureCollection",
-        "features": [
-        ]
-    }
-}
-
-const example = {
-    "type": "Feature",
-    "properties": { temp: 2, humi: 10, pm10: 2, time: new Date("2020-01-01") },
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            7.6100921630859375,
-            51.967115491837404
-        ]
-    }
-}
-
-const example2 = {
-    "type": "Feature",
-    "properties": { temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01") },
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            7.6306915283203125,
-            51.95230623740452
-        ]
-    }
-}
-const example3 = {
-    "type": "Feature",
-    "properties": { temp: 1, humi: 20, pm10: 4, time: new Date("2020-01-01") },
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            7.6006915283203125,
-            51.95230623740452
-        ]
-    }
-}
-
+var client;
 
 class View extends Component {
     constructor(props) {
         super(props);
-        this.state = { value: 0, liveRoute: featureGroup, startpoint: null, endpoint: null }
+        this.state = {
+            value: 1,
+            startpoint: null,
+            endpoint: null,
+            loading: true,
+            sensors: ["rmclatitude", "rmclongitude", "AirTC_Avg", "RH_Avg", "LiveBin_10dM"],
+            sensor_data: [],
+            server_ip: '10.6.4.7',
+            server_port: 9001,
+            featureGroup: {
+                geoJson: {
+                    "type": "FeatureCollection",
+                    "features": [
+                    ]
+                }
+            }
+        }
 
     }
 
     componentDidMount = () => {
-        this.startPullLoop();
-        this.connectMQTT();
-       /* // Demo Data
-          const timer = setTimeout(
-            () => {this.publishMQTT(JSON.stringify(example)); this.addMarker(example)},
-            5000,
+        this._getSensors();
+        this.timer = setInterval(() => {
+            this._getSensors()
+        }, 20000,
         );
-        const timer2 = setTimeout(
-            () => {this.publishMQTT(JSON.stringify(example2)); this.addMarker(example2)},
-            10000,
-        );
-        const timer3 = setTimeout(
-            () => {this.publishMQTT(JSON.stringify(example3)); this.addMarker(example3)},
-            15000,
-        );*/
+        // this.connectMQTT();
     }
 
     componentWillUnmount() {
@@ -97,102 +55,60 @@ class View extends Component {
         this.setState({ value: newValue })
     };
 
-    startPullLoop = () => {
-        this.getDataFromPie();
-        this.timer = setInterval(
-            () => this.getDataFromPie(),
-            5000,
-        );
-    }
 
     getDataFromPie = () => {
         const self = this;
-        Promise.all([self._getLat(), self._getLng(), self._getTmp(), self._getHumi(), self._getPM10()]).then(values => { self.addMarker(values) })
+        Promise.all([self._getLat(), self._getLng(), self._getTmp(), self._getHumi(), self._getPM10()]).then(() => this.setState({ loading: false })).then(values => { self.addMarker(values) })
     }
 
-    addMarker = (values) => {
-        console.log(values)
-        const geoJSON = JSON.parse(JSON.stringify(this.state.liveRoute));
-
-        const coordinates = this._convertGPSData(values[0].data[0].vals[0], values[1].data[0].vals[0])
-        const marker = {
+    _addMarker() {
+        console.log(this.state.sensor_data[0])
+        let date = new Date(this.state.sensor_data[0].data[0].time)
+        console.log(date)
+        let properties = {time:date.toLocaleTimeString()};
+        let coordinates ={};
+        this.state.sensor_data.map((sensor, i) => {
+            let value = sensor.data[0].vals[0]
+            let obj_name = sensor.head.fields[0].name
+            if(obj_name=="rmclatitude")coordinates["latitude"]=value;
+            if(obj_name=="rmclongitude")coordinates["longitude"]=value;
+            else properties[obj_name] = value;
+        })
+        let marker = {
             "type": "Feature",
-            "properties": { temp: values[2].data[0].vals[0], humi: values[3].data[0].vals[0], pm10: values[4].data[0].vals[0], time: values[0].data[0].time },
+            properties,
             "geometry": {
                 "type": "Point",
                 "coordinates": [
-                    coordinates.longtitude,
-                    coordinates.latitude
+                    51.9688129, 7.5922197
                 ]
             }
         }
-
-        geoJSON.geoJson.features.push(marker //values demo
-            );
-        this.publishMQTT(JSON.stringify(marker));
-        if(this.state.riding){
-            featureGroup.geoJson.features.push(marker);
-        }
-        this.setState({ liveRoute: geoJSON, lastMeasurement: marker//values demo
-         })
+        let newFeatureGroup = this.state.featureGroup;
+        console.log(newFeatureGroup)
+        newFeatureGroup.geoJson.features.push(marker)
+        this.setState({ featureGroup: newFeatureGroup })
     }
 
-    _getLat = () => {
-        const self = this;
-        return new Promise(async function (res, rej) {
-            console.log("getLocation()");
-            let url_latitude = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.rmclatitude&mode=most-recent&format=json';
-            const result = await self._request(url_latitude);
-            res(result)
-        })
-    }
-
-    _getLng = () => {
-        const self = this;
-        return new Promise(async function (res, rej) {
-            let url_longitude = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.rmclongitude&mode=most-recent&format=json';
-            const result = await self._request(url_longitude);
-            res(result)
-        })
-    }
-
-    _getTmp = () => {
-        const self = this;
-        return new Promise(async function (res, rej) {
-            let url_temp = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.AirTC_Avg&mode=most-recent&format=json';
-            const result = await self._request(url_temp);
-            res(result)
-        })
-    }
-
-    _getHumi = () => {
-        const self = this;
-        return new Promise(async function (res, rej) {
-            let url_humi = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.RH_Avg&mode=most-recent&format=json';
-            const result = await self._request(url_humi);
-            res(result)
-        })
-    }
-
-    _getPM10 = () => {
-        const self = this;
-        return new Promise(async function (res, rej) {
-            let url_pm10 = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.LiveBin_10dM&mode=most-recent&format=json';
-            const result = await self._request(url_pm10);
-            res(result)
-        })
-    }
-
-
-    _request = (url) => {
-        return new Promise(async function (res, rej) {
+    _getSensors() {
+        // Perform a request for each sensor in the state
+        this.state.sensors.map((sensor, index) => {
+            // Build URL according to sensor name
+            let url = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable." + sensor + "&mode=most-recent&format=json";
             fetch(url)
                 .then((response) => response.json())
-                .then(json => {
-                    res(json)
+                .then((json) => this.setState((prevState) => {
+                    { sensor_data: prevState.sensor_data.push(json) }
+                }
+                ))
+                .then(() => {
+                   if(index == this.state.sensors.length - 1){ 
+                        this._addMarker() 
+                        this.setState({loading:false})}
                 })
         })
     }
+
 
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
@@ -210,6 +126,7 @@ class View extends Component {
             latitude: lat,
             longtitude: long
         }
+        this.setState({ coordinates })
         return coordinates;
     }
 
@@ -218,7 +135,7 @@ class View extends Component {
         var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
         var uniqid = randLetter + Date.now();
 
-        client = new Paho.Client(server_ip, server_port, uniqid);
+        client = new Paho.Client(this.state.server_ip, this.state.server_port, uniqid);
         client.onConnectionLost = this.onConnectionLost;
         //client.onMessageArrived = this.onMessageArrived;
 
@@ -229,7 +146,7 @@ class View extends Component {
     publishMQTT(_message) {
         if (this.state.connected) {
             const message = new Paho.Message(_message);
-            message.destinationName = topic;
+            message.destinationName = "message";
             client.send(message);
         }
         else {
@@ -254,35 +171,35 @@ class View extends Component {
     // called when the client connects
     onConnect() {
         console.log("MQTT Broker Connect: Success");
-        client.subscribe(topic);
+        client.subscribe("message");
         this.setState({ connected: true })
     };
 
-    handleStart = () =>{
-        const startpoint=this.state.lastMeasurement;
-        featureGroup.geoJson.features.push(this.state.lastMeasurement);
-        this.setState({riding: true, startpoint})
+    handleStart = () => {
+        const startpoint = this.state.lastMeasurement;
+        this.state.featureGroup.geoJson.features.push(this.state.lastMeasurement);
+        this.setState({ riding: true, startpoint })
     }
 
     handleStop = () => {
-        const endpoint=this.state.lastMeasurement;
-        this.setState({riding: false, endpoint, route: true})
+        const endpoint = this.state.lastMeasurement;
+        this.setState({ riding: false, endpoint, route: true })
     }
 
-    handleClear = () =>{
-        featureGroup.geoJson.features = [];
-        this.setState({liveRoute: featureGroup, startpoint: null, endpoint: null, route:false})
+    handleClear = () => {
+        this.state.featureGroup.geoJson.features = [];
+        this.setState({ featureGroup: this.state.featureGroup, startpoint: null, endpoint: null, route: false })
     }
 
     handleSave = () => {
-        const self=this;
-        const object= {geoJson: featureGroup.geoJson, date: featureGroup.geoJson.features[0].properties.time}
+        const self = this;
+        const object = { geoJson: this.state.featureGroup.geoJson, date: this.state.featureGroup.geoJson.features[0].properties.time }
         console.log(object)
-        this.setState({saving: true})
-        axios.post('http://giv-project2:9000/api/course', {route: object})
+        this.setState({ saving: true })
+        axios.post('http://giv-project2:9000/api/course', { route: object })
             .then(res => {
                 console.log(res);
-                this.setState({saving:false})
+                this.setState({ saving: false })
             })
 
     }
@@ -291,41 +208,45 @@ class View extends Component {
     render() {
         return (
             <ErrorBoundary>
-                <div>
-                    <Tabs
-                        value={this.state.value}
-                        onChange={this.handleChange.bind(this)}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="fullWidth"
-                        aria-label="full width tabs example"
-                    >
-                        <Tab label="Table View" />
-                        <Tab label="Map View" />
-                        <Tab label="Status View" />
-                    </Tabs>
-                    {this.state.value === 0 &&
-                        <TableView />
-                    }
-                    {this.state.value === 1 &&
-                        <MapView liveRoute={this.state.liveRoute} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint}/>
-                    }
-                    {this.state.value === 2 &&
-                        <StatusView />}
+                {this.state.loading ? <div className="ReactLoading">
+                    <ReactLoading className="Spinner" type="spin" color="blue" />
+                </div> :
+                    <div>
+                        <Tabs
+                            value={this.state.value}
+                            onChange={this.handleChange.bind(this)}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            variant="fullWidth"
+                            aria-label="full width tabs example"
+                        >
+                            <Tab label="Table View" />
+                            <Tab label="Map View" />
+                            <Tab label="Status View" />
+                        </Tabs>
+                        {this.state.value === 0 &&
+                            <TableView liveRoute={this.state.featureGroup} />
+                        }
+                        {this.state.value === 1 &&
+                            <MapView liveRoute={this.state.featureGroup} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} />
+                        }
+                        {this.state.value === 2 &&
+                            <StatusView />}
                         <Footer>
-                    {this.state.saving? 
+                            {this.state.saving ?
 
-                        <ReactLoading type={"bubbles"} color="blue" style={{position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }}/>:
-    
-                    <ButtonGroup fullWidth color="primary" >
-                        <Button onClick = {this.handleStart} disabled={this.state.riding || this.state.route}>Start</Button>
-                        <Button onClick = {this.handleStop}  disabled={!this.state.riding || this.state.route}>Stop</Button>
-                        <Button onClick = {this.handleClear}  disabled={this.state.riding}>Clear</Button>
-                        <Button onClick = {this.handleSave}  disabled={this.state.riding || !this.state.route || this.state.loading}>Send</Button>
-                    </ButtonGroup>
-    }
-                    </Footer>
-                </div>
+                                <ReactLoading type={"bubbles"} color="blue" style={{ position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }} /> :
+                                <ButtonGroup fullWidth color="primary" >
+                                    <Button onClick={this.handleStart} disabled={this.state.riding || this.state.route}>Start</Button>
+                                    <Button onClick={this.handleStop} disabled={!this.state.riding || this.state.route}>Stop</Button>
+                                    <Button onClick={this.handleClear} disabled={this.state.riding}>Clear</Button>
+                                    <Button onClick={this.handleSave} disabled={this.state.riding || !this.state.route || this.state.loading}>Send</Button>
+                                </ButtonGroup>
+                            }
+                        </Footer>
+                    </div>
+                }
+
             </ErrorBoundary>
         );
     }

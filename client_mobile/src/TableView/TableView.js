@@ -34,7 +34,7 @@ class TableView extends Component{
         .then(()=>this._getSensors(name))
     }
     _getSensors(name)
-    {
+    {   console.log(name,"function called")
         let url = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:'+name+'&mode=most-recent&format=json'
         fetch(url)
         .then(response=>response.json())
@@ -49,7 +49,7 @@ class TableView extends Component{
     }
 
     componentDidMount(){
-        this._getAllTables()
+       // this._getAllTables()
         
     }  
 
@@ -97,6 +97,15 @@ class TableView extends Component{
                     })}
 
                 </DropdownButton>
+                <Table>
+                    <thead>
+                        <tr>
+                            {this.props.liveRoute.geoJson.features[0].properties.map((propertie,i)=>{
+                                return(<td key={"id"+i}>{propertie.name}</td>)
+                            })}
+                        </tr>
+                    </thead>
+                </Table>
             <Table striped bordered hover>
             <thead>
                 <tr>
