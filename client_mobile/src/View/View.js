@@ -19,7 +19,7 @@ class View extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: 1,
+            value: 0,
             startpoint: null,
             endpoint: null,
             loading: true,
@@ -59,7 +59,7 @@ class View extends Component {
         this._getSensors();
         this.timer = setInterval(() => {
             this._getSensors()
-        }, 20000,
+        }, 2000,
         );
         // this.connectMQTT();
     }
