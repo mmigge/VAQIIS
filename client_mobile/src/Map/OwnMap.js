@@ -1,5 +1,5 @@
 import React from 'react'
-import { Map, TileLayer, FeatureGroup, Marker, Popup } from 'react-leaflet'
+import { Map, TileLayer, FeatureGroup, Marker, Popup,Polyline,GeoJSON } from 'react-leaflet'
 
 
 import L from 'leaflet'
@@ -129,11 +129,8 @@ class OwnMap extends React.Component {
         }
         const self = this;
         let GeoJSON = this.getGeoJson();
-        console.log(GeoJSON);
-        let leafletGeoJSON = new L.GeoJSON(GeoJSON);
-        console.log(leafletGeoJSON)
+        let leafletGeoJSON = new L.GeoJSON(this.props.liveRoute.geoJson);
         leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
-        console.log(leafletGeoJSON);
         leafletFG.clearLayers();
         leafletGeoJSON.eachLayer(layer => self.addLayer(leafletFG, layer));
         if (this.props.startpoint) {
@@ -145,16 +142,16 @@ class OwnMap extends React.Component {
             point.eachLayer(layer => { leafletFG.addLayer(layer); layer.setIcon(redIcon) });
         }
 
-        if (this.props.liveRoute.geoJson.features.length > 1) {
-            const line = this.connectTheDots(leafletGeoJSON)
-            var pathLine = L.polyline(line)
-            console.log(pathLine.getBounds())
-            leafletFG.addLayer(pathLine)
-            try {
-                this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
-            }
-            catch{ }
-        }
+        // if (this.props.liveRoute.geoJson.features.length > 1) {
+        //     const line = this.connectTheDots(leafletGeoJSON)
+        //     var pathLine = L.polyline(line)
+        //     console.log(pathLine)
+        //     leafletFG.addLayer(pathLine)
+        //     try {
+        //         this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
+        //     }
+        //     catch{ }
+        // }
     }
 
 
@@ -182,7 +179,6 @@ class OwnMap extends React.Component {
 
         return (
             <Map style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
-
                 <TileLayer
                     attribution="This map is offline and was created with mapnik tiles"
                     url="map-tiles/{z}/{x}/{y}.png"
@@ -192,6 +188,7 @@ class OwnMap extends React.Component {
                 {this.props.liveRoute.geoJson.features.map((marker,i)=>{
                     return <Marker key={"marker"+i} icon={greenIcon} position={marker.geometry.coordinates}/>
                 })}
+                    <Polyline positions={this.props.route_coordinates}/>
             </Map>
         );
     }

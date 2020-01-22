@@ -49,7 +49,8 @@ class View extends Component {
                     "features": [
                     ]
                 }
-            }
+            },
+            route_coordinates:[[51.9688129, 7.5922197],[51.9988129, 7.5222197]]
         }
 
     }
@@ -242,7 +243,7 @@ class View extends Component {
                             <TableView liveRoute={this.state.featureGroup} />
                         }
                         {this.state.value === 1 &&
-                            <MapView liveRoute={this.state.featureGroup} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} />
+                            <MapView liveRoute={this.state.featureGroup} route_coordinates={this.state.route_coordinates}lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} />
                         }
                         {this.state.value === 2 &&
                             <StatusView />}
