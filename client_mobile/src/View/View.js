@@ -72,9 +72,9 @@ class View extends Component {
     }
 
     componentDidMount = () => {
-        //this.startPullLoop();
+        this.startPullLoop();
         this.connectMQTT();
-        // Demo Data
+       /* // Demo Data
           const timer = setTimeout(
             () => {this.publishMQTT(JSON.stringify(example)); this.addMarker(example)},
             5000,
@@ -86,7 +86,7 @@ class View extends Component {
         const timer3 = setTimeout(
             () => {this.publishMQTT(JSON.stringify(example3)); this.addMarker(example3)},
             15000,
-        );
+        );*/
     }
 
     componentWillUnmount() {
@@ -107,17 +107,17 @@ class View extends Component {
 
     getDataFromPie = () => {
         const self = this;
-        Promise.all([self._getLat(), self._getLng(), self._getTmp(), self._getHumi(), self._getPM10(), self._getTime()]).then(values => { self.addMarker(values) })
+        Promise.all([self._getLat(), self._getLng(), self._getTmp(), self._getHumi(), self._getPM10()]).then(values => { self.addMarker(values) })
     }
 
     addMarker = (values) => {
         console.log(values)
         const geoJSON = JSON.parse(JSON.stringify(this.state.liveRoute));
 
-        const coordinates = this._convertGPSData(values[0], values[1])
+        const coordinates = this._convertGPSData(values[0].data[0].vals[0], values[1].data[0].vals[0])
         const marker = {
             "type": "Feature",
-            "properties": { temp: values[2], humi: values[3], pm10: values[4], time: values[5] },
+            "properties": { temp: values[2].data[0].vals[0], humi: values[3].data[0].vals[0], pm10: values[4].data[0].vals[0], time: values[0].data[0].time },
             "geometry": {
                 "type": "Point",
                 "coordinates": [
@@ -127,13 +127,13 @@ class View extends Component {
             }
         }
 
-        geoJSON.geoJson.features.push(values //marker normally demo
+        geoJSON.geoJson.features.push(marker //values demo
             );
         this.publishMQTT(JSON.stringify(marker));
         if(this.state.riding){
-            featureGroup.geoJson.features.push(values);
+            featureGroup.geoJson.features.push(marker);
         }
-        this.setState({ liveRoute: geoJSON, lastMeasurement: values //marker normally demo
+        this.setState({ liveRoute: geoJSON, lastMeasurement: marker//values demo
          })
     }
 
@@ -183,28 +183,20 @@ class View extends Component {
         })
     }
 
-    _getTime = () => {
-        const self = this;
-        return new Promise(async function (res, rej) {
-            let url_time = 'http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable.TIMESTAMP&mode=most-recent&format=json';
-            const result = await self._request(url_time);
-            res(result)
-        })
-    }
 
     _request = (url) => {
         return new Promise(async function (res, rej) {
             fetch(url)
                 .then((response) => response.json())
                 .then(json => {
-                    res(json.data[0].vals)
+                    res(json)
                 })
         })
     }
 
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
-        const position = ['5157.88870', '00736.34599'];
+        const position = ['5157.88870', '00736.34599']; //demo; in Live [lat1, lon]
 
         let lat_temp_1 = parseFloat(position[0].split('.')[0].substring(0, 2));
         let lat_temp_2 = parseFloat(position[0].split(lat_temp_1)[1]) / 60;

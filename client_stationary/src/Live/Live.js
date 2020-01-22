@@ -122,7 +122,7 @@ class Live extends  Component{
                return (
             <Container fluid>
                 <div>
-                    <OwnMap route={this.state.liveRoute} handleSelected={this.handleSelected}/>
+                    <OwnMap route={this.state.liveRoute} handleSelected={this.handleSelected} lastMeasurement={this.state.lastMeasurement}/>
                 </div>
                 <Row style={{'margin-top':'5px'}} fluid>
                     <Col md={8}>

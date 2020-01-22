@@ -33,8 +33,19 @@ var redIcon = new L.Icon({
     shadowSize: [41, 41]
   });
 
-let selected = null
+  var goldIcon = new L.Icon({
+    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
 
+
+
+let last;
+let selected;
 export let ref;
 
 class OwnMap extends React.Component {
@@ -71,7 +82,7 @@ class OwnMap extends React.Component {
     }
 
     handleClick = (selectedLayer, allLayers) => {
-        allLayers.eachLayer(layer => layer.setIcon(blueIcon));
+        allLayers.eachLayer(layer => {if(JSON.stringify(last) == JSON.stringify(layer._latlng)){layer.setIcon(goldIcon)} else{layer.setIcon(blueIcon)}});
         if (JSON.stringify(selected) == JSON.stringify(selectedLayer._latlng)) {
             this.props.handleSelected();
             selected = null;
@@ -84,30 +95,37 @@ class OwnMap extends React.Component {
         }
     }
 
+    addLayer = (leafletFg, layer) => {
+        leafletFg.addLayer(layer)
+        if(JSON.stringify(layer._latlng) === JSON.stringify(selected)){
+            layer.setIcon(greenIcon)
+        }
+        if(JSON.stringify(layer._latlng) === JSON.stringify(last)){
+            layer.setIcon(goldIcon)
+        }
+    }
+
     componentDidUpdate(prevProps) {
         // Typical usage (don't forget to compare props): 
         this.FG = ref;
         let leafletFG = this.FG.leafletElement;
-        console.log(this.props.route)
         try {
             if(!this.props.route){
                 leafletFG.clearLayers();
                 return;
             }
             if (JSON.stringify(this.props.route.geoJson) === JSON.stringify(prevProps.route.geoJson)) {
-                if(this.props.startpoint){
-                    const point = new L.GeoJSON(this.props.startpoint);
-                    point.eachLayer(layer => {leafletFG.addLayer(layer); layer.setIcon(redIcon)});
-                }
-                if(this.props.endpoint){
-                    const point = new L.GeoJSON(this.props.endpoint);
-                    point.eachLayer(layer => {leafletFG.addLayer(layer); layer.setIcon(redIcon)});
-                }
+                
                 return;
             }
         }
         catch (e) {
 
+        }
+        if(this.props.lastMeasurement){
+            let GeoJSON = this.props.lastMeasurement;
+            let leafletGeoJSON = new L.GeoJSON(GeoJSON);
+            leafletGeoJSON.eachLayer(layer => {last = layer._latlng});
         }
         const self = this;
         let GeoJSON = this.getGeoJson();
@@ -116,7 +134,7 @@ class OwnMap extends React.Component {
         leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
         console.log(leafletGeoJSON);
         leafletFG.clearLayers();
-        leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
+        leafletGeoJSON.eachLayer(layer => self.addLayer(leafletFG, layer));
         if(this.props.startpoint){
             const point = new L.GeoJSON(this.props.startpoint);
             point.eachLayer(layer => {leafletFG.addLayer(layer); layer.setIcon(redIcon)});
