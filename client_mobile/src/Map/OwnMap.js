@@ -68,8 +68,7 @@ class OwnMap extends React.Component {
         this.FG = ref;
         var self = this
         let GeoJSON = this.getGeoJson()
-        let leafletGeoJSON = new L.GeoJSON(this.props.route.geoJson);
-        console.log(leafletGeoJSON)
+        let leafletGeoJSON = new L.GeoJSON(this.props.liveRoute.geoJson);
         const line = this.connectTheDots(leafletGeoJSON)
         var pathLine = L.polyline(line)
         leafletGeoJSON.on('click', function (e) {
@@ -106,24 +105,25 @@ class OwnMap extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        console.log("update")
         // Typical usage (don't forget to compare props): 
         this.FG = ref;
         let leafletFG = this.FG.leafletElement;
-        try {
-            if (!this.props.route) {
-                leafletFG.clearLayers();
-                return;
-            }
-            if (JSON.stringify(this.props.route.geoJson) === JSON.stringify(prevProps.route.geoJson)) {
+        // try {
+        //     if (!this.props.route) {
+        //         leafletFG.clearLayers();
+        //         return;
+        //     }
+        //     if (JSON.stringify(this.props.route.geoJson) === JSON.stringify(prevProps.route.geoJson)) {
+        //         console.log("des")
+        //         return;
+        //     }
+        // }
+        // catch (e) {
 
-                return;
-            }
-        }
-        catch (e) {
-
-        }
-        if (this.props.lastMeasurement) {
-            let GeoJSON = this.props.lastMeasurement;
+        // }
+        if (this.props.liveRoute) {
+            let GeoJSON = this.props.liveRoute.geoJson.features[this.props.liveRoute.geoJson.features.length-1];
             let leafletGeoJSON = new L.GeoJSON(GeoJSON);
             leafletGeoJSON.eachLayer(layer => { last = layer._latlng });
         }
@@ -145,7 +145,7 @@ class OwnMap extends React.Component {
             point.eachLayer(layer => { leafletFG.addLayer(layer); layer.setIcon(redIcon) });
         }
 
-        if (this.props.route.geoJson.features.length > 1) {
+        if (this.props.liveRoute.geoJson.features.length > 1) {
             const line = this.connectTheDots(leafletGeoJSON)
             var pathLine = L.polyline(line)
             console.log(pathLine.getBounds())
@@ -189,6 +189,9 @@ class OwnMap extends React.Component {
                 />
                 <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>
                 </FeatureGroup>
+                {this.props.liveRoute.geoJson.features.map((marker,i)=>{
+                    return <Marker key={"marker"+i} icon={greenIcon} position={marker.geometry.coordinates}/>
+                })}
             </Map>
         );
     }

@@ -66,7 +66,7 @@ class MapView extends Component {
         return (
             <Container fluid>
                 <div>
-                    <OwnMap route={this.props.liveRoute} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
+                    <OwnMap liveRoute={this.props.liveRoute} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
                 </div>
                 <Row style={{ 'marginTop': '5px' }}>
                     <Col md={12}>
