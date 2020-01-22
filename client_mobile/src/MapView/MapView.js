@@ -49,8 +49,10 @@ class MapView extends Component {
         date = new Date(date)
         var mm = date.getMonth() + 1; // getMonth() is zero-based
         var dd = date.getDate();
+        var hours = date.getHours();
+        var min = date.getMinutes();
 
-        return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+        return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + (hours > 9 ? '' : '0') + hours + ":" + (min > 9 ? '' : '0') + min;
     };
 
     render() {

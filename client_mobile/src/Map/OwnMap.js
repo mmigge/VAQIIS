@@ -147,9 +147,11 @@ class OwnMap extends React.Component {
         if(this.props.route.geoJson.features.length > 1){
         const line = this.connectTheDots(leafletGeoJSON)
         var pathLine = L.polyline(line)
-        console.log(pathLine)
+        console.log(pathLine.getBounds())
         leafletFG.addLayer(pathLine)     
-        //this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
+        try{
+            this.refs.map.leafletElement.fitBounds(pathLine.getBounds())}
+        catch{}
         }
     }
 
@@ -174,6 +176,8 @@ class OwnMap extends React.Component {
     }
 
     render() {
+
+        const position = [51.9688129, 7.5922197];
 
         return (
             <Map style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>

@@ -7,7 +7,7 @@ import L from 'leaflet'
 let firstTime = true
 
 var greenIcon = new L.Icon({
-    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+    iconUrl: '../../img/marker-icon-green.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -16,7 +16,7 @@ var greenIcon = new L.Icon({
 });
 
 var blueIcon = new L.Icon({
-    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    iconUrl: '../../img/marker-icon-blue.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -25,7 +25,7 @@ var blueIcon = new L.Icon({
 });
 
 var goldIcon = new L.Icon({
-    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
+    iconUrl: '../../img/marker-icon-gold.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
@@ -86,6 +86,7 @@ class OwnMap extends React.Component {
     }
 
     addLayer = (leafletFg, layer) => {
+        console.log(greenIcon)
         leafletFg.addLayer(layer)
         if(JSON.stringify(layer._latlng) === JSON.stringify(selected)){
             layer.setIcon(greenIcon)
@@ -126,8 +127,18 @@ class OwnMap extends React.Component {
         if(this.props.route.geoJson.features.length > 1){
         const line = this.connectTheDots(leafletGeoJSON)
         var pathLine = L.polyline(line)
-        leafletFG.addLayer(pathLine)     
-        //this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
+        leafletFG.addLayer(pathLine)
+        const bounds = pathLine.getBounds()
+        
+        const bounds2= L.latLngBounds(bounds)
+        console.log(bounds2.isValid());
+        try{
+                this.refs.map.leafletElement.fitBounds(bounds2)
+        }
+        catch(e){
+            console.log(e)
+        }
+        
         }
 
     }
@@ -136,7 +147,6 @@ class OwnMap extends React.Component {
 
     getGeoJson = () => {
         if (this.props.route) {
-            console.log("test2")
             return this.props.route.geoJson
         }
         else { return null }
@@ -160,7 +170,7 @@ class OwnMap extends React.Component {
         const position = [51.9688129, 7.5922197];
 
         return (
-            <Map style={{ height: "50vh" }} center={position} zoom={11} ref="map">
+            <Map style={{ height: "50vh" }} center={position} zoom={11}  maxZoom={17} ref="map">
                 <TileLayer
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
