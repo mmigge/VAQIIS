@@ -86,8 +86,8 @@ class OwnMap extends React.Component {
     }
 
     addLayer = (leafletFg, layer) => {
-        console.log(greenIcon)
         leafletFg.addLayer(layer)
+        layer.setIcon(blueIcon)
         if(JSON.stringify(layer._latlng) === JSON.stringify(selected)){
             layer.setIcon(greenIcon)
         }
