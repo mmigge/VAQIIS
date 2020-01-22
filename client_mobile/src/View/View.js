@@ -50,7 +50,7 @@ class View extends Component {
                     ]
                 }
             },
-            route_coordinates:[[51.9688129, 7.5922197],[51.9988129, 7.5222197]]
+            route_coordinates:[]
         }
 
     }
@@ -59,7 +59,7 @@ class View extends Component {
         this._getSensors();
         this.timer = setInterval(() => {
             this._getSensors()
-        }, 2000,
+        }, 20000,
         );
         // this.connectMQTT();
     }
@@ -76,22 +76,22 @@ class View extends Component {
     _addMarker() {
         let date = new Date(this.state.sensor_data[0].data[0].time)
         let properties = { time: date.toLocaleTimeString() };
-        let coordinates = {};
+        let coordinates={latitude:'0',longitude:'0'}
         this.state.sensor_data.map((sensor, i) => {
             let value = sensor.data[0].vals[0]
             let obj_name = sensor.head.fields[0].name
-            if (obj_name == "rmclatitude") coordinates["latitude"] = value;
-            if (obj_name == "rmclongitude") coordinates["longitude"] = value;
+            if (obj_name == "rmclatitude") coordinates.latitude = '5157.88870' // exchange with value
+            if (obj_name == "rmclongitude") coordinates.longitude = '00736.34599' // exchange with value 
             else properties[obj_name] = value;
         })
+
+        this._convertGPSData(coordinates.latitude,coordinates.longitude)
         let marker = {
             "type": "Feature",
             properties,
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    51.9688129, 7.5922197
-                ]
+                "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length-1][0],this.state.route_coordinates[this.state.route_coordinates.length-1][1]]
             }
         }
         let newFeatureGroup = this.state.featureGroup;
@@ -122,22 +122,19 @@ class View extends Component {
 
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
-        const position = ['5157.88870', '00736.34599']; //demo; in Live [lat1, lon]
-
-        let lat_temp_1 = parseFloat(position[0].split('.')[0].substring(0, 2));
-        let lat_temp_2 = parseFloat(position[0].split(lat_temp_1)[1]) / 60;
+        let lat_temp_1 = parseFloat(lat1.split('.')[0].substring(0, 2));
+        let lat_temp_2 = parseFloat(lat1.split(lat_temp_1)[1]) / 60;
         let lat = lat_temp_1 + lat_temp_2;
 
-        let long_temp_1 = parseFloat(position[1].split('.')[0].substring(0, 3));
-        let long_temp_2 = parseFloat(position[1].split(long_temp_1)[1]) / 60;
+        let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
+        let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
         let long = long_temp_1 + long_temp_2;
 
-        const coordinates = {
-            latitude: lat,
-            longtitude: long
-        }
-        this.setState({ coordinates })
-        return coordinates;
+        const coordinates = [lat,long];
+
+        this.setState((prevState)=>{
+            route_coordinates:prevState.route_coordinates.push(coordinates);
+        })
     }
 
     connectMQTT() {
@@ -181,6 +178,8 @@ class View extends Component {
     };
 
     handleStart = () => {
+        console.log("hello from button");
+        // 
         const startpoint = this.state.lastMeasurement;
         this.state.featureGroup.geoJson.features.push(this.state.lastMeasurement);
         this.setState({ riding: true, startpoint })
@@ -239,7 +238,6 @@ class View extends Component {
                             <StatusView />}
                         <Footer>
                             {this.state.saving ?
-
                                 <ReactLoading type={"bubbles"} color="blue" style={{ position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }} /> :
                                 <ButtonGroup fullWidth color="primary" >
                                     <Button onClick={this.handleStart} disabled={this.state.riding || this.state.route}>Start</Button>
