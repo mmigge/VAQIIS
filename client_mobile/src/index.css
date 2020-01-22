@@ -12,19 +12,22 @@ code {
     monospace;
 }
 
-th { position: sticky; top: 0; background:#fff; }
-
-.ReactLoading{
-  text-align:center
+th {
+  position: sticky;
+  top: 0;
+  background: #fff;
 }
 
-.Spinner{
-  margin:auto;
-  padding:200px 0;}
+.ReactLoading {
+  text-align: center
+}
 
-  .MuiTabs-fixed {
-    position: fixed !important;
-    z-index: 50000;
-    background-color: white;
-  }
- 
+.Spinner {
+  margin: auto;
+  padding: 200px 0;
+}
+
+.MuiTabs-fixed {
+  position: fixed !important;
+  background-color: white;
+}

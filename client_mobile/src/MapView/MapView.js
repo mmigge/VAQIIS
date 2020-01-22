@@ -62,6 +62,11 @@ class MapView extends Component {
         return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + (hours > 9 ? '' : '0') + hours + ":" + (min > 9 ? '' : '0') + min;
     };
 
+    addComment = function(){
+        // ToDo
+        return ''
+    }
+
     render() {
         return (
             <Container fluid>
@@ -94,6 +99,9 @@ class MapView extends Component {
                                                 {Object.keys(this.props.liveRoute.geoJson.features[0].properties).map((key, index) => {
                                                     return <td key={"ad2" + index}>{this.props.liveRoute.geoJson.features[0].properties[key]}</td>
                                                 })}
+                                                <td>
+                                                    <button onClick={this.addComment}>hehe</button>
+                                                </td>
                                             </tr>
                                         )
                                     })}
