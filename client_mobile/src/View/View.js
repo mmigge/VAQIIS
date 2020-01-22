@@ -24,21 +24,21 @@ class View extends Component {
             endpoint: null,
             loading: true,
             sensors: [  
-                        "rmcspeed",
-                        "rmclatitude",
-                        "rmclongitude",
-                        "AirTC_Avg",
-                        "RH_Avg",
-                        "LiveBin_1dM"
-                        // "Gill_Diag",
+                        "Public.rmcspeed",
+                        "Public.rmclatitude",
+                        "Public.rmclongitude",
+                        "fasttable.AirTC_Avg",
+                        "fasttable.RH_Avg",
+                        "Public.LiveBin_1dM",
+                        "fasttable.Gill_Diag",
                         // "u",
                         // "v",
                         // "w",
                         // "Ts",
-                        // "CPC_aux",
-                        // "CO2",
-                        // "H20",
-                        // "diag_LI75"
+                        "Public.CPC_aux",
+                        "Public.CO2",
+                        "fasttable.H2O",
+                        "Public.diag_LI75"
             ],
             sensor_data: [],
             server_ip: '10.6.4.7',
@@ -73,11 +73,6 @@ class View extends Component {
     };
 
 
-    getDataFromPie = () => {
-        const self = this;
-        Promise.all([self._getLat(), self._getLng(), self._getTmp(), self._getHumi(), self._getPM10()]).then(() => this.setState({ loading: false })).then(values => { self.addMarker(values) })
-    }
-
     _addMarker() {
         let date = new Date(this.state.sensor_data[0].data[0].time)
         let properties = { time: date.toLocaleTimeString() };
@@ -108,7 +103,7 @@ class View extends Component {
         // Perform a request for each sensor in the state
         this.state.sensors.map((sensor, index) => {
             // Build URL according to sensor name
-            let url = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable." + sensor + "&mode=most-recent&format=json";
+            let url = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:" + sensor + "&mode=most-recent&format=json";
             fetch(url)
                 .then((response) => response.json())
                 .then((json) => this.setState((prevState) => {
@@ -168,11 +163,6 @@ class View extends Component {
             console.log(_message)
         }
     }
-
-    /** Stationary  // called when a message arrives
-       onMessageArrived(message) {
-           console.log("onMessageArrived: " + message.payloadString);
-       }; */
 
     // called when the client loses its connection
     onConnectionLost = (responseObject) => {
