@@ -62,17 +62,15 @@ class OwnMap extends React.Component {
 
 
     _onFeatureGroupReady = (ref) => {
-        console.log("Des")
         if (!firstTime) {
             return;
         }
         this.FG = ref;
         var self = this
         let GeoJSON = this.getGeoJson()
-        let leafletGeoJSON = new L.GeoJSON(this.props.route[0]);
+        let leafletGeoJSON = new L.GeoJSON(this.props.route.geoJson);
         console.log(leafletGeoJSON)
         const line = this.connectTheDots(leafletGeoJSON)
-        console.log(line)
         var pathLine = L.polyline(line)
         leafletGeoJSON.on('click', function (e) {
             self.handleClick(e.layer, leafletGeoJSON)

@@ -23,7 +23,23 @@ class View extends Component {
             startpoint: null,
             endpoint: null,
             loading: true,
-            sensors: ["rmclatitude", "rmclongitude", "AirTC_Avg", "RH_Avg", "LiveBin_10dM"],
+            sensors: [  
+                        "rmcspeed",
+                        "rmclatitude",
+                        "rmclongitude",
+                        "AirTC_Avg",
+                        "RH_Avg",
+                        "LiveBin_1dM"
+                        // "Gill_Diag",
+                        // "u",
+                        // "v",
+                        // "w",
+                        // "Ts",
+                        // "CPC_aux",
+                        // "CO2",
+                        // "H20",
+                        // "diag_LI75"
+            ],
             sensor_data: [],
             server_ip: '10.6.4.7',
             server_port: 9001,
@@ -62,16 +78,14 @@ class View extends Component {
     }
 
     _addMarker() {
-        console.log(this.state.sensor_data[0])
         let date = new Date(this.state.sensor_data[0].data[0].time)
-        console.log(date)
-        let properties = {time:date.toLocaleTimeString()};
-        let coordinates ={};
+        let properties = { time: date.toLocaleTimeString() };
+        let coordinates = {};
         this.state.sensor_data.map((sensor, i) => {
             let value = sensor.data[0].vals[0]
             let obj_name = sensor.head.fields[0].name
-            if(obj_name=="rmclatitude")coordinates["latitude"]=value;
-            if(obj_name=="rmclongitude")coordinates["longitude"]=value;
+            if (obj_name == "rmclatitude") coordinates["latitude"] = value;
+            if (obj_name == "rmclongitude") coordinates["longitude"] = value;
             else properties[obj_name] = value;
         })
         let marker = {
@@ -85,7 +99,6 @@ class View extends Component {
             }
         }
         let newFeatureGroup = this.state.featureGroup;
-        console.log(newFeatureGroup)
         newFeatureGroup.geoJson.features.push(marker)
         this.setState({ featureGroup: newFeatureGroup })
     }
@@ -102,9 +115,10 @@ class View extends Component {
                 }
                 ))
                 .then(() => {
-                   if(index == this.state.sensors.length - 1){ 
-                        this._addMarker() 
-                        this.setState({loading:false})}
+                    if (index == this.state.sensors.length - 1) {
+                        this._addMarker()
+                        this.setState({ loading: false })
+                    }
                 })
         })
     }

@@ -13,8 +13,8 @@ class MapView extends Component {
                 AirTC_Avg: "°C",
                 LiveBin_10dM: "P10",
                 RH_Avg: "%",
-                rmclatitude:"lat",
-                time:"Time"
+                rmclatitude: "lat",
+                time: "Time"
             },
             liveRoute: {
                 geoJson: {
@@ -63,27 +63,24 @@ class MapView extends Component {
     };
 
     render() {
-        console.log(this.props.liveRoute)
         return (
             <Container fluid>
                 <div>
                     <OwnMap route={this.props.liveRoute} lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
                 </div>
                 <Row style={{ 'marginTop': '5px' }}>
-                    <Col md={8}>
+                    <Col md={12}>
                         <div style={{ maxHeight: "300px", overflow: "auto" }}>
                             <Table striped bordered hover style={{ width: "100%", fontSize: "x-small" }}>
                                 <thead>
-                                    <tr >
-                                        {
-                                            Object.keys(this.props.liveRoute.geoJson.features[0].properties).map((key, index) => {
-                                                return <th key={"id"+index}>{this.state.shortcuts[key]}</th>
-                                            })
-                                        }
+                                    <tr>
+                                        {Object.keys(this.props.liveRoute.geoJson.features[0].properties).map((key, index) => {
+                                            return <th key={"id" + index}>{this.state.shortcuts[key]}</th>
+                                        })}
                                     </tr>
                                 </thead>
                                 <tbody>
-{/* 
+                                    {/* 
                                     <tr >
                                         <td>Selected</td>
                                         <td>{this.state.selectedTemp}</td>
@@ -93,9 +90,9 @@ class MapView extends Component {
                                     </tr> */}
                                     {this.state.liveRoute.geoJson.features.map((item, i) => {
                                         return (
-                                            <tr key={"id2"+i}>
+                                            <tr key={"id2" + i}>
                                                 {Object.keys(this.props.liveRoute.geoJson.features[0].properties).map((key, index) => {
-                                                    return <td key={"ad2"+index}>{this.props.liveRoute.geoJson.features[0].properties[key]}</td>
+                                                    return <td key={"ad2" + index}>{this.props.liveRoute.geoJson.features[0].properties[key]}</td>
                                                 })}
                                             </tr>
                                         )
@@ -105,58 +102,6 @@ class MapView extends Component {
                             </Table>
                         </div>
                         <br />
-                    </Col>
-                    <Col md={4}>
-                        <Card >
-                            <Card.Body>
-                                <Card.Title>Connection overview</Card.Title>
-                                <Card.Text>
-                                    Click here to manage your connection to the eco bike
-                                </Card.Text>
-                                <Button style={{ "margin": "15px" }} variant="contained" color="primary">
-                                    Check if Bike is on Track
-                            </Button>
-                                {/* If clause to decide which button to display */}
-                                {this.state.connected
-                                    ? <Button
-                                        style={{ "margin": "15px" }}
-                                        variant="contained"
-                                        color="secondary"
-                                        onClick={this.disconnectMQTT}
-                                    >Disconnect from MQTT
-                                </Button>
-                                    :
-                                    <Button
-                                        style={{ "margin": "15px" }}
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={this.connectMQTT}
-                                    >Connect to the Bike
-                                </Button>
-                                }                    </Card.Body>
-                        </Card>
-                    </Col>
-
-                </Row>
-
-                <Row>
-                    <Col md={8}>
-
-                    </Col>
-                    <Col md={4}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>Add comments to the measured data</Card.Title>
-                                <Card.Text>Crucial information about how to understand the dataset e.g. "High PM10 values because we were standing behind a bus can be added here.</Card.Text>
-                                <form onSubmit={this.submit}>
-                                    <label>
-                                        <textarea value={this.state.value} onChange={this.handleChange}></textarea>
-                                    </label>
-                                    <input style={{ "margin": "15px" }} type="submit" value="Submit" />
-                                </form>
-
-                            </Card.Body>
-                        </Card>
                     </Col>
                 </Row>
             </Container >
