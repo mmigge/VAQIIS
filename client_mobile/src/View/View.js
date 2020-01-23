@@ -25,25 +25,22 @@ class View extends Component {
             startpoint: null,
             endpoint: null,
             loading: true,
-            recordingRoute: false,
-            startStopVal: 'Route starten',
-            connected: false,
-            sensors: [
-                "rmcspeed",
-                "rmclatitude",
-                "rmclongitude",
-                "AirTC_Avg",
-                "RH_Avg",
-                "LiveBin_1dM"
-                // "Gill_Diag",
-                // "u",
-                // "v",
-                // "w",
-                // "Ts",
-                // "CPC_aux",
-                // "CO2",
-                // "H20",
-                // "diag_LI75"
+            sensors: [  
+                        "Public.rmcspeed",
+                        "Public.rmclatitude",
+                        "Public.rmclongitude",
+                        "fasttable.AirTC_Avg",
+                        "fasttable.RH_Avg",
+                        "Public.LiveBin_1dM",
+                        "fasttable.Gill_Diag",
+                        // "u",
+                        // "v",
+                        // "w",
+                        // "Ts",
+                        "Public.CPC_aux",
+                        "Public.CO2",
+                        "fasttable.H2O",
+                        "Public.diag_LI75"
             ],
             sensor_data: [],
             server_ip: '10.6.4.7',
@@ -54,7 +51,7 @@ class View extends Component {
                     "features": []
                 }
             },
-            route_coordinates: [[51.9688129, 7.5922197], [51.9988129, 7.5222197]]
+            route_coordinates:[]
         }
 
     }
@@ -64,7 +61,7 @@ class View extends Component {
         this._getSensors();
         this.timer = setInterval(() => {
             this._getSensors()
-        }, 2000,
+        }, 10000,
         );
     }
 
@@ -76,32 +73,26 @@ class View extends Component {
         this.setState({ value: newValue })
     };
 
-    /*
-    getDataFromPi = () => {
-        const self = this;
-        Promise.all([self._getLat(), self._getLng(), self._getTmp(), self._getHumi(), self._getPM10()]).then(() => this.setState({ loading: false })).then(values => { self.addMarker(values) })
-    }
-    */
 
     _addMarker() {
-        let date = new Date(this.state.sensor_data[0].data[0].time)
-        let properties = { time: date.toLocaleTimeString() };
-        let coordinates = {};
+        let properties = { time: this.state.time };
+        let coordinates={latitude:'0',longitude:'0'}
         this.state.sensor_data.map((sensor, i) => {
             let value = sensor.data[0].vals[0]
             let obj_name = sensor.head.fields[0].name
-            if (obj_name === "rmclatitude") coordinates["latitude"] = value;
-            if (obj_name === "rmclongitude") coordinates["longitude"] = value;
+            properties.time=this.state.time
+            if (obj_name == "rmclatitude") coordinates.latitude = '5157.88870' // exchange with value
+            if (obj_name == "rmclongitude") coordinates.longitude = '00736.34599' // exchange with value 
             else properties[obj_name] = value;
         })
+
+        this._convertGPSData(coordinates.latitude,coordinates.longitude)
         let marker = {
             "type": "Feature",
             properties,
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    51.9688129, 7.5922197
-                ]
+                "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length-1][0],this.state.route_coordinates[this.state.route_coordinates.length-1][1]]
             }
         }
         let newFeatureGroup = this.state.featureGroup;
@@ -116,7 +107,7 @@ class View extends Component {
         // Perform a request for each sensor in the state
         this.state.sensors.map((sensor, index) => {
             // Build URL according to sensor name
-            let url = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable." + sensor + "&mode=most-recent&format=json";
+            let url = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:" + sensor + "&mode=most-recent&format=json";
             fetch(url)
                 .then((response) => response.json())
                 .then((json) => this.setState((prevState) => {
@@ -125,6 +116,8 @@ class View extends Component {
                 ))
                 .then(() => {
                     if (index === this.state.sensors.length - 1) {
+                        let date = new Date(this.state.sensor_data[this.state.sensor_data.length-3].data[0].time)
+                        this.setState({ time: date.toLocaleTimeString() })
                         this._addMarker()
                         this.setState({ loading: false })
                     }
@@ -134,22 +127,19 @@ class View extends Component {
 
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
-        const position = ['5157.88870', '00736.34599']; //demo; in Live [lat1, lon]
-
-        let lat_temp_1 = parseFloat(position[0].split('.')[0].substring(0, 2));
-        let lat_temp_2 = parseFloat(position[0].split(lat_temp_1)[1]) / 60;
+        let lat_temp_1 = parseFloat(lat1.split('.')[0].substring(0, 2));
+        let lat_temp_2 = parseFloat(lat1.split(lat_temp_1)[1]) / 60;
         let lat = lat_temp_1 + lat_temp_2;
 
-        let long_temp_1 = parseFloat(position[1].split('.')[0].substring(0, 3));
-        let long_temp_2 = parseFloat(position[1].split(long_temp_1)[1]) / 60;
+        let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
+        let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
         let long = long_temp_1 + long_temp_2;
 
-        const coordinates = {
-            latitude: lat,
-            longtitude: long
-        }
-        this.setState({ coordinates })
-        return coordinates;
+        const coordinates = [lat,long];
+
+        this.setState((prevState)=>{
+            route_coordinates:prevState.route_coordinates.push(coordinates);
+        })
     }
 
     connectMQTT() {
@@ -210,6 +200,7 @@ class View extends Component {
                 "features": []
             }
         }
+
 
         var startTime = this.state.startpoint.properties.time.split(':');
         var endTime = this.state.endpoint.properties.time.split(':');
@@ -320,7 +311,6 @@ class View extends Component {
                             <StatusView />}
                         <Footer>
                             {this.state.saving ?
-
                                 <ReactLoading type={"bubbles"} color="blue" style={{ position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }} /> :
                                 <ButtonGroup fullWidth color="primary" >
                                     <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
