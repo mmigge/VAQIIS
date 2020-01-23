@@ -47,3 +47,7 @@ input {
 .button-wrapper button {
   margin: 1rem;
 }
+
+.table td {
+  padding: 0.5rem;
+}

@@ -6,9 +6,12 @@ import StatusView from "../StatusView/StatusView";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import Footer from "./Footer"
 import ReactLoading from 'react-loading'
+import { IoMdDownload, IoIosCloudUpload, IoIosTrash, IoIosPlay, IoIosPause } from 'react-icons/io'
+
 
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'
+
 
 import './../index.css'
 import './View.css'
@@ -26,7 +29,7 @@ class View extends Component {
             endpoint: null,
             loading: true,
             recordingRoute: false,
-            startStopVal: 'Route starten',
+            startStopVal: <IoIosPlay className="svg_icons" />,
             connected: false,
             sensors: [
                 "Public.rmcspeed",
@@ -249,14 +252,14 @@ class View extends Component {
                 recordingRoute: false,
                 recordedRoute: true,
                 endpoint: this.state.lastMeasurement,
-                startStopVal: 'Route fortsetzen'
+                startStopVal: <IoIosPlay className="svg_icons" />
             })
         } else {
             // If Route is NOT being recorded 
             this.setState({
                 recordingRoute: true,
                 startpoint: this.state.lastMeasurement,
-                startStopVal: 'Route stoppen'
+                startStopVal: <IoIosPause className="svg_icons" />
             })
         }
     }
@@ -284,7 +287,7 @@ class View extends Component {
             endpoint: null,
             recordingRoute: false,
             recordedRoute: false,
-            startStopVal: 'Route aufzeichnen'
+            startStopVal: <IoIosPlay className="svg_icons" />
         })
     }
     download() {
@@ -319,11 +322,11 @@ class View extends Component {
 
         const element = document.createElement("a");
         let recordingRoute = JSON.stringify(featureGroup)
-        const file = new Blob([recordingRoute], {type: 'text/plain'});
+        const file = new Blob([recordingRoute], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
         element.download = "measurements.json";
         document.body.appendChild(element); // Required for this to work in FireFox
-        element.click();        
+        element.click();
     }
 
     render() {
@@ -365,9 +368,9 @@ class View extends Component {
                                 <ReactLoading type={"bubbles"} color="blue" style={{ position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }} /> :
                                 <ButtonGroup fullWidth color="primary" >
                                     <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
-                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}>Route löschen </Button>
-                                    <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}>Route an Server senden</Button>
-                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}>Download</Button>
+                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
+                                    <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}><IoIosCloudUpload className="svg_icons" /></Button>
+                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
                                 </ButtonGroup>
                             }
                         </Footer>

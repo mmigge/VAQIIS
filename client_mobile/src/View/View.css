@@ -22,3 +22,8 @@
   margin-left: 0.5em;
   align-content: center;
 }
+
+.svg_icons{
+  transform: scale(1.8);
+  margin: 5px;
+}

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import Modal from 'react-modal';
 import OwnMap from '../Map/OwnMap'
-import { Container, Row, Col, Table,Button } from 'react-bootstrap'
+import { Container, Row, Col, Table, Button } from 'react-bootstrap'
 import '../index.css'
 import './MapView.css'
-import {FaRegEdit} from 'react-icons/fa'
+import { FaRegEdit } from 'react-icons/fa'
 const customStyles = {
     content: {
         top: '50%',
@@ -28,10 +28,9 @@ class MapView extends Component {
                 RH_Avg: "%",
                 time: "Time",
                 Gill_Diag: "Wind",
-                compass_heading:"S/N/W/E",
-                CPC_aux:"CPC",
-                CO2:"CO2"
-
+                compass_heading: "S/N/W/E",
+                CPC_aux: "CPC",
+                CO2: "CO2"
             },
             liveRoute: {
                 geoJson: {
@@ -69,27 +68,29 @@ class MapView extends Component {
         this.closeModal();
         event.preventDefault()
         var comment = event.target[0].value;
-        this.props._addCommentToGeoJson(this.state.selectedRow,comment);
+        this.props._addCommentToGeoJson(this.state.selectedRow, comment);
     }
 
     openModal(e) {
         let that = this;
-        this.props.liveRoute.geoJson.features.forEach(function(feature){
-            if(feature.properties.time===e.target.value){
-                that.setState({selectedComment:feature.properties.comment})
+        this.props.liveRoute.geoJson.features.forEach(function (feature) {
+            if (feature.properties.time === e.target.value) {
+                that.setState({ selectedComment: feature.properties.comment })
             }
         })
-        this.setState({ CommentIsOpen: true ,selectedRow:e.target.value});
+        this.setState({ CommentIsOpen: true, selectedRow: e.target.value });
     }
 
     closeModal() {
         this.setState({ CommentIsOpen: false });
     }
-    handleInput(e){
+
+    handleInput(e) {
         this.setState({
-            selectedComment:e.target.value
+            selectedComment: e.target.value
         })
     }
+
     render() {
         return (
             <Container fluid>
@@ -113,14 +114,16 @@ class MapView extends Component {
                                 <tbody>
                                     {
                                         this.state.liveRoute.geoJson.features.map((item, i) => {
-                                            
+
                                             return (
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {
-                                                        if(this.state.shortcuts[key]){
-                                                         return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>}})
+                                                        if (this.state.shortcuts[key]) {
+                                                            return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>
+                                                        }
+                                                    })
                                                     }
-                                                    <td className="customtd"><Button size="sm" value={item.properties.time} onClick={this.openModal}><FaRegEdit/></Button></td>
+                                                    <td className="customtd"><Button value={item.properties.time} onClick={this.openModal} class="editButton"><FaRegEdit /></Button></td>
                                                 </tr>
                                             )
                                         })}
@@ -141,7 +144,7 @@ class MapView extends Component {
                         <h3>Kommentar Editieren</h3>
                         <form onSubmit={this.handleSubmit}>
                             <div>
-                                <input onChange={this.handleInput} defaultValue={this.state.selectedComment} type="text"/>
+                                <input onChange={this.handleInput} defaultValue={this.state.selectedComment} type="text" />
                             </div>
                             <div className="button-wrapper">
                                 <button value={this.state.selectedRow} type="submit">Kommentar speichern</button>
