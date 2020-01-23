@@ -52,7 +52,6 @@ class View extends Component {
                     "comment": ''
                 }
             },
-            route_coordinates:[]
         }
 
     }
@@ -223,11 +222,13 @@ class View extends Component {
                 }
             }
         })
-        this.publishMQTT(JSON.stringify(featureGroup)).then((res) =>{
-            this.setState.saving =({
-                saving: false
-            })
-        })
+        this.publishMQTT(JSON.stringify(featureGroup))
+        this.setState({saving:false})
+        // .then((res) =>{
+        //     this.setState.saving =({
+        //         saving: false
+        //     })
+        // })
     }
 
     handleStartStop = () => {
