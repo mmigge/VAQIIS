@@ -37,6 +37,7 @@ class MapView extends Component {
         }
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.handleInput = this.handleInput.bind(this);
     }
 
     componentDidMount = () => {
@@ -60,21 +61,30 @@ class MapView extends Component {
     }
 
     handleSubmit = (event) => {
+        this.closeModal();
         event.preventDefault()
         var comment = event.target[0].value;
-        console.log(comment)
-
-        // Add Data to marker.comment
+        this.props._addCommentToGeoJson(this.state.selectedRow,comment);
     }
 
-    openModal() {
-        this.setState({ CommentIsOpen: true });
+    openModal(e) {
+        let that = this;
+        this.props.liveRoute.geoJson.features.forEach(function(feature){
+            if(feature.properties.time===e.target.value){
+                that.setState({selectedComment:feature.properties.comment})
+            }
+        })
+        this.setState({ CommentIsOpen: true ,selectedRow:e.target.value});
     }
 
     closeModal() {
         this.setState({ CommentIsOpen: false });
     }
-
+    handleInput(e){
+        this.setState({
+            selectedComment:e.target.value
+        })
+    }
     render() {
         return (
             <Container fluid>
@@ -100,7 +110,7 @@ class MapView extends Component {
                                                     {Object.keys(item.properties).map((key, index) => {
                                                         return <td key={"ad2" + index} >{item.properties[key]}</td>
                                                     })}
-                                                    <td><button onClick={this.openModal}>Add Comment</button></td>
+                                                    <td><button value={item.properties.time} onClick={this.openModal}>Add Comment</button></td>
                                                 </tr>
                                             )
                                         })}
@@ -121,10 +131,10 @@ class MapView extends Component {
                         <h3>Kommentar Editieren</h3>
                         <form onSubmit={this.handleSubmit}>
                             <div>
-                                <input type="text" />
+                                <input onChange={this.handleInput} value={this.state.selectedComment} type="text"/>
                             </div>
                             <div className="button-wrapper">
-                                <button onClick={this.closeModal} type="submit">Kommentar speichern</button>
+                                <button value={this.state.selectedRow} type="submit">Kommentar speichern</button>
                                 <button onClick={this.closeModal} >Abbrechen</button>
                             </div>
                         </form>

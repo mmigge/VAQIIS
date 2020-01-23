@@ -52,11 +52,11 @@ class View extends Component {
                 geoJson: {
                     "type": "FeatureCollection",
                     "features": [],
-                    "comment": ''
                 }
             },
             route_coordinates: []
         }
+        this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
 
     }
 
@@ -228,13 +228,19 @@ class View extends Component {
         })
         this.publishMQTT(JSON.stringify(featureGroup))
         this.setState({ saving: false })
-        // .then((res) =>{
-        //     this.setState.saving =({
-        //         saving: false
-        //     })
-        // })
     }
 
+    _addCommentToGeoJson(e,comment){
+        let newFeatureGroup = this.state.featureGroup;
+
+        newFeatureGroup.geoJson.features.forEach(function(feature){
+            let timeString = e;
+            if(feature.properties.time===timeString){
+                feature.properties.comment = comment
+            }
+        })
+        this.setState({featureGroup:newFeatureGroup})
+    }
     handleStartStop = () => {
         if (this.state.recordingRoute) {
             // If Route is already being recorded
@@ -310,6 +316,7 @@ class View extends Component {
                                 lastMeasurement={this.state.lastMeasurement}
                                 startpoint={this.state.startpoint}
                                 endpoint={this.state.endpoint}
+                                _addCommentToGeoJson = {this._addCommentToGeoJson}
                             />
                         }
                         {this.state.value === 2 &&
