@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import Modal from 'react-modal';
 import OwnMap from '../Map/OwnMap'
-import { Container, Row, Col, Table } from 'react-bootstrap'
+import { Container, Row, Col, Table,Button } from 'react-bootstrap'
 import '../index.css'
-
+import {FaRegEdit} from 'react-icons/fa'
 const customStyles = {
     content: {
         top: '50%',
@@ -23,11 +23,13 @@ class MapView extends Component {
             connected: false,
             shortcuts: {
                 AirTC_Avg: "°C",
-                LiveBin_10dM: "P10",
+                LiveBin_1dM: "P10",
                 RH_Avg: "%",
-                rmclatitude: "lat",
                 time: "Time",
-                Gill_Diag: "Wind"
+                Gill_Diag: "Wind",
+                compass_heading:"S/N/W/E",
+                CPC_aux:"CPC",
+                CO2:"CO2"
 
             },
             liveRoute: {
@@ -110,12 +112,14 @@ class MapView extends Component {
                                 <tbody>
                                     {
                                         this.state.liveRoute.geoJson.features.map((item, i) => {
+                                            
                                             return (
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {
-                                                        return <td key={"ad2" + index} >{item.properties[key]}</td>
-                                                    })}
-                                                    <td><button value={item.properties.time} onClick={this.openModal}>Add Comment</button></td>
+                                                        if(this.state.shortcuts[key]){
+                                                         return <td key={"ad2" + index} >{item.properties[key]}</td>}})
+                                                    }
+                                                    <td><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit/></Button></td>
                                                 </tr>
                                             )
                                         })}
@@ -136,7 +140,7 @@ class MapView extends Component {
                         <h3>Kommentar Editieren</h3>
                         <form onSubmit={this.handleSubmit}>
                             <div>
-                                <input onChange={this.handleInput} value={this.state.selectedComment} type="text"/>
+                                <input onChange={this.handleInput} defaultValue={this.state.selectedComment} type="text"/>
                             </div>
                             <div className="button-wrapper">
                                 <button value={this.state.selectedRow} type="submit">Kommentar speichern</button>
