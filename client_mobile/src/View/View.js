@@ -51,10 +51,6 @@ class View extends Component {
                     "features": []
                 }
             },
-            route_coordinates:[],
-            recordingRoute: false,
-            startStopVal: 'Route starten',
-            connected: false
         }
 
     }
