@@ -1,6 +1,5 @@
 import React from 'react'
-import { Map, TileLayer, FeatureGroup, Marker, Popup, Polyline, GeoJSON } from 'react-leaflet'
-
+import { Map, TileLayer, FeatureGroup, Marker, Polyline } from 'react-leaflet'
 
 import L from 'leaflet'
 
@@ -43,7 +42,6 @@ var goldIcon = new L.Icon({
 });
 
 
-
 let last;
 let selected;
 export let ref;
@@ -78,8 +76,8 @@ class OwnMap extends React.Component {
     }
 
     handleClick = (selectedLayer, allLayers) => {
-        allLayers.eachLayer(layer => { if (JSON.stringify(last) == JSON.stringify(layer._latlng)) { layer.setIcon(goldIcon) } else { layer.setIcon(blueIcon) } });
-        if (JSON.stringify(selected) == JSON.stringify(selectedLayer._latlng)) {
+        allLayers.eachLayer(layer => { if (JSON.stringify(last) === JSON.stringify(layer._latlng)) { layer.setIcon(goldIcon) } else { layer.setIcon(blueIcon) } });
+        if (JSON.stringify(selected) === JSON.stringify(selectedLayer._latlng)) {
             this.props.handleSelected();
             selected = null;
         }
@@ -126,15 +124,12 @@ class OwnMap extends React.Component {
         }
     }
 
-
-
     getGeoJson = () => {
         if (this.props.route) {
             return this.props.route.geoJson
         }
         else { return null }
     }
-
 
     render() {
 
