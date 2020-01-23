@@ -8,10 +8,8 @@ import Footer from "./Footer"
 import ReactLoading from 'react-loading'
 import { IoMdDownload, IoIosCloudUpload, IoIosTrash, IoIosPlay, IoIosPause } from 'react-icons/io'
 
-
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'
-
 
 import './../index.css'
 import './View.css'
@@ -61,7 +59,6 @@ class View extends Component {
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
         this.download = this.download.bind(this)
-
     }
 
     componentDidMount = () => {
@@ -145,7 +142,6 @@ class View extends Component {
         const coordinates = [lat, long];
 
         this.setState((prevState) => {
-
             route_coordinates: prevState.route_coordinates.push(coordinates);
         })
     }
@@ -196,42 +192,10 @@ class View extends Component {
         }
     };
 
-    handleSave = () => {
-
-        this.setState.saving = ({
-            saving: true
-        })
-
-        let featureGroup = {
-            geoJson: {
-                "type": "FeatureCollection",
-                "features": []
-            }
-        }
-
-
-        var startTime = this.state.startpoint.properties.time.split(':');
-        var endTime = this.state.endpoint.properties.time.split(':');
-
-        this.state.featureGroup.geoJson.features.forEach(function (feature) {
-            let currFeatureTime = feature.properties.time.split(':');
-
-            if (startTime[0] <= currFeatureTime[0]) {
-                if (startTime[1] <= currFeatureTime[1]) {
-                    if (startTime[2] <= currFeatureTime[2]) {
-                        if (endTime[0] >= currFeatureTime[0]) {
-                            if (endTime[1] >= currFeatureTime[1]) {
-                                if (endTime[2] >= currFeatureTime[2]) {
-                                    featureGroup.geoJson.features.push(feature)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        })
+    // Send Route to Broker
+    sendtoBroker = () => {
+        let featureGroup = this.getFeatureGroup();
         this.publishMQTT(JSON.stringify(featureGroup))
-        this.setState({ saving: false })
     }
 
     _addCommentToGeoJson(e, comment) {
@@ -245,6 +209,7 @@ class View extends Component {
         })
         this.setState({ featureGroup: newFeatureGroup })
     }
+
     handleStartStop = () => {
         if (this.state.recordingRoute) {
             // If Route is already being recorded
@@ -266,7 +231,6 @@ class View extends Component {
 
     confirmDelete = () => {
         confirmAlert({
-            title: 'Achtung',
             message: 'Soll die aktuelle Route wirklich gelöscht werden?',
             buttons: [
                 {
@@ -290,7 +254,9 @@ class View extends Component {
             startStopVal: <IoIosPlay className="svg_icons" />
         })
     }
-    download() {
+
+    // Get Features between Start and End-Feature
+    getFeatureGroup = () => {
         let featureGroup = {
             geoJson: {
                 "type": "FeatureCollection",
@@ -298,34 +264,30 @@ class View extends Component {
             }
         }
 
-
-        var startTime = this.state.startpoint.properties.time.split(':');
-        var endTime = this.state.endpoint.properties.time.split(':');
+        var startTime = this.state.startpoint.properties.time;
+        var endTime = this.state.endpoint.properties.time;
 
         this.state.featureGroup.geoJson.features.forEach(function (feature) {
-            let currFeatureTime = feature.properties.time.split(':');
+            let currFeatureTime = feature.properties.time;
 
-            if (startTime[0] <= currFeatureTime[0]) {
-                if (startTime[1] <= currFeatureTime[1]) {
-                    if (startTime[2] <= currFeatureTime[2]) {
-                        if (endTime[0] >= currFeatureTime[0]) {
-                            if (endTime[1] >= currFeatureTime[1]) {
-                                if (endTime[2] >= currFeatureTime[2]) {
-                                    featureGroup.geoJson.features.push(feature)
-                                }
-                            }
-                        }
-                    }
-                }
+            // Looks stupid but works as long as time is in 24h format...
+            if (startTime < currFeatureTime && endTime > currFeatureTime) {
+                featureGroup.geoJson.features.push(feature)
             }
         })
+        return featureGroup;
+    }
+
+    // Save current route to device
+    download() {
+        let featureGroup = this.getFeatureGroup();
 
         const element = document.createElement("a");
         let recordingRoute = JSON.stringify(featureGroup)
         const file = new Blob([recordingRoute], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
         element.download = "measurements.json";
-        document.body.appendChild(element); // Required for this to work in FireFox
+        document.body.appendChild(element); // Required for this to work in FireFox --> aint stupid if it works
         element.click();
     }
 
@@ -364,15 +326,12 @@ class View extends Component {
                         {this.state.value === 2 &&
                             <StatusView />}
                         <Footer>
-                            {this.state.saving ?
-                                <ReactLoading type={"bubbles"} color="blue" style={{ position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }} /> :
-                                <ButtonGroup fullWidth color="primary" >
-                                    <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
-                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
-                                    <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}><IoIosCloudUpload className="svg_icons" /></Button>
-                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
-                                </ButtonGroup>
-                            }
+                            <ButtonGroup fullWidth color="primary" >
+                                <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
+                                <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
+                                <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}><IoIosCloudUpload className="svg_icons" /></Button>
+                                <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
+                            </ButtonGroup>
                         </Footer>
                     </div>
                 }

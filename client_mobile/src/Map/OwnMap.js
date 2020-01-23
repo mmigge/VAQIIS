@@ -128,7 +128,7 @@ class OwnMap extends React.Component {
         return (
             <Map style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
                 <TileLayer
-                    attribution="This map is offline and was created with mapnik tiles"
+                    attribution="Using Mapnik-Tiles"
                     url="map-tiles/{z}/{x}/{y}.png"
                 />
                 <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>

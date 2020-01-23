@@ -11,10 +11,13 @@ const customStyles = {
         left: '50%',
         right: 'auto',
         bottom: 'auto',
-        marginRight: '-50%',
         transform: 'translate(-50%, -50%)',
+        maxWidth: '80%',
+        padding: '1rem'
     },
-    overlay: { zIndex: 1000 }
+    overlay: {
+        zIndex: 1000
+    }
 };
 
 class MapView extends Component {
@@ -138,17 +141,14 @@ class MapView extends Component {
                         isOpen={this.state.CommentIsOpen}
                         onRequestClose={this.closeModal}
                         style={customStyles}
-                        contentLabel="Example Modal"
-                        class="Model"
                     >
-                        <h3>Kommentar Editieren</h3>
+                        <h4>Kommentar-Funktion</h4>
                         <form onSubmit={this.handleSubmit}>
-                            <div>
-                                <input onChange={this.handleInput} defaultValue={this.state.selectedComment} type="text" />
-                            </div>
+                            <input onChange={this.handleInput} defaultValue={this.state.selectedComment} type="text" />
+                            
                             <div className="button-wrapper">
-                                <button value={this.state.selectedRow} type="submit">Kommentar speichern</button>
-                                <button onClick={this.closeModal} >Abbrechen</button>
+                                <Button value={this.state.selectedRow} type="submit">Kommentar speichern</Button>
+                                <Button onClick={this.closeModal} >Abbrechen</Button>
                             </div>
                         </form>
                     </Modal>
