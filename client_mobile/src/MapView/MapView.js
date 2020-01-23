@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import OwnMap from '../Map/OwnMap'
 import { Container, Row, Col, Table,Button } from 'react-bootstrap'
 import '../index.css'
+import './MapView.css'
 import {FaRegEdit} from 'react-icons/fa'
 const customStyles = {
     content: {
@@ -117,9 +118,9 @@ class MapView extends Component {
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {
                                                         if(this.state.shortcuts[key]){
-                                                         return <td key={"ad2" + index} >{item.properties[key]}</td>}})
+                                                         return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>}})
                                                     }
-                                                    <td><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit/></Button></td>
+                                                    <td className="customtd"><Button size="sm" value={item.properties.time} onClick={this.openModal}><FaRegEdit/></Button></td>
                                                 </tr>
                                             )
                                         })}

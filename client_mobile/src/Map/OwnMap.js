@@ -63,16 +63,6 @@ class OwnMap extends React.Component {
         if (!firstTime) {
             return;
         }
-        // this.FG = ref;
-        // var self = this
-        // let GeoJSON = this.getGeoJson()
-        // leafletGeoJSON.on('click', function (e) {
-        //     self.handleClick(e.layer, leafletGeoJSON)
-        // })
-        // let leafletFG = this.FG.leafletElement;
-        // leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
-        // leafletFG.addLayer(pathLine)
-        // firstTime = false;
     }
 
     handleClick = (selectedLayer, allLayers) => {

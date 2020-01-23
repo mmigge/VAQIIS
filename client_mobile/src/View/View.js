@@ -57,6 +57,7 @@ class View extends Component {
             route_coordinates: []
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
+        this.download = this.download.bind(this)
 
     }
 
@@ -230,16 +231,16 @@ class View extends Component {
         this.setState({ saving: false })
     }
 
-    _addCommentToGeoJson(e,comment){
+    _addCommentToGeoJson(e, comment) {
         let newFeatureGroup = this.state.featureGroup;
 
-        newFeatureGroup.geoJson.features.forEach(function(feature){
+        newFeatureGroup.geoJson.features.forEach(function (feature) {
             let timeString = e;
-            if(feature.properties.time===timeString){
+            if (feature.properties.time === timeString) {
                 feature.properties.comment = comment
             }
         })
-        this.setState({featureGroup:newFeatureGroup})
+        this.setState({ featureGroup: newFeatureGroup })
     }
     handleStartStop = () => {
         if (this.state.recordingRoute) {
@@ -286,6 +287,44 @@ class View extends Component {
             startStopVal: 'Route aufzeichnen'
         })
     }
+    download() {
+        let featureGroup = {
+            geoJson: {
+                "type": "FeatureCollection",
+                "features": []
+            }
+        }
+
+
+        var startTime = this.state.startpoint.properties.time.split(':');
+        var endTime = this.state.endpoint.properties.time.split(':');
+
+        this.state.featureGroup.geoJson.features.forEach(function (feature) {
+            let currFeatureTime = feature.properties.time.split(':');
+
+            if (startTime[0] <= currFeatureTime[0]) {
+                if (startTime[1] <= currFeatureTime[1]) {
+                    if (startTime[2] <= currFeatureTime[2]) {
+                        if (endTime[0] >= currFeatureTime[0]) {
+                            if (endTime[1] >= currFeatureTime[1]) {
+                                if (endTime[2] >= currFeatureTime[2]) {
+                                    featureGroup.geoJson.features.push(feature)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        const element = document.createElement("a");
+        let recordingRoute = JSON.stringify(featureGroup)
+        const file = new Blob([recordingRoute], {type: 'text/plain'});
+        element.href = URL.createObjectURL(file);
+        element.download = "measurements.json";
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();        
+    }
 
     render() {
         return (
@@ -316,7 +355,7 @@ class View extends Component {
                                 lastMeasurement={this.state.lastMeasurement}
                                 startpoint={this.state.startpoint}
                                 endpoint={this.state.endpoint}
-                                _addCommentToGeoJson = {this._addCommentToGeoJson}
+                                _addCommentToGeoJson={this._addCommentToGeoJson}
                             />
                         }
                         {this.state.value === 2 &&
