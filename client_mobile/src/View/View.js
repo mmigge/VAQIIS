@@ -85,8 +85,8 @@ class View extends Component {
             let value = sensor.data[0].vals[0]
             let obj_name = sensor.head.fields[0].name
             properties.time = this.state.time
-            if (obj_name === "rmclatitude") coordinates.latitude = '5157.88870' // exchange with value
-            if (obj_name === "rmclongitude") coordinates.longitude = '00736.34599' // exchange with value 
+            if (obj_name === "rmclatitude") coordinates.latitude = value // exchange with value
+            if (obj_name === "rmclongitude") coordinates.longitude = value // exchange with value 
             else properties[obj_name] = value;
         })
 
@@ -99,6 +99,7 @@ class View extends Component {
                 "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length - 1][0], this.state.route_coordinates[this.state.route_coordinates.length - 1][1]]
             }
         }
+        console.log(coordinates)
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.push(marker);
         this.setState({
@@ -140,11 +141,20 @@ class View extends Component {
         let long = long_temp_1 + long_temp_2;
 
         const coordinates = [lat, long];
+        // Temporary variable for the bugfix below
+        const position = [51.9688129, 7.5922197];
 
-        this.setState((prevState) => {
-
-            route_coordinates: prevState.route_coordinates.push(coordinates);
-        })
+        // Bugfix for when no coordinates were sent(not ready)
+        if (isNaN(coordinates[0]) || isNaN(coordinates[1])) {
+            this.setState((prevState) => {
+                route_coordinates: prevState.route_coordinates.push(position);
+            })
+        }
+        else {
+            this.setState((prevState) => {
+                route_coordinates: prevState.route_coordinates.push(coordinates);
+            })
+        }
     }
 
     connectMQTT() {
@@ -319,11 +329,11 @@ class View extends Component {
 
         const element = document.createElement("a");
         let recordingRoute = JSON.stringify(featureGroup)
-        const file = new Blob([recordingRoute], {type: 'text/plain'});
+        const file = new Blob([recordingRoute], { type: 'text/plain' });
         element.href = URL.createObjectURL(file);
         element.download = "measurements.json";
         document.body.appendChild(element); // Required for this to work in FireFox
-        element.click();        
+        element.click();
     }
 
     render() {
