@@ -25,7 +25,10 @@ class View extends Component {
             startpoint: null,
             endpoint: null,
             loading: true,
-            sensors: [  
+            recordingRoute: false,
+            startStopVal: 'Route starten',
+            connected: false,
+            sensors: [ 
                         "Public.rmcspeed",
                         "Public.rmclatitude",
                         "Public.rmclongitude",
