@@ -59,7 +59,7 @@ class View extends Component {
         this._getSensors();
         this.timer = setInterval(() => {
             this._getSensors()
-        }, 20000,
+        }, 10000,
         );
         // this.connectMQTT();
     }
@@ -74,12 +74,12 @@ class View extends Component {
 
 
     _addMarker() {
-        let date = new Date(this.state.sensor_data[0].data[0].time)
-        let properties = { time: date.toLocaleTimeString() };
+        let properties = { time: this.state.time };
         let coordinates={latitude:'0',longitude:'0'}
         this.state.sensor_data.map((sensor, i) => {
             let value = sensor.data[0].vals[0]
             let obj_name = sensor.head.fields[0].name
+            properties.time=this.state.time
             if (obj_name == "rmclatitude") coordinates.latitude = '5157.88870' // exchange with value
             if (obj_name == "rmclongitude") coordinates.longitude = '00736.34599' // exchange with value 
             else properties[obj_name] = value;
@@ -111,7 +111,9 @@ class View extends Component {
                 }
                 ))
                 .then(() => {
-                    if (index == this.state.sensors.length - 1) {
+                    if (index === this.state.sensors.length - 1) {
+                        let date = new Date(this.state.sensor_data[this.state.sensor_data.length-3].data[0].time)
+                        this.setState({ time: date.toLocaleTimeString() })
                         this._addMarker()
                         this.setState({ loading: false })
                     }
