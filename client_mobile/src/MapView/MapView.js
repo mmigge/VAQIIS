@@ -14,7 +14,9 @@ class MapView extends Component {
                 LiveBin_10dM: "P10",
                 RH_Avg: "%",
                 rmclatitude: "lat",
-                time: "Time"
+                time: "Time",
+                Gill_Diag: "Wind"
+
             },
             liveRoute: {
                 geoJson: {
@@ -62,7 +64,7 @@ class MapView extends Component {
         return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + (hours > 9 ? '' : '0') + hours + ":" + (min > 9 ? '' : '0') + min;
     };
 
-    addComment = function(){
+    addComment = function () {
         // ToDo
         return ''
     }
@@ -71,7 +73,7 @@ class MapView extends Component {
         return (
             <Container fluid>
                 <div>
-                    <OwnMap liveRoute={this.props.liveRoute}  route_coordinates={this.props.route_coordinates} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
+                    <OwnMap liveRoute={this.props.liveRoute} route_coordinates={this.props.route_coordinates} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
                 </div>
                 <Row style={{ 'marginTop': '5px' }}>
                     <Col md={12}>
@@ -80,7 +82,10 @@ class MapView extends Component {
                                 <thead>
                                     <tr>
                                         {Object.keys(this.props.liveRoute.geoJson.features[0].properties).map((key, index) => {
-                                            return <th key={"id" + index}>{this.state.shortcuts[key]}</th>
+                                            if (this.state.shortcuts[key]) {
+                                                return <th key={"id" + index}>{this.state.shortcuts[key]}</th>
+                                            }
+                                            else return
                                         })}
                                     </tr>
                                 </thead>
@@ -94,15 +99,18 @@ class MapView extends Component {
                                         <td>{this.transfromDate(this.state.selectedTime)}</td>
                                     </tr> */}
                                     {
-                                    this.state.liveRoute.geoJson.features.map((item, i) => {
-                                        return (
-                                            <tr key={"id2" + i}>
-                                        {Object.keys(item.properties).map((key, index) => {
-                                            return <td key={"ad2" + index}>{item.properties[key]}</td>
+                                        this.state.liveRoute.geoJson.features.map((item, i) => {
+                                            return (
+                                                <tr key={"id2" + i}>
+                                                    {Object.keys(item.properties).map((key, index) => {
+                                                        if (this.state.shortcuts[key]) {
+                                                            return <td key={"ad2" + index}>{item.properties[key]}</td>
+                                                        }
+                                                        else return
+                                                    })}
+                                                </tr>
+                                            )
                                         })}
-                                    </tr>
-                                        )
-                                    })}
                                 </tbody>
 
                             </Table>
