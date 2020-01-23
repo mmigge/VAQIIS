@@ -62,16 +62,15 @@ class MapView extends Component {
         return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + (hours > 9 ? '' : '0') + hours + ":" + (min > 9 ? '' : '0') + min;
     };
 
-    addComment = function(){
-        // ToDo
-        return ''
+    addComment = function (test) {
+        console.log(test)
     }
 
     render() {
         return (
             <Container fluid>
                 <div>
-                    <OwnMap liveRoute={this.props.liveRoute}  route_coordinates={this.props.route_coordinates} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
+                    <OwnMap liveRoute={this.props.liveRoute} route_coordinates={this.props.route_coordinates} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
                 </div>
                 <Row style={{ 'marginTop': '5px' }}>
                     <Col md={12}>
@@ -85,14 +84,6 @@ class MapView extends Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* 
-                                    <tr >
-                                        <td>Selected</td>
-                                        <td>{this.state.selectedTemp}</td>
-                                        <td>{this.state.selectedPm10}</td>
-                                        <td>{this.state.selectedHumi}</td>
-                                        <td>{this.transfromDate(this.state.selectedTime)}</td>
-                                    </tr> */}
                                     {this.state.liveRoute.geoJson.features.map((item, i) => {
                                         return (
                                             <tr key={"id2" + i}>
@@ -100,13 +91,12 @@ class MapView extends Component {
                                                     return <td key={"ad2" + index}>{this.props.liveRoute.geoJson.features[0].properties[key]}</td>
                                                 })}
                                                 <td>
-                                                    <button onClick={this.addComment}>hehe</button>
+                                                    <button onClick={this.addComment.bind(item)}>Add Comment</button>
                                                 </td>
                                             </tr>
                                         )
                                     })}
                                 </tbody>
-
                             </Table>
                         </div>
                         <br />
@@ -115,8 +105,6 @@ class MapView extends Component {
             </Container >
         );
     }
-
-
 }
 
 export default MapView;

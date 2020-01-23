@@ -51,7 +51,8 @@ class View extends Component {
             featureGroup: {
                 geoJson: {
                     "type": "FeatureCollection",
-                    "features": []
+                    "features": [],
+                    "comment": ''
                 }
             },
             route_coordinates: [[51.9688129, 7.5922197], [51.9988129, 7.5222197]]
@@ -102,7 +103,8 @@ class View extends Component {
                 "coordinates": [
                     51.9688129, 7.5922197
                 ]
-            }
+            },
+            "comment": ''
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.push(marker);
@@ -283,7 +285,6 @@ class View extends Component {
             startStopVal: 'Route aufzeichnen'
         })
     }
-
 
     render() {
         return (
