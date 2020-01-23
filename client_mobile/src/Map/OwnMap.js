@@ -1,5 +1,5 @@
 import React from 'react'
-import { Map, TileLayer, FeatureGroup, Marker, Popup,Polyline,GeoJSON } from 'react-leaflet'
+import { Map, TileLayer, FeatureGroup, Marker, Popup, Polyline, GeoJSON } from 'react-leaflet'
 
 
 import L from 'leaflet'
@@ -65,19 +65,16 @@ class OwnMap extends React.Component {
         if (!firstTime) {
             return;
         }
-        this.FG = ref;
-        var self = this
-        let GeoJSON = this.getGeoJson()
-        let leafletGeoJSON = new L.GeoJSON(this.props.liveRoute.geoJson);
-        const line = this.connectTheDots(leafletGeoJSON)
-        var pathLine = L.polyline(line)
-        leafletGeoJSON.on('click', function (e) {
-            self.handleClick(e.layer, leafletGeoJSON)
-        })
-        let leafletFG = this.FG.leafletElement;
-        leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
-        leafletFG.addLayer(pathLine)
-        firstTime = false;
+        // this.FG = ref;
+        // var self = this
+        // let GeoJSON = this.getGeoJson()
+        // leafletGeoJSON.on('click', function (e) {
+        //     self.handleClick(e.layer, leafletGeoJSON)
+        // })
+        // let leafletFG = this.FG.leafletElement;
+        // leafletGeoJSON.eachLayer(layer => leafletFG.addLayer(layer));
+        // leafletFG.addLayer(pathLine)
+        // firstTime = false;
     }
 
     handleClick = (selectedLayer, allLayers) => {
@@ -105,25 +102,11 @@ class OwnMap extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log("update")
         // Typical usage (don't forget to compare props): 
         this.FG = ref;
         let leafletFG = this.FG.leafletElement;
-        // try {
-        //     if (!this.props.route) {
-        //         leafletFG.clearLayers();
-        //         return;
-        //     }
-        //     if (JSON.stringify(this.props.route.geoJson) === JSON.stringify(prevProps.route.geoJson)) {
-        //         console.log("des")
-        //         return;
-        //     }
-        // }
-        // catch (e) {
-
-        // }
         if (this.props.liveRoute) {
-            let GeoJSON = this.props.liveRoute.geoJson.features[this.props.liveRoute.geoJson.features.length-1];
+            let GeoJSON = this.props.liveRoute.geoJson.features[this.props.liveRoute.geoJson.features.length - 1];
             let leafletGeoJSON = new L.GeoJSON(GeoJSON);
             leafletGeoJSON.eachLayer(layer => { last = layer._latlng });
         }
@@ -141,17 +124,6 @@ class OwnMap extends React.Component {
             const point = new L.GeoJSON(this.props.endpoint);
             point.eachLayer(layer => { leafletFG.addLayer(layer); layer.setIcon(redIcon) });
         }
-
-        // if (this.props.liveRoute.geoJson.features.length > 1) {
-        //     const line = this.connectTheDots(leafletGeoJSON)
-        //     var pathLine = L.polyline(line)
-        //     console.log(pathLine)
-        //     leafletFG.addLayer(pathLine)
-        //     try {
-        //         this.refs.map.leafletElement.fitBounds(pathLine.getBounds())
-        //     }
-        //     catch{ }
-        // }
     }
 
 
@@ -163,15 +135,6 @@ class OwnMap extends React.Component {
         else { return null }
     }
 
-    connectTheDots(data) {
-        var c = [];
-        for (var i in data._layers) {
-            var x = data._layers[i]._latlng.lat;
-            var y = data._layers[i]._latlng.lng;
-            c.push([x, y]);
-        }
-        return c;
-    }
 
     render() {
 
@@ -185,10 +148,10 @@ class OwnMap extends React.Component {
                 />
                 <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>
                 </FeatureGroup>
-                {this.props.liveRoute.geoJson.features.map((marker,i)=>{
-                    return <Marker key={"marker"+i} icon={greenIcon} position={marker.geometry.coordinates}/>
+                {this.props.liveRoute.geoJson.features.map((marker, i) => {
+                    return <Marker key={"marker" + i} icon={greenIcon} position={marker.geometry.coordinates} />
                 })}
-                    <Polyline positions={this.props.route_coordinates}/>
+                <Polyline positions={this.props.route_coordinates} />
             </Map>
         );
     }
