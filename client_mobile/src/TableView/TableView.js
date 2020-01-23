@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Table, Dropdown, DropdownButton } from 'react-bootstrap'
+import { Container, Table } from 'react-bootstrap'
 import ReactLoading from 'react-loading'
 
 class TableView extends Component {

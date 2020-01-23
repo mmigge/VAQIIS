@@ -21,26 +21,29 @@ class View extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: 0,
+            value: 1,
             startpoint: null,
             endpoint: null,
             loading: true,
-            sensors: [  
-                        "Public.rmcspeed",
-                        "Public.rmclatitude",
-                        "Public.rmclongitude",
-                        "fasttable.AirTC_Avg",
-                        "fasttable.RH_Avg",
-                        "Public.LiveBin_1dM",
-                        "fasttable.Gill_Diag",
-                        // "u",
-                        // "v",
-                        // "w",
-                        // "Ts",
-                        "Public.CPC_aux",
-                        "Public.CO2",
-                        "fasttable.H2O",
-                        "Public.diag_LI75"
+            recordingRoute: false,
+            startStopVal: 'Route starten',
+            connected: false,
+            sensors: [
+                "Public.rmcspeed",
+                "Public.rmclatitude",
+                "Public.rmclongitude",
+                "fasttable.AirTC_Avg",
+                "fasttable.RH_Avg",
+                "Public.LiveBin_1dM",
+                "fasttable.Gill_Diag",
+                // "u",
+                // "v",
+                // "w",
+                // "Ts",
+                "Public.CPC_aux",
+                "Public.CO2",
+                "fasttable.H2O",
+                "Public.diag_LI75"
             ],
             sensor_data: [],
             server_ip: '10.6.4.7',
@@ -48,10 +51,12 @@ class View extends Component {
             featureGroup: {
                 geoJson: {
                     "type": "FeatureCollection",
-                    "features": []
+                    "features": [],
                 }
             },
+            route_coordinates: []
         }
+        this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
 
     }
 
@@ -72,26 +77,25 @@ class View extends Component {
         this.setState({ value: newValue })
     };
 
-
     _addMarker() {
         let properties = { time: this.state.time };
-        let coordinates={latitude:'0',longitude:'0'}
+        let coordinates = { latitude: '0', longitude: '0' }
         this.state.sensor_data.map((sensor, i) => {
             let value = sensor.data[0].vals[0]
             let obj_name = sensor.head.fields[0].name
-            properties.time=this.state.time
-            if (obj_name == "rmclatitude") coordinates.latitude = '5157.88870' // exchange with value
-            if (obj_name == "rmclongitude") coordinates.longitude = '00736.34599' // exchange with value 
+            properties.time = this.state.time
+            if (obj_name === "rmclatitude") coordinates.latitude = '5157.88870' // exchange with value
+            if (obj_name === "rmclongitude") coordinates.longitude = '00736.34599' // exchange with value 
             else properties[obj_name] = value;
         })
 
-        this._convertGPSData(coordinates.latitude,coordinates.longitude)
+        this._convertGPSData(coordinates.latitude, coordinates.longitude)
         let marker = {
             "type": "Feature",
             properties,
             "geometry": {
                 "type": "Point",
-                "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length-1][0],this.state.route_coordinates[this.state.route_coordinates.length-1][1]]
+                "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length - 1][0], this.state.route_coordinates[this.state.route_coordinates.length - 1][1]]
             }
         }
         let newFeatureGroup = this.state.featureGroup;
@@ -115,7 +119,7 @@ class View extends Component {
                 ))
                 .then(() => {
                     if (index === this.state.sensors.length - 1) {
-                        let date = new Date(this.state.sensor_data[this.state.sensor_data.length-3].data[0].time)
+                        let date = new Date(this.state.sensor_data[this.state.sensor_data.length - 3].data[0].time)
                         this.setState({ time: date.toLocaleTimeString() })
                         this._addMarker()
                         this.setState({ loading: false })
@@ -134,10 +138,11 @@ class View extends Component {
         let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
         let long = long_temp_1 + long_temp_2;
 
-        const coordinates = [lat,long];
+        const coordinates = [lat, long];
 
-        this.setState((prevState)=>{
-            route_coordinates:prevState.route_coordinates.push(coordinates);
+        this.setState((prevState) => {
+
+            route_coordinates: prevState.route_coordinates.push(coordinates);
         })
     }
 
@@ -151,7 +156,7 @@ class View extends Component {
         //client.onMessageArrived = this.onMessageArrived;
 
         // connect the client
-        client.connect({ 
+        client.connect({
             onSuccess: this.onConnect.bind(this)
         });
     };
@@ -180,8 +185,8 @@ class View extends Component {
     onConnectionLost = (responseObject) => {
         if (responseObject.errorCode !== 0) {
             console.log("onConnectionLost: " + responseObject.errorMessage);
-            this.setState({ 
-                connected: false 
+            this.setState({
+                connected: false
             });
             this.connectMQTT();
         }
@@ -189,11 +194,11 @@ class View extends Component {
 
     handleSave = () => {
 
-        this.setState.saving =({
+        this.setState.saving = ({
             saving: true
         })
-        
-        let featureGroup= {
+
+        let featureGroup = {
             geoJson: {
                 "type": "FeatureCollection",
                 "features": []
@@ -204,15 +209,15 @@ class View extends Component {
         var startTime = this.state.startpoint.properties.time.split(':');
         var endTime = this.state.endpoint.properties.time.split(':');
 
-        this.state.featureGroup.geoJson.features.forEach(function(feature){
+        this.state.featureGroup.geoJson.features.forEach(function (feature) {
             let currFeatureTime = feature.properties.time.split(':');
 
-            if (startTime[0] <= currFeatureTime[0]){
-                if (startTime[1] <= currFeatureTime[1]){
-                    if (startTime[2] <= currFeatureTime[2]){
-                        if (endTime[0] >= currFeatureTime[0]){
-                            if (endTime[1] >= currFeatureTime[1]){
-                                if (endTime[2] >= currFeatureTime[2]){
+            if (startTime[0] <= currFeatureTime[0]) {
+                if (startTime[1] <= currFeatureTime[1]) {
+                    if (startTime[2] <= currFeatureTime[2]) {
+                        if (endTime[0] >= currFeatureTime[0]) {
+                            if (endTime[1] >= currFeatureTime[1]) {
+                                if (endTime[2] >= currFeatureTime[2]) {
                                     featureGroup.geoJson.features.push(feature)
                                 }
                             }
@@ -222,14 +227,20 @@ class View extends Component {
             }
         })
         this.publishMQTT(JSON.stringify(featureGroup))
-        this.setState({saving:false})
-        // .then((res) =>{
-        //     this.setState.saving =({
-        //         saving: false
-        //     })
-        // })
+        this.setState({ saving: false })
     }
 
+    _addCommentToGeoJson(e,comment){
+        let newFeatureGroup = this.state.featureGroup;
+
+        newFeatureGroup.geoJson.features.forEach(function(feature){
+            let timeString = e;
+            if(feature.properties.time===timeString){
+                feature.properties.comment = comment
+            }
+        })
+        this.setState({featureGroup:newFeatureGroup})
+    }
     handleStartStop = () => {
         if (this.state.recordingRoute) {
             // If Route is already being recorded
@@ -276,7 +287,6 @@ class View extends Component {
         })
     }
 
-
     render() {
         return (
             <ErrorBoundary>
@@ -306,6 +316,7 @@ class View extends Component {
                                 lastMeasurement={this.state.lastMeasurement}
                                 startpoint={this.state.startpoint}
                                 endpoint={this.state.endpoint}
+                                _addCommentToGeoJson = {this._addCommentToGeoJson}
                             />
                         }
                         {this.state.value === 2 &&
@@ -316,14 +327,13 @@ class View extends Component {
                                 <ButtonGroup fullWidth color="primary" >
                                     <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
                                     <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}>Route löschen </Button>
-                                    <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}>Route-an-Server-senden</Button>
+                                    <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}>Route an Server senden</Button>
                                     <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}>Download</Button>
                                 </ButtonGroup>
                             }
                         </Footer>
                     </div>
                 }
-
             </ErrorBoundary>
         );
     }
