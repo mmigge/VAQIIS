@@ -6,10 +6,12 @@ import StatusView from "../StatusView/StatusView";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import Footer from "./Footer"
 import ReactLoading from 'react-loading'
-import axios from 'axios';
+
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'
 
 import './../index.css'
-
+import './View.css'
 
 var Paho = require('paho-mqtt');
 
@@ -46,8 +48,7 @@ class View extends Component {
             featureGroup: {
                 geoJson: {
                     "type": "FeatureCollection",
-                    "features": [
-                    ]
+                    "features": []
                 }
             },
             route_coordinates:[]
@@ -56,12 +57,12 @@ class View extends Component {
     }
 
     componentDidMount = () => {
+        this.connectMQTT();
         this._getSensors();
         this.timer = setInterval(() => {
             this._getSensors()
         }, 10000,
         );
-        // this.connectMQTT();
     }
 
     componentWillUnmount() {
@@ -95,8 +96,11 @@ class View extends Component {
             }
         }
         let newFeatureGroup = this.state.featureGroup;
-        newFeatureGroup.geoJson.features.push(marker)
-        this.setState({ featureGroup: newFeatureGroup })
+        newFeatureGroup.geoJson.features.push(marker);
+        this.setState({
+            featureGroup: newFeatureGroup,
+            lastMeasurement: marker
+        })
     }
 
     _getSensors() {
@@ -107,7 +111,7 @@ class View extends Component {
             fetch(url)
                 .then((response) => response.json())
                 .then((json) => this.setState((prevState) => {
-                    { sensor_data: prevState.sensor_data.push(json) }
+                    sensor_data: prevState.sensor_data.push(json)
                 }
                 ))
                 .then(() => {
@@ -120,7 +124,6 @@ class View extends Component {
                 })
         })
     }
-
 
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
@@ -149,7 +152,9 @@ class View extends Component {
         //client.onMessageArrived = this.onMessageArrived;
 
         // connect the client
-        client.connect({ onSuccess: this.onConnect.bind(this) });
+        client.connect({ 
+            onSuccess: this.onConnect.bind(this)
+        });
     };
 
     publishMQTT(_message) {
@@ -163,51 +168,111 @@ class View extends Component {
         }
     }
 
-    // called when the client loses its connection
-    onConnectionLost = (responseObject) => {
-        if (responseObject.errorCode !== 0) {
-            console.log("onConnectionLost: " + responseObject.errorMessage);
-            this.setState({ connected: false })
-            //TODO connectMQTT + delay
-        }
-    };
-
-    // called when the client connects
+    // Connected: Set Subscription
     onConnect() {
         console.log("MQTT Broker Connect: Success");
         client.subscribe("message");
-        this.setState({ connected: true })
+        this.setState({
+            connected: true,
+        })
     };
 
-    handleStart = () => {
-        console.log("hello from button");
-        // 
-        const startpoint = this.state.lastMeasurement;
-        this.state.featureGroup.geoJson.features.push(this.state.lastMeasurement);
-        this.setState({ riding: true, startpoint })
-    }
-
-    handleStop = () => {
-        const endpoint = this.state.lastMeasurement;
-        this.setState({ riding: false, endpoint, route: true })
-    }
-
-    handleClear = () => {
-        this.state.featureGroup.geoJson.features = [];
-        this.setState({ featureGroup: this.state.featureGroup, startpoint: null, endpoint: null, route: false })
-    }
+    // Connection-Lost: Set 
+    onConnectionLost = (responseObject) => {
+        if (responseObject.errorCode !== 0) {
+            console.log("onConnectionLost: " + responseObject.errorMessage);
+            this.setState({ 
+                connected: false 
+            });
+            this.connectMQTT();
+        }
+    };
 
     handleSave = () => {
-        const self = this;
-        const object = { geoJson: this.state.featureGroup.geoJson, date: this.state.featureGroup.geoJson.features[0].properties.time }
-        console.log(object)
-        this.setState({ saving: true })
-        axios.post('http://giv-project2:9000/api/course', { route: object })
-            .then(res => {
-                console.log(res);
-                this.setState({ saving: false })
-            })
 
+        this.setState.saving =({
+            saving: true
+        })
+        
+        let featureGroup= {
+            geoJson: {
+                "type": "FeatureCollection",
+                "features": []
+            }
+        }
+
+
+        var startTime = this.state.startpoint.properties.time.split(':');
+        var endTime = this.state.endpoint.properties.time.split(':');
+
+        this.state.featureGroup.geoJson.features.forEach(function(feature){
+            let currFeatureTime = feature.properties.time.split(':');
+
+            if (startTime[0] <= currFeatureTime[0]){
+                if (startTime[1] <= currFeatureTime[1]){
+                    if (startTime[2] <= currFeatureTime[2]){
+                        if (endTime[0] >= currFeatureTime[0]){
+                            if (endTime[1] >= currFeatureTime[1]){
+                                if (endTime[2] >= currFeatureTime[2]){
+                                    featureGroup.geoJson.features.push(feature)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        this.publishMQTT(JSON.stringify(featureGroup)).then((res) =>{
+            this.setState.saving =({
+                saving: false
+            })
+        })
+    }
+
+    handleStartStop = () => {
+        if (this.state.recordingRoute) {
+            // If Route is already being recorded
+            this.setState({
+                recordingRoute: false,
+                recordedRoute: true,
+                endpoint: this.state.lastMeasurement,
+                startStopVal: 'Route fortsetzen'
+            })
+        } else {
+            // If Route is NOT being recorded 
+            this.setState({
+                recordingRoute: true,
+                startpoint: this.state.lastMeasurement,
+                startStopVal: 'Route stoppen'
+            })
+        }
+    }
+
+    confirmDelete = () => {
+        confirmAlert({
+            title: 'Achtung',
+            message: 'Soll die aktuelle Route wirklich gelöscht werden?',
+            buttons: [
+                {
+                    label: 'Ja',
+                    onClick: () => this.handleClear()
+                },
+                {
+                    label: 'Abbrechen',
+                    onClick: () => null
+                }
+            ]
+        })
+    };
+
+    handleClear = () => {
+        this.setState({
+            startpoint: null,
+            endpoint: null,
+            recordingRoute: false,
+            recordedRoute: false,
+            startStopVal: 'Route aufzeichnen'
+        })
     }
 
 
@@ -234,7 +299,13 @@ class View extends Component {
                             <TableView liveRoute={this.state.featureGroup} />
                         }
                         {this.state.value === 1 &&
-                            <MapView liveRoute={this.state.featureGroup} route_coordinates={this.state.route_coordinates}lastMeasurement={this.state.lastMeasurement} startpoint={this.state.startpoint} endpoint={this.state.endpoint} />
+                            <MapView
+                                liveRoute={this.state.featureGroup}
+                                route_coordinates={this.state.route_coordinates}
+                                lastMeasurement={this.state.lastMeasurement}
+                                startpoint={this.state.startpoint}
+                                endpoint={this.state.endpoint}
+                            />
                         }
                         {this.state.value === 2 &&
                             <StatusView />}
@@ -242,10 +313,10 @@ class View extends Component {
                             {this.state.saving ?
                                 <ReactLoading type={"bubbles"} color="blue" style={{ position: "absolute", left: "40%", width: "50px", height: "40px", color: "blue" }} /> :
                                 <ButtonGroup fullWidth color="primary" >
-                                    <Button onClick={this.handleStart} disabled={this.state.riding || this.state.route}>Start</Button>
-                                    <Button onClick={this.handleStop} disabled={!this.state.riding || this.state.route}>Stop</Button>
-                                    <Button onClick={this.handleClear} disabled={this.state.riding}>Clear</Button>
-                                    <Button onClick={this.handleSave} disabled={this.state.riding || !this.state.route || this.state.loading}>Send</Button>
+                                    <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
+                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}>Route löschen </Button>
+                                    <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}>Route-an-Server-senden</Button>
+                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}>Download</Button>
                                 </ButtonGroup>
                             }
                         </Footer>
@@ -255,8 +326,6 @@ class View extends Component {
             </ErrorBoundary>
         );
     }
-
-
 }
 
 export default View;

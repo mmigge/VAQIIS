@@ -62,6 +62,11 @@ class MapView extends Component {
         return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + (hours > 9 ? '' : '0') + hours + ":" + (min > 9 ? '' : '0') + min;
     };
 
+    addComment = function(){
+        // ToDo
+        return ''
+    }
+
     render() {
         return (
             <Container fluid>

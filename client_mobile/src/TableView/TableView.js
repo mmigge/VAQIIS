@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { Container, Table, Dropdown, DropdownButton } from 'react-bootstrap'
 import ReactLoading from 'react-loading'
-//
-class TableView extends Component {
 
+class TableView extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -12,8 +11,6 @@ class TableView extends Component {
             tables: []
         }
     }
-
-
     componentDidMount() {
         console.log(this.props)
         // this._getAllTables()
