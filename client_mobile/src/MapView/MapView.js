@@ -53,6 +53,7 @@ class MapView extends Component {
     }
 
     componentDidMount = () => {
+        this.setState(this.props)
         Modal.setAppElement('body');
     }
     handleSubmit = (event) => {
