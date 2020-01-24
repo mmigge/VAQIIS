@@ -52,6 +52,7 @@ class OwnMap extends React.Component {
         this.state = {
 
         };
+        this.handleClick2 = this.handleClick2.bind(this);
     };
 
     componentDidMount() {
@@ -78,8 +79,11 @@ class OwnMap extends React.Component {
             this.props.handleSelected(properties.temp, properties.humi, properties.pm10, properties.time);
         }
     }
-    handleClick2(e){    
-        console.log(e.target)
+    handleClick2(e) {
+        let time_string = e.target.options.value;
+        this.setState({
+            selectedMarker: time_string
+        })
     }
 
     render() {
@@ -95,7 +99,10 @@ class OwnMap extends React.Component {
                 <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>
                 </FeatureGroup>
                 {this.props.liveRoute.geoJson.features.map((marker, i) => {
-                    return <Marker onClick={this.handleClick2} key={"marker" + i} icon={greenIcon} position={marker.geometry.coordinates}/>
+                    return <Marker value={marker.properties.time} onClick={this.handleClick2} key={"marker" + i}
+                        icon={ this.state.selectedMarker == marker.properties.time?
+                            greenIcon:redIcon
+                        } position={marker.geometry.coordinates} />
                 })}
                 <Polyline positions={this.props.route_coordinates} />
             </Map>

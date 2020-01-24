@@ -130,7 +130,7 @@ class MapView extends Component {
                                                         }
                                                     })
                                                     }
-                                                    <td className="customtd"><Button value={item.properties.time} onClick={this.openModal} class="editButton"><FaRegEdit /></Button></td>
+                                                    <td className="customtd editButton"><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
                                                 </tr>
                                             )
                                         })}

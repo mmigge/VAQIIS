@@ -100,7 +100,6 @@ class View extends Component {
                 "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length - 1][0], this.state.route_coordinates[this.state.route_coordinates.length - 1][1]]
             }
         }
-        console.log(coordinates)
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.push(marker);
         this.setState({
