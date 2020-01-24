@@ -53,25 +53,8 @@ class MapView extends Component {
     }
 
     componentDidMount = () => {
-        this.setState(this.props)
         Modal.setAppElement('body');
     }
-
-    // handleSelected = (selectedTemp, selectedHumi, selectedPm10, selectedTime) => {
-    //     this.setState({
-    //         selectedTemp,
-    //         selectedHumi,
-    //         selectedPm10,
-    //         selectedTime,
-    //     })
-    // }
-
-    // componentDidUpdate(prevProps) {
-    //     if (JSON.stringify(this.props.liveRoute) !== JSON.stringify(prevProps.liveRoute) || JSON.stringify(this.props.startpoint) !== JSON.stringify(prevProps.startpoint) || JSON.stringify(this.props.endpoint) !== JSON.stringify(prevProps.endpoint)) {
-    //         this.setState(this.props)
-    //     }
-    // }
-
     handleSubmit = (event) => {
         this.closeModal();
         event.preventDefault()

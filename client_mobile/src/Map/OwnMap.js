@@ -1,6 +1,6 @@
 import React from 'react'
-import { Map, TileLayer, FeatureGroup, Marker, Polyline } from 'react-leaflet'
-
+import { Map, TileLayer, Marker, Polyline } from 'react-leaflet'
+// icon creation
 import L from 'leaflet'
 
 let firstTime = true
@@ -42,44 +42,15 @@ var goldIcon = new L.Icon({
 });
 
 
-let last;
-let selected;
-export let ref;
-
 class OwnMap extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-
-        };
-        this.handleClick2 = this.handleClick2.bind(this);
+        this.state = {};
+        this.handleClickMarker = this.handleClickMarker.bind(this);
     };
 
-    componentDidMount() {
-        firstTime = true
-    }
 
-
-    _onFeatureGroupReady = (ref) => {
-        if (!firstTime) {
-            return;
-        }
-    }
-
-    handleClick = (selectedLayer, allLayers) => {
-        allLayers.eachLayer(layer => { if (JSON.stringify(last) === JSON.stringify(layer._latlng)) { layer.setIcon(goldIcon) } else { layer.setIcon(blueIcon) } });
-        if (JSON.stringify(selected) === JSON.stringify(selectedLayer._latlng)) {
-            this.props.handleSelected();
-            selected = null;
-        }
-        else {
-            const properties = selectedLayer.feature.properties;
-            selected = selectedLayer._latlng
-            selectedLayer.setIcon(greenIcon)
-            this.props.handleSelected(properties.temp, properties.humi, properties.pm10, properties.time);
-        }
-    }
-    handleClick2(e) {
+    handleClickMarker(e) {
         // uses time string as id for the markers
         let time_string = e.target.options.value;
         this.setState({
@@ -89,24 +60,22 @@ class OwnMap extends React.Component {
     }
 
     render() {
-
         const position = [51.9688129, 7.5922197];
-
         return (
             <Map style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
                 <TileLayer
                     attribution="Using Mapnik-Tiles"
                     url="map-tiles/{z}/{x}/{y}.png"
                 />
-                <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>
-                </FeatureGroup>
+                {/* Map markers on the Map,if marker was clicked turn green */}
                 {this.props.liveRoute.geoJson.features.map((marker, i) => {
-                    return <Marker value={marker.properties.time} onClick={this.handleClick2} key={"marker" + i}
+                    return <Marker value={marker.properties.time} onClick={this.handleClickMarker} key={"marker" + i}
                         icon={ // if clause that checks if the marker is selected
                             this.state.selectedMarker == marker.properties.time?
                             greenIcon:redIcon
                         } position={marker.geometry.coordinates} />
                 })}
+                {/* Polyline extracted from the geoJSON */}
                 <Polyline positions={this.props.route_coordinates} />
             </Map>
         );

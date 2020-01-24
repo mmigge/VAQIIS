@@ -12,8 +12,6 @@ class TableView extends Component {
         }
     }
     componentDidMount() {
-        console.log(this.props)
-        // this._getAllTables()
     }
 
     render() {
@@ -37,7 +35,6 @@ class TableView extends Component {
                         </thead>
                         <tbody>
                             {this.props.liveRoute.geoJson.features.map((item, i) => {
-                                console.log(item)
                                 return (
                                     <tr key={"id2" + i}>
                                         {Object.keys(item.properties).map((key, index) => {
