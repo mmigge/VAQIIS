@@ -30,6 +30,7 @@ class View extends Component {
             startStopVal: <IoIosPlay className="svg_icons" />,
             connected: false,
             sensors: [
+                // These are sensors that get queried every 5 seconds
                 "Public.rmcspeed",
                 "Public.rmclatitude",
                 "Public.rmclongitude",

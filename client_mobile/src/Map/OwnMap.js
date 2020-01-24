@@ -78,47 +78,8 @@ class OwnMap extends React.Component {
             this.props.handleSelected(properties.temp, properties.humi, properties.pm10, properties.time);
         }
     }
-
-    addLayer = (leafletFg, layer) => {
-        leafletFg.addLayer(layer)
-        if (JSON.stringify(layer._latlng) === JSON.stringify(selected)) {
-            layer.setIcon(greenIcon)
-        }
-        if (JSON.stringify(layer._latlng) === JSON.stringify(last)) {
-            layer.setIcon(goldIcon)
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-        // Typical usage (don't forget to compare props): 
-        this.FG = ref;
-        let leafletFG = this.FG.leafletElement;
-        if (this.props.liveRoute) {
-            let GeoJSON = this.props.liveRoute.geoJson.features[this.props.liveRoute.geoJson.features.length - 1];
-            let leafletGeoJSON = new L.GeoJSON(GeoJSON);
-            leafletGeoJSON.eachLayer(layer => { last = layer._latlng });
-        }
-        const self = this;
-        let GeoJSON = this.getGeoJson();
-        let leafletGeoJSON = new L.GeoJSON(this.props.liveRoute.geoJson);
-        leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
-        leafletFG.clearLayers();
-        leafletGeoJSON.eachLayer(layer => self.addLayer(leafletFG, layer));
-        if (this.props.startpoint) {
-            const point = new L.GeoJSON(this.props.startpoint);
-            point.eachLayer(layer => { leafletFG.addLayer(layer); layer.setIcon(redIcon) });
-        }
-        if (this.props.endpoint) {
-            const point = new L.GeoJSON(this.props.endpoint);
-            point.eachLayer(layer => { leafletFG.addLayer(layer); layer.setIcon(redIcon) });
-        }
-    }
-
-    getGeoJson = () => {
-        if (this.props.route) {
-            return this.props.route.geoJson
-        }
-        else { return null }
+    handleClick2(e){    
+        console.log(e.target)
     }
 
     render() {
@@ -134,7 +95,7 @@ class OwnMap extends React.Component {
                 <FeatureGroup ref={(reactFGref) => { this._onFeatureGroupReady(reactFGref); ref = reactFGref }}>
                 </FeatureGroup>
                 {this.props.liveRoute.geoJson.features.map((marker, i) => {
-                    return <Marker key={"marker" + i} icon={greenIcon} position={marker.geometry.coordinates} />
+                    return <Marker onClick={this.handleClick2} key={"marker" + i} icon={greenIcon} position={marker.geometry.coordinates}/>
                 })}
                 <Polyline positions={this.props.route_coordinates} />
             </Map>
