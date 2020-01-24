@@ -33,7 +33,11 @@ class MapView extends Component {
                 Gill_Diag: "Wind",
                 compass_heading: "S/N/W/E",
                 CPC_aux: "CPC",
-                CO2: "CO2"
+                CO2: "CO2",
+                u:'u',
+                v:'v',
+                w:'w',
+                Ts:'Ts'
             },
             liveRoute: {
                 geoJson: {
