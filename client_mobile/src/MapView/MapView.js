@@ -80,6 +80,7 @@ class MapView extends Component {
     _toggleSelected(e) {
         // compare timestring if found push that whole measurement (feature) to the state
         let that = this;
+        if(e=='') this.setState({selectedMeasurement:'',selected:false})
         this.props.liveRoute.geoJson.features.forEach(function (feature) {
             if (feature.properties.time === e) {
                 that.setState({ selectedMeasurement: feature, selected: true })

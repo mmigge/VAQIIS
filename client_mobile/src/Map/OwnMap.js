@@ -47,6 +47,7 @@ class OwnMap extends React.Component {
         super(props);
         this.state = {};
         this.handleClickMarker = this.handleClickMarker.bind(this);
+        this.deselect = this.deselect.bind(this);
     };
 
 
@@ -58,11 +59,17 @@ class OwnMap extends React.Component {
         })
         this.props._toggleSelected(time_string);
     }
+    deselect(e){
+        this.setState({
+            selectedMarker:''
+        })
+        this.props._toggleSelected('')
+    }
 
     render() {
         const position = [51.9688129, 7.5922197];
         return (
-            <Map style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
+            <Map onClick={this.deselect} style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
                 <TileLayer
                     attribution="Using Mapnik-Tiles"
                     url="map-tiles/{z}/{x}/{y}.png"
