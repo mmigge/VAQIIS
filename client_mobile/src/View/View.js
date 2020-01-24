@@ -65,14 +65,13 @@ class View extends Component {
         this.connectMQTT();
 
         this._getSensors()
-        .then(()=>{
-            const sensor_data = {...this.state.sensor_data_public,...this.state.sensor_data_fasttable}
-            console.log(sensor_data)
-            this.setState({sensor_data})
-        })
-        .then(() => this._addMarker())
-        .then(()=>this.setState({loading:false}));
-        //this._addMarker();
+            .then(() => {
+                const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
+                console.log(sensor_data)
+                this.setState({ sensor_data })
+            })
+            .then(() => this._addMarker())
+            .then(() => this.setState({ loading: false }));
         this.timer = setInterval(() => {
             this._getSensors().then(() => this._addMarker());
         }, 10000,
@@ -88,20 +87,16 @@ class View extends Component {
     };
 
     _addMarker() {
-        console.log(this.state.sensor_data)
-
         let marker = {
             "type": "Feature",
             "properties": this.state.sensor_data,
             "geometry": {
                 "type": "Point",
-                coordinates: [this.state.sensor_data.rmclatitude, this.state.sensor_data.rmclongitude]
-                // "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length - 1][0], this.state.route_coordinates[this.state.route_coordinates.length - 1][1]]
+                "coordinates": [this.state.sensor_data.rmclatitude, this.state.sensor_data.rmclongitude]
             }
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.push(marker);
-        console.log(newFeatureGroup)
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker
@@ -116,8 +111,8 @@ class View extends Component {
                 let sensor_data_fasttable = {}
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
-                        if(field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
-                        else if(field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
+                        if (field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
+                        else if (field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
                         else sensor_data_fasttable[field.name] = json.data[0].vals[index]
                     }
                 })
@@ -133,8 +128,8 @@ class View extends Component {
                 sensor_data_public.time = json.data[0].time
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
-                        if(field.name == "rmclatitude") return;
-                        else if(field.name == "rmclongitude") return;
+                        if (field.name == "rmclatitude") return;
+                        else if (field.name == "rmclongitude") return;
                         else sensor_data_public[field.name] = json.data[0].vals[index]
                     }
                 })
@@ -145,12 +140,8 @@ class View extends Component {
     _getSensors() {
         return Promise.all([this._getFasttable(), this._getPublicTable()])
     }
-    _addOne(number) {
-        let newNumber = number + 1;
-        return newNumber;
-    }
-    _convertLat(lat){
-        if(!lat || lat ==""){
+    _convertLat(lat) {
+        if (!lat || lat == "") {
             return 51.9688129// dummy coordinates or last known coordinates
         }
         else {
@@ -159,12 +150,12 @@ class View extends Component {
             let lat = lat_temp_1 + lat_temp_2;
             return lat
         }
+    }
+    _convertLon(lon) {
+        if (!lon || lon == "") {
+            return 7.5922197// dummy coordinates or last known coordinates
         }
-    _convertLon(lon){
-        if(!lon || lon == ""){
-            return  7.5922197// dummy coordinates or last known coordinates
-        }
-        else{
+        else {
             let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
             let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
             let long = long_temp_1 + long_temp_2;
@@ -172,40 +163,6 @@ class View extends Component {
         }
 
     }
-    _convertGPSData(lat1, lon) {
-        // Leading zeros not allowed --> string
-        let coordinates = [];
-        try {
-            let lat_temp_1 = parseFloat(lat1.split('.')[0].substring(0, 2));
-            let lat_temp_2 = parseFloat(lat1.split(lat_temp_1)[1]) / 60;
-            let lat = lat_temp_1 + lat_temp_2;
-
-            let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
-            let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
-            let long = long_temp_1 + long_temp_2;
-            coordinates = [lat, long];
-        }
-        catch (e) {
-            console.log("wrong coordinates")
-        }
-        // Temporary variable for the bugfix below
-        let position = [] //;
-        // Bugfix for when no coordinates were sent(not ready)
-        // Pushes last known coordinates 
-        if (isNaN(coordinates[0]) || isNaN(coordinates[1]) || !coordinates[0] || !coordinates[1]) {
-            if (this.state.route_coordinates.length < 1) position = [51.9688129, 7.5922197];
-            else position = this.state.route_coordinates[this.state.route_coordinates.length - 1];
-            this.setState((prevState) => {
-                route_coordinates: prevState.route_coordinates.push(position);
-            })
-        }
-        else {
-            this.setState((prevState) => {
-                route_coordinates: prevState.route_coordinates.push(coordinates);
-            })
-        }
-    }
-
     connectMQTT() {
         // generating random clientID
         var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
