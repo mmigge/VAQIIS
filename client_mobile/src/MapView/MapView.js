@@ -30,7 +30,6 @@ class MapView extends Component {
                 LiveBin_1dM: "P10",
                 RH_Avg: "%",
                 time: "Time",
-                Gill_Diag: "Wind",
                 compass_heading: "S/N/W/E",
                 CPC_aux: "CPC",
                 CO2: "CO2",
@@ -67,11 +66,11 @@ class MapView extends Component {
     //     })
     // }
 
-    componentDidUpdate(prevProps) {
-        if (JSON.stringify(this.props.liveRoute) !== JSON.stringify(prevProps.liveRoute) || JSON.stringify(this.props.startpoint) !== JSON.stringify(prevProps.startpoint) || JSON.stringify(this.props.endpoint) !== JSON.stringify(prevProps.endpoint)) {
-            this.setState(this.props)
-        }
-    }
+    // componentDidUpdate(prevProps) {
+    //     if (JSON.stringify(this.props.liveRoute) !== JSON.stringify(prevProps.liveRoute) || JSON.stringify(this.props.startpoint) !== JSON.stringify(prevProps.startpoint) || JSON.stringify(this.props.endpoint) !== JSON.stringify(prevProps.endpoint)) {
+    //         this.setState(this.props)
+    //     }
+    // }
 
     handleSubmit = (event) => {
         this.closeModal();
@@ -95,9 +94,6 @@ class MapView extends Component {
     }
 
     _toggleSelected(e) {
-        // this.setState((prevState) => {
-        //     selected: !prevState.selected}
-        // )
         // compare timestring if found push that whole measurement (feature) to the state
         let that = this;
         this.props.liveRoute.geoJson.features.forEach(function (feature) {
@@ -114,8 +110,6 @@ class MapView extends Component {
     }
 
     render() {
-        console.log(this.state.selectedMeasurement)
-
         return (
             <Container fluid>
                 <div>
@@ -140,7 +134,7 @@ class MapView extends Component {
                                         <tr>
                                             {Object.keys(this.state.selectedMeasurement.properties).map((key, i) => {
                                                 if (this.state.shortcuts[key]) {
-                                                    return <td className="customtd" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>
+                                                    return <td className="customtd selected" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>
                                                 }
                                             })}
                                             <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>

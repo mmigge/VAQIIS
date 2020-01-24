@@ -37,7 +37,6 @@ class View extends Component {
                 "fasttable.AirTC_Avg",
                 "fasttable.RH_Avg",
                 "Public.LiveBin_1dM",
-                "fasttable.Gill_Diag",
                 "fasttable.u",
                 "fasttable.v",
                 "fasttable.w",
@@ -142,10 +141,12 @@ class View extends Component {
 
         const coordinates = [lat, long];
         // Temporary variable for the bugfix below
-        const position = [51.9688129, 7.5922197];
-
+        let position =[] //;
         // Bugfix for when no coordinates were sent(not ready)
+        // Pushes last known coordinates 
         if (isNaN(coordinates[0]) || isNaN(coordinates[1])) {
+            if(this.state.route_coordinates.length<1)position=[51.9688129, 7.5922197];
+            else position = this.state.route_coordinates[this.state.route_coordinates.length-1];
             this.setState((prevState) => {
                 route_coordinates: prevState.route_coordinates.push(position);
             })
