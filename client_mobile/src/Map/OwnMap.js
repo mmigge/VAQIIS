@@ -80,10 +80,12 @@ class OwnMap extends React.Component {
         }
     }
     handleClick2(e) {
+        // uses time string as id for the markers
         let time_string = e.target.options.value;
         this.setState({
             selectedMarker: time_string
         })
+        this.props._toggleSelected(time_string);
     }
 
     render() {
@@ -100,7 +102,8 @@ class OwnMap extends React.Component {
                 </FeatureGroup>
                 {this.props.liveRoute.geoJson.features.map((marker, i) => {
                     return <Marker value={marker.properties.time} onClick={this.handleClick2} key={"marker" + i}
-                        icon={ this.state.selectedMarker == marker.properties.time?
+                        icon={ // if clause that checks if the marker is selected
+                            this.state.selectedMarker == marker.properties.time?
                             greenIcon:redIcon
                         } position={marker.geometry.coordinates} />
                 })}

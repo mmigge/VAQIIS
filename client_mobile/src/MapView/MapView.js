@@ -34,21 +34,23 @@ class MapView extends Component {
                 compass_heading: "S/N/W/E",
                 CPC_aux: "CPC",
                 CO2: "CO2",
-                u:'u',
-                v:'v',
-                w:'w',
-                Ts:'Ts'
+                u: 'u',
+                v: 'v',
+                w: 'w',
+                Ts: 'Ts'
             },
             liveRoute: {
                 geoJson: {
                     features: []
                 }
             },
-            CommentIsOpen: false
+            CommentIsOpen: false,
+            selectedMeasurement: []
         }
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.handleInput = this.handleInput.bind(this);
+        this._toggleSelected = this._toggleSelected.bind(this);
     }
 
     componentDidMount = () => {
@@ -56,14 +58,14 @@ class MapView extends Component {
         Modal.setAppElement('body');
     }
 
-    handleSelected = (selectedTemp, selectedHumi, selectedPm10, selectedTime) => {
-        this.setState({
-            selectedTemp,
-            selectedHumi,
-            selectedPm10,
-            selectedTime,
-        })
-    }
+    // handleSelected = (selectedTemp, selectedHumi, selectedPm10, selectedTime) => {
+    //     this.setState({
+    //         selectedTemp,
+    //         selectedHumi,
+    //         selectedPm10,
+    //         selectedTime,
+    //     })
+    // }
 
     componentDidUpdate(prevProps) {
         if (JSON.stringify(this.props.liveRoute) !== JSON.stringify(prevProps.liveRoute) || JSON.stringify(this.props.startpoint) !== JSON.stringify(prevProps.startpoint) || JSON.stringify(this.props.endpoint) !== JSON.stringify(prevProps.endpoint)) {
@@ -92,6 +94,19 @@ class MapView extends Component {
         this.setState({ CommentIsOpen: false });
     }
 
+    _toggleSelected(e) {
+        // this.setState((prevState) => {
+        //     selected: !prevState.selected}
+        // )
+        // compare timestring if found push that whole measurement (feature) to the state
+        let that = this;
+        this.props.liveRoute.geoJson.features.forEach(function (feature) {
+            if (feature.properties.time === e) {
+                that.setState({ selectedMeasurement: feature, selected: true })
+            }
+        })    
+    }
+
     handleInput(e) {
         this.setState({
             selectedComment: e.target.value
@@ -99,10 +114,12 @@ class MapView extends Component {
     }
 
     render() {
+        console.log(this.state.selectedMeasurement)
+
         return (
             <Container fluid>
                 <div>
-                    <OwnMap liveRoute={this.props.liveRoute} route_coordinates={this.props.route_coordinates} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
+                    <OwnMap _toggleSelected={this._toggleSelected} liveRoute={this.props.liveRoute} route_coordinates={this.props.route_coordinates} startpoint={this.state.startpoint} endpoint={this.state.endpoint} handleSelected={this.handleSelected} />
                 </div>
                 <Row style={{ 'marginTop': '5px' }}>
                     <Col md={12}>
@@ -119,9 +136,18 @@ class MapView extends Component {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {this.state.selected ?
+                                        <tr>
+                                            {Object.keys(this.state.selectedMeasurement.properties).map((key, i) => {
+                                                if (this.state.shortcuts[key]) {
+                                                    return <td className="customtd" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>
+                                                }
+                                            })}
+                                            <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
+                                        </tr>
+                                        : null}
                                     {
                                         this.state.liveRoute.geoJson.features.map((item, i) => {
-
                                             return (
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {
@@ -149,7 +175,7 @@ class MapView extends Component {
                         <h4>Kommentar-Funktion</h4>
                         <form onSubmit={this.handleSubmit}>
                             <input onChange={this.handleInput} defaultValue={this.state.selectedComment} type="text" />
-                            
+
                             <div className="button-wrapper">
                                 <Button value={this.state.selectedRow} type="submit">Kommentar speichern</Button>
                                 <Button onClick={this.closeModal} >Abbrechen</Button>
