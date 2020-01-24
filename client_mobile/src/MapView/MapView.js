@@ -29,7 +29,6 @@ class MapView extends Component {
                 AirTC_Avg: "°C",
                 LiveBin_1dM: "P10",
                 RH_Avg: "%",
-                time: "Time",
                 compass_heading: "S/N/W/E",
                 CPC_aux: "CPC",
                 CO2: "CO2",

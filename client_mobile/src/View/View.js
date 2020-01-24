@@ -64,7 +64,14 @@ class View extends Component {
     componentDidMount = () => {
         this.connectMQTT();
 
-        this._getSensors().then(() => this._addMarker()).then(()=>this.setState({loading:false}));
+        this._getSensors()
+        .then(()=>{
+            const sensor_data = {...this.state.sensor_data_public,...this.state.sensor_data_fasttable}
+            console.log(sensor_data)
+            this.setState({sensor_data})
+        })
+        .then(() => this._addMarker())
+        .then(()=>this.setState({loading:false}));
         //this._addMarker();
         this.timer = setInterval(() => {
             this._getSensors().then(() => this._addMarker());
@@ -106,24 +113,33 @@ class View extends Component {
         return fetch(url_fasttable)
             .then(response => response.json())
             .then((json) => {
-                let sensor_data = {}
+                let sensor_data_fasttable = {}
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
-                        if(field.name == "rmclatitude") sensor_data.rmclatitude = this._convertLat(json.data[0].vals[index]);
-                        else if(field.name == "rmclongitude") sensor_data.rmclongitude = this._convertLon(json.data[0].vals[index]);
-                        else sensor_data[field.name] = json.data[0].vals[index]
+                        if(field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
+                        else if(field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
+                        else sensor_data_fasttable[field.name] = json.data[0].vals[index]
                     }
                 })
-                sensor_data.time = json.data[0].time
-                this.setState({ sensor_data })
+                this.setState({ sensor_data_fasttable })
             })
     }
     _getPublicTable() {
         let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
         return fetch(url_public)
             .then(response => response.json())
-            .then((jsonPublic) => {
-                this.setState({ jsonPublic })
+            .then((json) => {
+                let sensor_data_public = {}
+                sensor_data_public.time = json.data[0].time
+                json.head.fields.map((field, index) => {
+                    if (this.state.sensors.includes(field.name)) {
+                        if(field.name == "rmclatitude") return;
+                        else if(field.name == "rmclongitude") return;
+                        else sensor_data_public[field.name] = json.data[0].vals[index]
+                    }
+                })
+                this.setState({ sensor_data_public })
+
             })
     }
     _getSensors() {
