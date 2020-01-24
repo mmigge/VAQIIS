@@ -1,4 +1,20 @@
-.customtd{
-    padding:0px!important;
-    vertical-align: baseline!important;    
+.customtd {
+    padding: 0px !important;
+    vertical-align: baseline !important;
+}
+
+.customtdButton {
+    vertical-align: baseline !important;
+    color: #3f51b5;
+    width: max-content;
+}
+
+.btn-primary {
+    color: #3f51b5;
+    border-color: transparent;
+    background-color: transparent;
+}
+
+.table th {
+    padding: 0.5rem;
 }
