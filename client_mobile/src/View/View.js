@@ -31,22 +31,21 @@ class View extends Component {
             connected: false,
             sensors: [
                 // These are sensors that get queried every 5 seconds
-                "Public.rmcspeed",
-                "Public.rmclatitude",
-                "Public.rmclongitude",
-                "fasttable.AirTC_Avg",
-                "fasttable.RH_Avg",
-                "Public.LiveBin_1dM",
-                "fasttable.u",
-                "fasttable.v",
-                "fasttable.w",
-                "fasttabe.Ts",
-                "Public.CPC_aux",
-                "Public.CO2",
-                "fasttable.H2O",
-                "Public.diag_LI75"
+                "rmcspeed",
+                "rmclatitude",
+                "rmclongitude",
+                "AirTC_Avg",
+                "RH_Avg",
+                "LiveBin_1dM",
+                "u",
+                "v",
+                "w",
+                "Ts",
+                "CPC_aux",
+                "CO2",
+                "H2O",
+                "diag_LI75"
             ],
-            sensor_data: [],
             server_ip: '10.6.4.7',
             server_port: 9001,
             featureGroup: {
@@ -56,7 +55,7 @@ class View extends Component {
                 }
             },
             route_coordinates: [],
-            counter:0
+            counter: 0
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
         this.download = this.download.bind(this)
@@ -64,9 +63,11 @@ class View extends Component {
 
     componentDidMount = () => {
         this.connectMQTT();
-        this._getSensors();
+
+        this._getSensors().then(() => this._addMarker()).then(()=>this.setState({loading:false}));
+        //this._addMarker();
         this.timer = setInterval(() => {
-            this._getSensors()
+            this._getSensors().then(() => this._addMarker());
         }, 10000,
         );
     }
@@ -80,75 +81,102 @@ class View extends Component {
     };
 
     _addMarker() {
-        let properties = { time: this.state.time };
-        let coordinates = { latitude: '0', longitude: '0' }
-        this.state.sensor_data.map((sensor, i) => {
-            let value = sensor.data[0].vals[0]
-            let obj_name = sensor.head.fields[0].name
-            properties.time = this.state.time
-            if (obj_name === "rmclatitude") coordinates.latitude = value // exchange with value
-            if (obj_name === "rmclongitude") coordinates.longitude = value // exchange with value 
-            else properties[obj_name] = value;
-        })
+        console.log(this.state.sensor_data)
 
-        this._convertGPSData(coordinates.latitude, coordinates.longitude)
         let marker = {
             "type": "Feature",
-            properties,
+            "properties": this.state.sensor_data,
             "geometry": {
                 "type": "Point",
-                "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length - 1][0], this.state.route_coordinates[this.state.route_coordinates.length - 1][1]]
+                coordinates: [this.state.sensor_data.rmclatitude, this.state.sensor_data.rmclongitude]
+                // "coordinates": [this.state.route_coordinates[this.state.route_coordinates.length - 1][0], this.state.route_coordinates[this.state.route_coordinates.length - 1][1]]
             }
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.push(marker);
+        console.log(newFeatureGroup)
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker
         })
     }
 
-    _getSensors() {
-        // Perform a request for each sensor in the state
-        this.state.sensors.map((sensor, index) => {
-            // Build URL according to sensor name
-            let url = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:" + sensor + "&mode=most-recent&format=json";
-            fetch(url)
-                .then((response) => response.json())
-                .then((json) => this.setState((prevState) => {
-                    sensor_data: prevState.sensor_data.push(json)
-                }
-                ))
-                .then(() => {
-                    if (this.state.sensor_data.length === this.state.sensors.length) {
-                        let date = new Date(this.state.sensor_data[this.state.sensor_data.length - 3].data[0].time)
-                        this.setState({ time: date.toLocaleTimeString() })
-                        this._addMarker()
-                        this.setState({ loading: false,sensor_data:[] })
+    _getFasttable() {
+        let url_fasttable = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
+        return fetch(url_fasttable)
+            .then(response => response.json())
+            .then((json) => {
+                let sensor_data = {}
+                json.head.fields.map((field, index) => {
+                    if (this.state.sensors.includes(field.name)) {
+                        if(field.name == "rmclatitude") sensor_data.rmclatitude = this._convertLat(json.data[0].vals[index]);
+                        else if(field.name == "rmclongitude") sensor_data.rmclongitude = this._convertLon(json.data[0].vals[index]);
+                        else sensor_data[field.name] = json.data[0].vals[index]
                     }
                 })
-        })
+                sensor_data.time = json.data[0].time
+                this.setState({ sensor_data })
+            })
     }
-    _addOne(number){
-        let newNumber = number+1;
+    _getPublicTable() {
+        let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
+        return fetch(url_public)
+            .then(response => response.json())
+            .then((jsonPublic) => {
+                this.setState({ jsonPublic })
+            })
+    }
+    _getSensors() {
+        return Promise.all([this._getFasttable(), this._getPublicTable()])
+    }
+    _addOne(number) {
+        let newNumber = number + 1;
         return newNumber;
+    }
+    _convertLat(lat){
+        if(!lat || lat ==""){
+            return 51.9688129// dummy coordinates or last known coordinates
+        }
+        else {
+            let lat_temp_1 = parseFloat(lat.split('.')[0].substring(0, 2));
+            let lat_temp_2 = parseFloat(lat.split(lat_temp_1)[1]) / 60;
+            let lat = lat_temp_1 + lat_temp_2;
+            return lat
+        }
+        }
+    _convertLon(lon){
+        if(!lon || lon == ""){
+            return  7.5922197// dummy coordinates or last known coordinates
+        }
+        else{
+            let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
+            let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
+            let long = long_temp_1 + long_temp_2;
+            return long;
+        }
+
     }
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
-        let lat_temp_1 = parseFloat(lat1.split('.')[0].substring(0, 2));
-        let lat_temp_2 = parseFloat(lat1.split(lat_temp_1)[1]) / 60;
-        let lat = lat_temp_1 + lat_temp_2;
+        let coordinates = [];
+        try {
+            let lat_temp_1 = parseFloat(lat1.split('.')[0].substring(0, 2));
+            let lat_temp_2 = parseFloat(lat1.split(lat_temp_1)[1]) / 60;
+            let lat = lat_temp_1 + lat_temp_2;
 
-        let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
-        let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
-        let long = long_temp_1 + long_temp_2;
-
-        const coordinates = [lat, long];
+            let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
+            let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
+            let long = long_temp_1 + long_temp_2;
+            coordinates = [lat, long];
+        }
+        catch (e) {
+            console.log("wrong coordinates")
+        }
         // Temporary variable for the bugfix below
         let position = [] //;
         // Bugfix for when no coordinates were sent(not ready)
         // Pushes last known coordinates 
-        if (isNaN(coordinates[0]) || isNaN(coordinates[1])) {
+        if (isNaN(coordinates[0]) || isNaN(coordinates[1]) || !coordinates[0] || !coordinates[1]) {
             if (this.state.route_coordinates.length < 1) position = [51.9688129, 7.5922197];
             else position = this.state.route_coordinates[this.state.route_coordinates.length - 1];
             this.setState((prevState) => {

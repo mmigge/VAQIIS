@@ -94,6 +94,7 @@ class MapView extends Component {
     }
 
     render() {
+        console.log(this.props.liveRoute)
         return (
             <Container fluid>
                 <div>
@@ -124,8 +125,7 @@ class MapView extends Component {
                                             <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
                                         </tr>
                                         : null}
-                                    {
-                                        this.state.liveRoute.geoJson.features.map((item, i) => {
+                                    {this.state.liveRoute.geoJson.features.map((item, i) => {
                                             return (
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {
