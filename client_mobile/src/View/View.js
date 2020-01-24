@@ -77,7 +77,7 @@ class View extends Component {
                 const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
                 this.setState({ sensor_data })
             }).then(() => this._addMarker());
-        }, 10000,
+        }, 2000,
         );
     }
 
@@ -99,7 +99,7 @@ class View extends Component {
             }
         }
         let newFeatureGroup = this.state.featureGroup;
-        newFeatureGroup.geoJson.features.push(marker);
+        newFeatureGroup.geoJson.features.unshift(marker);
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker

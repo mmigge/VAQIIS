@@ -124,7 +124,7 @@ class MapView extends Component {
                                             <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
                                         </tr>
                                         : null}
-                                    {this.props.liveRoute.geoJson.features.reverse().map((item, i) => {
+                                    {this.props.liveRoute.geoJson.features.map((item, i) => {
                                             return (
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {
