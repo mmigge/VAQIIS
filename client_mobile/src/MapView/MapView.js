@@ -35,7 +35,8 @@ class MapView extends Component {
                 u: 'u',
                 v: 'v',
                 w: 'w',
-                Ts: 'Ts'
+                Ts: 'Ts',
+                time:'Time'
             },
             liveRoute: {
                 geoJson: {
@@ -52,7 +53,7 @@ class MapView extends Component {
     }
 
     componentDidMount = () => {
-        this.setState(this.props)
+        // this.setState(this.props)
         Modal.setAppElement('body');
     }
     handleSubmit = (event) => {
@@ -93,7 +94,6 @@ class MapView extends Component {
     }
 
     render() {
-        console.log(this.props.liveRoute)
         return (
             <Container fluid>
                 <div>
@@ -124,7 +124,7 @@ class MapView extends Component {
                                             <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
                                         </tr>
                                         : null}
-                                    {this.state.liveRoute.geoJson.features.map((item, i) => {
+                                    {this.props.liveRoute.geoJson.features.reverse().map((item, i) => {
                                             return (
                                                 <tr key={"id2" + i}>
                                                     {Object.keys(item.properties).map((key, index) => {

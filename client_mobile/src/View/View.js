@@ -43,7 +43,8 @@ class View extends Component {
                 "Ts",
                 "CPC_aux",
                 "CO2",
-                "H2O",
+                "H2O",        //this._addMarker();
+
                 "diag_LI75"
             ],
             server_ip: '10.6.4.7',
@@ -67,13 +68,15 @@ class View extends Component {
         this._getSensors()
             .then(() => {
                 const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
-                console.log(sensor_data)
                 this.setState({ sensor_data })
             })
             .then(() => this._addMarker())
             .then(() => this.setState({ loading: false }));
         this.timer = setInterval(() => {
-            this._getSensors().then(() => this._addMarker());
+            this._getSensors().then(() => {
+                const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
+                this.setState({ sensor_data })
+            }).then(() => this._addMarker());
         }, 10000,
         );
     }
@@ -125,7 +128,8 @@ class View extends Component {
             .then(response => response.json())
             .then((json) => {
                 let sensor_data_public = {}
-                sensor_data_public.time = json.data[0].time
+                let date = new Date(json.data[0].time);
+                sensor_data_public.time = date.toLocaleTimeString();
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
                         if (field.name == "rmclatitude") return;
