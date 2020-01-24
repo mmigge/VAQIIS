@@ -84,7 +84,7 @@ class MapView extends Component {
             if (feature.properties.time === e) {
                 that.setState({ selectedMeasurement: feature, selected: true })
             }
-        })    
+        })
     }
 
     handleInput(e) {

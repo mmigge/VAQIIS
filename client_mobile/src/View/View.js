@@ -55,7 +55,8 @@ class View extends Component {
                     "features": [],
                 }
             },
-            route_coordinates: []
+            route_coordinates: [],
+            counter:0
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
         this.download = this.download.bind(this)
@@ -119,16 +120,19 @@ class View extends Component {
                 }
                 ))
                 .then(() => {
-                    if (index === this.state.sensors.length - 1) {
+                    if (this.state.sensor_data.length === this.state.sensors.length) {
                         let date = new Date(this.state.sensor_data[this.state.sensor_data.length - 3].data[0].time)
                         this.setState({ time: date.toLocaleTimeString() })
                         this._addMarker()
-                        this.setState({ loading: false })
+                        this.setState({ loading: false,sensor_data:[] })
                     }
                 })
         })
     }
-
+    _addOne(number){
+        let newNumber = number+1;
+        return newNumber;
+    }
     _convertGPSData(lat1, lon) {
         // Leading zeros not allowed --> string
         let lat_temp_1 = parseFloat(lat1.split('.')[0].substring(0, 2));
@@ -141,12 +145,12 @@ class View extends Component {
 
         const coordinates = [lat, long];
         // Temporary variable for the bugfix below
-        let position =[] //;
+        let position = [] //;
         // Bugfix for when no coordinates were sent(not ready)
         // Pushes last known coordinates 
         if (isNaN(coordinates[0]) || isNaN(coordinates[1])) {
-            if(this.state.route_coordinates.length<1)position=[51.9688129, 7.5922197];
-            else position = this.state.route_coordinates[this.state.route_coordinates.length-1];
+            if (this.state.route_coordinates.length < 1) position = [51.9688129, 7.5922197];
+            else position = this.state.route_coordinates[this.state.route_coordinates.length - 1];
             this.setState((prevState) => {
                 route_coordinates: prevState.route_coordinates.push(position);
             })
