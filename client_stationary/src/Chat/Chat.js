@@ -31,7 +31,6 @@ class Chat extends Component{
     }
    
     render(){
-        console.log(this.props)
         return(
             <Container fluid>
                 <div className="chatBox">

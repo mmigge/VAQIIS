@@ -52,9 +52,9 @@ class View extends Component {
     // Connected: Set Subscription
     onConnect() {
         console.log("MQTT Broker Connect: Success");
-        client.subscribe("message");
         this._subscribeToTopic("chat_mobile");
         this._subscribeToTopic("chat_stationary");
+        this._subscribeToTopic("messwerte");
         this.setState({
             connected: true,
         })
@@ -68,6 +68,9 @@ class View extends Component {
             if (this.state.value != 2) {
                 this.setState({ unread: true })
             }
+        }
+        if(message.destinationName==="messwerte"){
+            console.log(JSON.parse(message.payloadString));
         }
     }
     // Connection-Lost: Set 
