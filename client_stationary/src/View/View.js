@@ -70,7 +70,9 @@ class View extends Component {
             }
         }
         if(message.destinationName==="messwerte"){
-            console.log(JSON.parse(message.payloadString));
+            this.setState({
+                lastMeasurement:JSON.parse(message.payloadString)
+            })
         }
     }
     // Connection-Lost: Set 
