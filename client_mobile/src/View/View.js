@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Tabs, Tab, ButtonGroup, Button } from '@material-ui/core';
 import MapView from "../MapView/MapView";
 import TableView from "../TableView/TableView";
-import StatusView from "../StatusView/StatusView";
+import ChatView from "../ChatView/ChatView";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import Footer from "./Footer"
 import ReactLoading from 'react-loading'
@@ -22,7 +22,7 @@ class View extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: 1,
+            value: 2,
             startpoint: null,
             endpoint: null,
             loading: true,
@@ -56,10 +56,13 @@ class View extends Component {
                 }
             },
             route_coordinates: [],
-            counter: 0
+            counter: 0,
+            messages:[]
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
-        this.download = this.download.bind(this)
+        this.download = this.download.bind(this);
+        this._publishMQTT = this._publishMQTT.bind(this);
+        this._subscribeToTopic = this._subscribeToTopic.bind(this);
     }
 
     componentDidMount = () => {
@@ -174,6 +177,8 @@ class View extends Component {
 
         client = new Paho.Client(this.state.server_ip, this.state.server_port, uniqid);
         client.onConnectionLost = this.onConnectionLost;
+        client.onMessageArrived = this.onMessageArrived.bind(this);
+
         //client.onMessageArrived = this.onMessageArrived;
 
         // connect the client
@@ -181,11 +186,15 @@ class View extends Component {
             onSuccess: this.onConnect.bind(this)
         });
     };
-
-    publishMQTT(_message) {
+    _subscribeToTopic(topic){
+        console.log("Subscribing to topic");
+        
+        client.subscribe(topic);
+    }
+    _publishMQTT(_message,topic) {
         if (this.state.connected) {
             const message = new Paho.Message(_message);
-            message.destinationName = "message";
+            message.destinationName = topic;
             client.send(message);
         }
         else {
@@ -201,7 +210,16 @@ class View extends Component {
             connected: true,
         })
     };
-
+    onMessageArrived(message){
+        console.log("Message arrived:",message.payloadString);
+        console.log("Message arrived:",message.destinationName);
+        if(message.destinationName=="chat_mobile" || message.destinationName=="chat_stationary"){
+            console.log("smi")
+            this.setState({
+                messages: [...this.state.messages,{destinationName:message.destinationName,payloadString:message.payloadString}]
+            })
+        }
+    }
     // Connection-Lost: Set 
     onConnectionLost = (responseObject) => {
         if (responseObject.errorCode !== 0) {
@@ -216,7 +234,7 @@ class View extends Component {
     // Send Route to Broker
     sendtoBroker = () => {
         let featureGroup = this.getFeatureGroup();
-        this.publishMQTT(JSON.stringify(featureGroup))
+        this.publishMQTT(JSON.stringify(featureGroup),"messungen")
     }
 
     _addCommentToGeoJson(e, comment) {
@@ -329,7 +347,7 @@ class View extends Component {
                         >
                             <Tab label="Table View" />
                             <Tab label="Map View" />
-                            <Tab label="Status View" />
+                            <Tab label="Chat View" />
                         </Tabs>
                         {this.state.value === 0 &&
                             <TableView liveRoute={this.state.featureGroup} />
@@ -345,7 +363,7 @@ class View extends Component {
                             />
                         }
                         {this.state.value === 2 &&
-                            <StatusView />}
+                            <ChatView messages={this.state.messages}_publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
                         <Footer>
                             <ButtonGroup fullWidth color="primary" >
                                 <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
