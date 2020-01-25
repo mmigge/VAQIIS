@@ -39,7 +39,7 @@ class Live extends  Component{
     }
 
     componentDidMount= () => {
-        this.connectMQTT();
+      //  this.connectMQTT();
     }
 
 
@@ -108,7 +108,7 @@ class Live extends  Component{
     submit(){
         console.log("submit");
     }
-    transfromDate = function (date) {
+    transfromDate = function (date){
 
         if (!date) { return "" }
         date = new Date(date)
