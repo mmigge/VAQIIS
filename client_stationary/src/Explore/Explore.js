@@ -128,7 +128,7 @@ class Explore extends Component {
                 </div>
                 <Row>
                     <Col md={8}>
-                        <Card style={{ 'margin-top': '5px' }}>
+                        <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
                                 <div style={{maxHeight : "300px", overflow: "auto"}}>
@@ -172,7 +172,7 @@ class Explore extends Component {
                         
                     </Col>
                     <Col md={4}>
-                        <Card style={{ 'margin-top': '5px' }}>
+                        <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
                                 <TextField

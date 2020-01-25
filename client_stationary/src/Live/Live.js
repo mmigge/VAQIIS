@@ -125,7 +125,7 @@ class Live extends  Component{
                 <div>
                     <OwnMap route={this.state.liveRoute} handleSelected={this.handleSelected} lastMeasurement={this.state.lastMeasurement}/>
                 </div>
-                <Row style={{'margin-top':'5px'}} fluid>
+                <Row style={{'marginTop':'5px'}}>
                     <Col md={8}>
                     <div style={{maxHeight : "300px", overflow: "auto"}}>
                         <Table striped bordered hover style={{ width: "100%"}}>
