@@ -13,16 +13,18 @@ class ChatView extends Component{
 
     componentDidMount(){
         console.log("Mounted chat view");
-        this.props._subscribeToTopic("chat_mobile");
-        this.props._subscribeToTopic("chat_stationary");
-
+        this.props._readMessages();
     }
+
+
+
     _onChange(e){
         this.setState({
             chatBox:e.target.value
         })
     }
     _onKeyDown(e){
+
         if(e.key === 'Enter'){
             this.props._publishMQTT(this.state.chatBox,"chat_mobile");
         }
@@ -31,7 +33,7 @@ class ChatView extends Component{
         return(
             <Container className="Status_Container">
                 {this.props.messages.map((message,i)=>{
-                    return <p key={"idChat"+i}>Nachricht von {message.destinationName}:{message.payloadString}</p>
+                    return <p key={"idChat"+i}>Nachricht von {message.destinationName} um {message.time.toLocaleTimeString()}:{message.payloadString}</p>
                 })}
                 <input className="input_chatbox" type="text" onChange={this._onChange} value={this.state.chatBox} onKeyDown={this._onKeyDown}/>
 

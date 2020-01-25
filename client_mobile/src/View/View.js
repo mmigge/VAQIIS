@@ -57,17 +57,18 @@ class View extends Component {
             },
             route_coordinates: [],
             counter: 0,
-            messages:[]
+            messages:[],
+            unread:false
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
         this.download = this.download.bind(this);
         this._publishMQTT = this._publishMQTT.bind(this);
         this._subscribeToTopic = this._subscribeToTopic.bind(this);
+        this._readMessages = this._readMessages.bind(this);
     }
 
     componentDidMount = () => {
         this.connectMQTT();
-
         this._getSensors()
             .then(() => {
                 const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
@@ -87,7 +88,9 @@ class View extends Component {
     componentWillUnmount() {
         clearInterval(this.timer)
     }
-
+    _readMessages(){
+        this.setState({unread:false})
+    }
     handleChange = (e, newValue) => {
         this.setState({ value: newValue })
     };
@@ -185,10 +188,10 @@ class View extends Component {
         client.connect({
             onSuccess: this.onConnect.bind(this)
         });
+        
     };
     _subscribeToTopic(topic){
-        console.log("Subscribing to topic");
-        
+        console.log("Subscribing to topic",topic);
         client.subscribe(topic);
     }
     _publishMQTT(_message,topic) {
@@ -206,18 +209,20 @@ class View extends Component {
     onConnect() {
         console.log("MQTT Broker Connect: Success");
         client.subscribe("message");
+        this._subscribeToTopic("chat_mobile");
+        this._subscribeToTopic("chat_stationary");
         this.setState({
             connected: true,
         })
     };
     onMessageArrived(message){
-        console.log("Message arrived:",message.payloadString);
-        console.log("Message arrived:",message.destinationName);
         if(message.destinationName=="chat_mobile" || message.destinationName=="chat_stationary"){
-            console.log("smi")
             this.setState({
-                messages: [...this.state.messages,{destinationName:message.destinationName,payloadString:message.payloadString}]
+                messages: [...this.state.messages,{destinationName:message.destinationName,payloadString:message.payloadString,time:new Date()}]
             })
+            if(this.state.value!=2){
+                this.setState({unread:true})
+            }
         }
     }
     // Connection-Lost: Set 
@@ -345,9 +350,9 @@ class View extends Component {
                             variant="fullWidth"
                             aria-label="full width tabs example"
                         >
-                            <Tab label="Table View" />
+                            <Tab label="Table View"/>
                             <Tab label="Map View" />
-                            <Tab label="Chat View" />
+                            <Tab className="chatTab" style={this.state.unread?{"color":"orange"}:null} label="Chat View" />
                         </Tabs>
                         {this.state.value === 0 &&
                             <TableView liveRoute={this.state.featureGroup} />
@@ -363,7 +368,7 @@ class View extends Component {
                             />
                         }
                         {this.state.value === 2 &&
-                            <ChatView messages={this.state.messages}_publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
+                            <ChatView _readMessages={this._readMessages} messages={this.state.messages}_publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
                         <Footer>
                             <ButtonGroup fullWidth color="primary" >
                                 <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
