@@ -1,8 +1,12 @@
 .rightSide{
     text-align: right;
-    color:blue
 }   
 .leftSide{
     text-align: left;
+}
+.authorMobile{
     color:green
+}
+.authorStationary{
+    color:blue
 }

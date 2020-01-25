@@ -33,10 +33,14 @@ class ChatView extends Component{
         return(
             <Container className="Status_Container">
                 {this.props.messages.map((message,i)=>{
-                    return <p className={message.destinationName==="chat_mobile"?"rightSide":"leftSide"} key={"idChat"+i}>Nachricht von {message.destinationName} um {message.time.toLocaleTimeString()}:{message.payloadString}</p>
+                    return(
+                        <div className={message.destinationName==="chat_mobile"?"rightSide":"leftSide"} key={"idChat"+i}>
+                        <p>Nachricht von <span className={message.destinationName==="chat_mobile"?"authorStationary":"authorMobile"}>{message.destinationName}</span>  um {message.time.toLocaleTimeString()}<br></br> {message.payloadString}</p>
+                        </div>
+                    )
                 })}
                 <input className="input_chatbox" type="text" onChange={this._onChange} value={this.state.chatBox} onKeyDown={this._onKeyDown}/>
-                
+
             </Container>
             )
     }
