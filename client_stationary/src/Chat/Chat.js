@@ -27,6 +27,7 @@ class Chat extends Component{
 
     componentDidMount(){
         console.log("Mounted status view");
+        this.props._readMessages();
     }
    
     render(){

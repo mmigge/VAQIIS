@@ -15,7 +15,8 @@ class View extends Component {
             value: 2,
             server_ip: '10.6.4.7',
             server_port: 9001,
-            messages:[]
+            messages:[],
+            unread:false
         }
 
         this._publishMQTT = this._publishMQTT.bind(this);
@@ -118,7 +119,7 @@ class View extends Component {
                 >
                     <Tab label="Live View" />
                     <Tab label="Explore View" />
-                    <Tab label="Chat View" />
+                    <Tab label="Chat View" style={this.state.unread?{"color":"orange"}:null} />
                 </Tabs>
                 {this.state.value === 0 &&
                     <Live />
