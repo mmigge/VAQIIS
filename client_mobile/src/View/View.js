@@ -239,7 +239,7 @@ class View extends Component {
     // Send Route to Broker
     sendtoBroker = () => {
         let featureGroup = this.getFeatureGroup();
-        this.publishMQTT(JSON.stringify(featureGroup),"messungen")
+        this._publishMQTT(JSON.stringify(featureGroup),"messungen")
     }
 
     _addCommentToGeoJson(e, comment) {
