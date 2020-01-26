@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
-import ExploreMap from '../ExploreMap/ExploreMap'
+import OwnMap from '../Map/OwnMap'
 import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
@@ -35,7 +35,9 @@ class Explore extends Component {
             Ts: 'Ts',
             time:'Time'
         }, }
-        this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this)
+        this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this);
+        this._toggleSelected = this._toggleSelected.bind(this);
+
     }
 
 
@@ -55,9 +57,14 @@ class Explore extends Component {
         console.log(this.dates)
     }
 
-    handleSelected= (selected) =>{
-        this.setState({
-selected
+    _toggleSelected(e) {
+        // compare timestring if found push that whole measurement (feature) to the state
+        let that = this;
+        if(e=='') this.setState({selectedMeasurement:'',selected:false})
+        that.state.route.geoJson.features.forEach(function (feature) {
+            if (feature.properties.time === e) {
+                that.setState({ selectedMeasurement: feature, selected: true })
+            }
         })
     }
 
@@ -137,7 +144,7 @@ selected
         return (
             <Container fluid>
                 <div>
-                    <ExploreMap route={this.state.route} handleSelected={this.handleSelected}/>
+                    <OwnMap _toggleSelected={this._toggleSelected} liveRoute={this.state.route} route_coordinates={this.props.route_coordinates}/>
                 </div>
                 <Row>
                     <Col md={8}>

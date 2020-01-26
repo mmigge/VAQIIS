@@ -112,11 +112,6 @@ class ExploreMap extends React.Component {
         }
         const self = this;
         let GeoJSON = this.getGeoJson();
-        for (var i of GeoJSON.features){
-            const lat = i.geometry.coordinates[0];
-            i.geometry.coordinates[0] = i.geometry.coordinates[1];
-            i.geometry.coordinates[1] = lat
-        }
         let leafletGeoJSON = new L.GeoJSON(GeoJSON);
         leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
         leafletFG.clearLayers();
