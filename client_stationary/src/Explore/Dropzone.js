@@ -79,14 +79,15 @@ class OwnDropzone extends Component {
             for (var i = 2; i < json.length; i += this.state.steps) {
                 const coordinates = [json[i].rmclatitude, json[i].rmclongitude]
                 const transformedCoordinates = this.convertGPSData(coordinates)
+                const properties= self.extractProperties(json[i])
                 const feature = {
                     "type": "Feature",
-                    "properties": { temp: json[i].AirTC_Avg, humi: json[i].RH_Avg, pm10: json[i].LiveBin_10dM, time: new Date(json[i].TIMESTAMP) },
+                    "properties": properties,
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            transformedCoordinates.longitude,
-                            transformedCoordinates.latitude
+                            transformedCoordinates.latitude,
+                            transformedCoordinates.longitude
                         ]
                     }
                 }
@@ -104,6 +105,15 @@ class OwnDropzone extends Component {
         }
         setTimeout(function () { self.handleClose(); }, 3000);
 
+    }
+
+    extractProperties= (json) => {
+        const prop={}
+        Object.keys(this.props.sc).map((sc) => {
+            prop[sc] = json[sc]
+        })
+        prop["time"] = new Date(json.TIMESTAMP).toLocaleTimeString()
+        return prop;
     }
 
     handleClose() {
