@@ -7,6 +7,7 @@ import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import Footer from "./Footer"
 import ReactLoading from 'react-loading'
 import { IoMdDownload, IoIosCloudUpload, IoIosTrash, IoIosPlay, IoIosPause } from 'react-icons/io'
+import axios from 'axios'
 
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'
@@ -135,6 +136,7 @@ class View extends Component {
             .then((json) => {
                 let sensor_data_public = {}
                 let date = new Date(json.data[0].time);
+                sensor_data_public.timeStamp= date;
                 sensor_data_public.time = date.toLocaleTimeString();
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
@@ -240,7 +242,7 @@ class View extends Component {
     sendtoBroker = () => {
         let featureGroup = this.getFeatureGroup();
         const self=this;
-        const object= {geoJson: featureGroup.geoJson, date: featureGroup.geoJson.features[0].properties.time}
+        const object= {geoJson: featureGroup.geoJson, date: featureGroup.geoJson.features[0].properties.timeStamp}
         axios.post('http://giv-project2:9000/api/course', {route: object})
             .then(res => {
             })
