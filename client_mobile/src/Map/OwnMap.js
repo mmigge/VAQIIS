@@ -3,7 +3,7 @@ import { Map, TileLayer, Marker, Polyline } from 'react-leaflet'
 // icon creation
 import L from 'leaflet'
 
-let firstTime = true
+export let map;
 
 var greenIcon = new L.Icon({
     iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
@@ -49,6 +49,10 @@ class OwnMap extends React.Component {
         this.handleClickMarker = this.handleClickMarker.bind(this);
         this.deselect = this.deselect.bind(this);
     };
+
+    componentDidMount(){
+        map= this.refs.map
+    }
 
 
     handleClickMarker(e) {

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
-import OwnMap from '../Map/OwnMap'
+import OwnMap, {map} from '../Map/OwnMap'
 import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
+import L from 'leaflet'
 
 import '../index.css'
 
@@ -91,8 +92,10 @@ class Explore extends Component {
         else {
         for (var data of this.state.data) {
               if (data.date === value) {
-                 route = data;
+                route = data;
                 route_coordinates = this.props.connectTheDots(data.geoJson)
+                const geojson= L.polyline(route_coordinates);
+                map.leafletElement.fitBounds(geojson.getBounds())
                 }
         }
         }
