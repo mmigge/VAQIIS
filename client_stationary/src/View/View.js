@@ -9,7 +9,6 @@ import Footer from "./Footer"
 import { IoMdDownload, IoIosCloudUpload, IoIosTrash, IoIosPlay, IoIosPause } from 'react-icons/io'
 import axios from 'axios';
 import { confirmAlert } from 'react-confirm-alert';
-import {map} from '../Map/OwnMap'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import './View.css'
 
@@ -18,7 +17,6 @@ import './../index.css'
 var Paho = require('paho-mqtt');
 
 var client;
-var firstData;
 /**
  * View class that holds and edits the GeoJSON 
  * Serves as a parent class to Map/Explore and Chat
@@ -78,7 +76,6 @@ class View extends Component {
     componentDidMount = () => {
         console.log("moutned")
         this.connectMQTT();
-        firstData = true;
     }
 
     componentWillUnmount() {
@@ -118,11 +115,7 @@ class View extends Component {
             featureGroup: newFeatureGroup,
             lastMeasurement: marker,
             route_coordinates,
-        },() =>{
-        if(firstData && map){
-            firstData=false;
-            map.leafletElement.panTo(marker.geometry.coordinates)
-        }});
+        })
     }
 
     connectTheDots(data) {

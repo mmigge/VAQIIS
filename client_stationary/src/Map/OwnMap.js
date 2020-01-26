@@ -74,7 +74,7 @@ class OwnMap extends React.Component {
     render() {
         const position = [51.9688129, 7.5922197];
         return (
-            <Map onClick={this.deselect} style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
+            <Map onClick={this.deselect} style={{ height: "50vh" }} center={this.props.route_coordinates.length > 0 ? this.props.route_coordinates[this.props.route_coordinates.length - 1 ] : position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
                 <TileLayer
                     attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

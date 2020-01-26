@@ -8,7 +8,6 @@ import Footer from "./Footer"
 import ReactLoading from 'react-loading'
 import { IoMdDownload, IoIosCloudUpload, IoIosTrash, IoIosPlay, IoIosPause } from 'react-icons/io'
 import axios from 'axios'
-import {map} from '../Map/OwnMap'
 
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'
@@ -19,7 +18,7 @@ import './View.css'
 var Paho = require('paho-mqtt');
 
 var client;
-var firstData;
+
 class View extends Component {
     constructor(props) {
         super(props);
@@ -70,7 +69,6 @@ class View extends Component {
     }
 
     componentDidMount = () => {
-        firstData = true;
         this.connectMQTT();
         this._getSensors()
             .then(() => {
@@ -114,11 +112,7 @@ class View extends Component {
             featureGroup: newFeatureGroup,
             lastMeasurement: marker,
             route_coordinates
-        },() =>{
-            if(firstData && map){
-                firstData=false;
-                map.leafletElement.panTo(marker.geometry.coordinates)
-            }});
+        });
     }
 
     connectTheDots(data) {
