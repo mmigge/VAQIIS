@@ -125,7 +125,7 @@ class Live extends Component {
                                                     return <td className="customtd selected" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>
                                                 }
                                             })}
-                                            <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
+                                            <td className="customtd editButton"><Button value={this.state.selectedMeasurement.properties.time} onClick={this.openModal}><FaRegEdit style={{"pointerEvents":"none"}} /></Button></td>
                                         </tr>
                                         : null}
                                     {this.props.liveRoute.geoJson.features.map((item, i) => {
@@ -137,7 +137,7 @@ class Live extends Component {
                                                         }
                                                     })
                                                     }
-                                                    <td className="customtd editButton"><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
+                                                    <td className="customtd editButton"><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit style={{"pointerEvents":"none"}} /></Button></td>
                                                 </tr>
                                             )
                                         })}
