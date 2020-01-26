@@ -236,6 +236,8 @@ class View extends Component {
     handleSave = () => {
         const self = this;
         const object = this.getFeatureGroup();
+        let date = new Date();
+        object.date = date.toISOString();        
         this.setState({ saving: true })
         axios.post('http://giv-project2:9000/api/course', { route: object })
             .then(res => {
