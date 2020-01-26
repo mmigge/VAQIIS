@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { TextField, MenuItem } from '@material-ui/core'
-import OwnMap from '../Map/OwnMap'
+import ExploreMap from '../ExploreMap/ExploreMap'
 import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
@@ -124,11 +124,11 @@ class Explore extends Component {
         return (
             <Container fluid>
                 <div>
-                    <OwnMap route={this.state.route} handleSelected={this.handleSelected}/>
+                    <ExploreMap route={this.state.route} handleSelected={this.handleSelected}/>
                 </div>
                 <Row>
                     <Col md={8}>
-                        <Card style={{ 'margin-top': '5px' }}>
+                        <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
                                 <div style={{maxHeight : "300px", overflow: "auto"}}>
@@ -152,7 +152,7 @@ class Explore extends Component {
                                     <td>{this.transfromDate(this.state.selectedTime)}</td>
                                 </tr>
                                 {this.state.route.geoJson.features.map((item, i) => {
-                                    return (<tr>
+                                    return (<tr key={"key"+i}>
                                         <td>{i}</td>
                                         <td>{item.properties.temp}</td>
                                         <td>{item.properties.pm10}</td>
@@ -172,7 +172,7 @@ class Explore extends Component {
                         
                     </Col>
                     <Col md={4}>
-                        <Card style={{ 'margin-top': '5px' }}>
+                        <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
                                 <TextField
@@ -185,8 +185,8 @@ class Explore extends Component {
                                     variant="outlined"
                                     placholder="dd-mm-yyyy"
                                 >
-                                    {this.state.dates.map(option => (
-                                        <MenuItem key={option.value} value={option.value}>
+                                    {this.state.dates.map((option,i) => (
+                                        <MenuItem key={"keyMenu"+i} value={option.value}>
                                             {option.label}
                                         </MenuItem>
                                     ))}

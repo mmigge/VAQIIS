@@ -33,7 +33,8 @@ class OwnDropzone extends Component {
         super(props);
         this.state = {
             file: null,
-            steps:60
+            steps:60,
+            open:false
         };
     }
 
