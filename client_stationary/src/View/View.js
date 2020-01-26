@@ -17,7 +17,11 @@ import './../index.css'
 var Paho = require('paho-mqtt');
 
 var client;
-
+/**
+ * View class that holds and edits the GeoJSON 
+ * Serves as a parent class to Map/Explore and Chat
+ * 
+ */
 class View extends Component {
     constructor(props) {
         super(props);
@@ -31,6 +35,7 @@ class View extends Component {
             connected: false,
             sensors: [
                 // These are sensors that get queried every 5 seconds
+                // Simply add a new one if needed, they all get queried
                 "rmcspeed",
                 "rmclatitude",
                 "rmclongitude",
@@ -43,7 +48,7 @@ class View extends Component {
                 "Ts",
                 "CPC_aux",
                 "CO2",
-                "H2O",       
+                "H2O",
                 "diag_LI75"
             ],
             server_ip: '10.6.4.7',
@@ -65,7 +70,9 @@ class View extends Component {
         this._subscribeToTopic = this._subscribeToTopic.bind(this);
         this._readMessages = this._readMessages.bind(this);
     }
-
+    /**
+     * Component Control Functions
+     */
     componentDidMount = () => {
         console.log("moutned")
         this.connectMQTT();
@@ -74,12 +81,22 @@ class View extends Component {
     componentWillUnmount() {
         clearInterval(this.timer)
     }
-    _readMessages() {
-        this.setState({ unread: false })
+    componentDidUpdate() {
+        // Check if both data tables are filled to start building the GeoJSON object
+        if (this.state.sensor_data_fasttable && this.state.sensor_data_public) {
+            const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
+            // Callback setState(because setState sometimes takes a while to finish). After callback execute the 
+            // addMarker function to build the marker object and push it to the state
+            this.setState({
+                sensor_data_fasttable: null,
+                sensor_data_public: null,
+                sensor_data
+            }, this._addMarker)
+        }
     }
-    handleChange = (e, newValue) => {
-        this.setState({ value: newValue })
-    };
+    /**
+     * GeoJSON Building
+     */
 
     _addMarker() {
         let marker = {
@@ -97,29 +114,21 @@ class View extends Component {
             lastMeasurement: marker,
         })
     }
-    _convertLat(lat) {
-        if (!lat || lat == "") {
-            return 51.9688129// dummy coordinates or last known coordinates
-        }
-        else {
-            let lat_temp_1 = parseFloat(lat.split('.')[0].substring(0, 2));
-            let lat_temp_2 = parseFloat(lat.split(lat_temp_1)[1]) / 60;
-            let lat = lat_temp_1 + lat_temp_2;
-            return lat
-        }
+    _addCommentToGeoJson(e, comment) {
+        let newFeatureGroup = this.state.featureGroup;
+        newFeatureGroup.geoJson.features.forEach(function (feature) {
+            let timeString = e;
+            if (feature.properties.time === timeString) {
+                feature.properties.comment = comment
+            }
+        })
+        this.setState({ featureGroup: newFeatureGroup })
     }
-    _convertLon(lon) {
-        if (!lon || lon == "") {
-            return 7.5922197// dummy coordinates or last known coordinates
-        }
-        else {
-            let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
-            let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
-            let long = long_temp_1 + long_temp_2;
-            return long;
-        }
+    /**
+     * MQTT functions
+     */
 
-    }
+    // Connect function that gets called on componentDidMount
     connectMQTT() {
         // generating random clientID
         var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
@@ -137,10 +146,12 @@ class View extends Component {
         });
 
     };
+    // function to subscribe to a topic
     _subscribeToTopic(topic) {
         console.log("Subscribing to topic", topic);
         client.subscribe(topic);
     }
+    // function to publish something to the broker
     _publishMQTT(_message, topic) {
         if (this.state.connected) {
             const message = new Paho.Message(_message);
@@ -149,16 +160,6 @@ class View extends Component {
         }
         else {
             console.log(_message)
-        }
-    }
-    componentDidUpdate() {
-        if (this.state.sensor_data_fasttable && this.state.sensor_data_public) {
-            const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
-            this.setState({
-                sensor_data_fasttable:null,
-                sensor_data_public:null,
-                sensor_data
-            },this._addMarker)   
         }
     }
     // Connected: Set Subscription
@@ -174,6 +175,8 @@ class View extends Component {
         })
     };
     onMessageArrived(message) {
+
+        // Depending on the incoming message it gets handled differently
         if (message.destinationName == "chat_mobile" || message.destinationName == "chat_stationary") {
             this.setState({
                 messages: [...this.state.messages, { destinationName: message.destinationName, payloadString: message.payloadString, time: new Date() }]
@@ -221,10 +224,18 @@ class View extends Component {
         this._publishMQTT(JSON.stringify(featureGroup), "messungen")
     }
 
+
+    /**
+     * UI Handling
+     */
+
+    handleChange = (e, newValue) => {
+        this.setState({ value: newValue })
+    };
+
     handleSave = () => {
         const self = this;
         const object = this.getFeatureGroup();
-        console.log(object)
         this.setState({ saving: true })
         axios.post('http://giv-project2:9000/api/course', { route: object })
             .then(res => {
@@ -233,18 +244,10 @@ class View extends Component {
             })
 
     }
-
-    _addCommentToGeoJson(e, comment) {
-        let newFeatureGroup = this.state.featureGroup;
-
-        newFeatureGroup.geoJson.features.forEach(function (feature) {
-            let timeString = e;
-            if (feature.properties.time === timeString) {
-                feature.properties.comment = comment
-            }
-        })
-        this.setState({ featureGroup: newFeatureGroup })
+    _readMessages() {
+        this.setState({ unread: false })
     }
+
     handleStartStop = () => {
         if (this.state.recordingRoute) {
             // If Route is already being recorded
@@ -289,6 +292,22 @@ class View extends Component {
             startStopVal: <IoIosPlay className="svg_icons" />
         })
     }
+    // Save current route to device
+    download() {
+        let featureGroup = this.getFeatureGroup();
+
+        const element = document.createElement("a");
+        let recordingRoute = JSON.stringify(featureGroup)
+        const file = new Blob([recordingRoute], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = "measurements.json";
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+    }
+
+    /**
+     * Helper functions
+     */
 
     // Get Features between Start and End-Feature
     getFeatureGroup = () => {
@@ -312,18 +331,29 @@ class View extends Component {
         })
         return featureGroup;
     }
+    // Conversion of coordinates provided by the bike's GPS
+    _convertLat(lat) {
+        if (!lat || lat == "") {
+            return 51.9688129// dummy coordinates or last known coordinates
+        }
+        else {
+            let lat_temp_1 = parseFloat(lat.split('.')[0].substring(0, 2));
+            let lat_temp_2 = parseFloat(lat.split(lat_temp_1)[1]) / 60;
+            let lat = lat_temp_1 + lat_temp_2;
+            return lat
+        }
+    }
+    _convertLon(lon) {
+        if (!lon || lon == "") {
+            return 7.5922197// dummy coordinates or last known coordinates
+        }
+        else {
+            let long_temp_1 = parseFloat(lon.split('.')[0].substring(0, 3));
+            let long_temp_2 = parseFloat(lon.split(long_temp_1)[1]) / 60;
+            let long = long_temp_1 + long_temp_2;
+            return long;
+        }
 
-    // Save current route to device
-    download() {
-        let featureGroup = this.getFeatureGroup();
-
-        const element = document.createElement("a");
-        let recordingRoute = JSON.stringify(featureGroup)
-        const file = new Blob([recordingRoute], { type: 'text/plain' });
-        element.href = URL.createObjectURL(file);
-        element.download = "measurements.json";
-        document.body.appendChild(element); // Required for this to work in FireFox
-        element.click();
     }
 
 
