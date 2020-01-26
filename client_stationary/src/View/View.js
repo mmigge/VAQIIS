@@ -5,6 +5,12 @@ import Chat from "../Chat/Chat";
 import Live from "../Live/Live";
 import ErrorBoundary from "../ErrorBoundary/ErrorBoundary";
 import ReactLoading from 'react-loading'
+import Footer from "./Footer"
+import { IoMdDownload, IoIosCloudUpload, IoIosTrash, IoIosPlay, IoIosPause } from 'react-icons/io'
+import axios from 'axios';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'
+import './View.css'
 
 import './../index.css'
 
@@ -21,6 +27,7 @@ class View extends Component {
             endpoint: null,
             loading: false,
             recordingRoute: false,
+            startStopVal: <IoIosPlay className="svg_icons" />,
             connected: false,
             sensors: [
                 // These are sensors that get queried every 5 seconds
@@ -50,8 +57,8 @@ class View extends Component {
             },
             route_coordinates: [],
             counter: 0,
-            messages:[],
-            unread:false,
+            messages: [],
+            unread: false,
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
         this.download = this.download.bind(this);
@@ -68,8 +75,8 @@ class View extends Component {
     componentWillUnmount() {
         clearInterval(this.timer)
     }
-    _readMessages(){
-        this.setState({unread:false})
+    _readMessages() {
+        this.setState({ unread: false })
     }
     handleChange = (e, newValue) => {
         this.setState({ value: newValue })
@@ -129,13 +136,13 @@ class View extends Component {
         client.connect({
             onSuccess: this.onConnect.bind(this)
         });
-        
+
     };
-    _subscribeToTopic(topic){
-        console.log("Subscribing to topic",topic);
+    _subscribeToTopic(topic) {
+        console.log("Subscribing to topic", topic);
         client.subscribe(topic);
     }
-    _publishMQTT(_message,topic) {
+    _publishMQTT(_message, topic) {
         if (this.state.connected) {
             const message = new Paho.Message(_message);
             message.destinationName = topic;
@@ -157,26 +164,26 @@ class View extends Component {
             connected: true,
         })
     };
-    onMessageArrived(message){
-        if(message.destinationName=="chat_mobile" || message.destinationName=="chat_stationary"){
+    onMessageArrived(message) {
+        if (message.destinationName == "chat_mobile" || message.destinationName == "chat_stationary") {
             this.setState({
-                messages: [...this.state.messages,{destinationName:message.destinationName,payloadString:message.payloadString,time:new Date()}]
+                messages: [...this.state.messages, { destinationName: message.destinationName, payloadString: message.payloadString, time: new Date() }]
             })
-            if(this.state.value!=2){
-                this.setState({unread:true})
+            if (this.state.value != 2) {
+                this.setState({ unread: true })
             }
         }
-        if(message.destinationName==="messwerte"){
+        if (message.destinationName === "messwerte") {
             let json = JSON.parse(message.payloadString)
             let sensor_data_public = {};
             let date = new Date(json.data[0].time);
             sensor_data_public.time = date.toLocaleTimeString();
-            json.head.fields.map((field,index)=>{
+            json.head.fields.map((field, index) => {
                 if (field.name == "rmclatitude") sensor_data_public.rmclatitude = this._convertLat(json.data[0].vals[index]);
                 else if (field.name == "rmclongitude") sensor_data_public.rmclongitude = this._convertLon(json.data[0].vals[index]);
-                else sensor_data_public[field.name] = json.data[0].vals[index]            
+                else sensor_data_public[field.name] = json.data[0].vals[index]
             })
-            this.setState({ sensor_datas:sensor_data_public })
+            this.setState({ sensor_datas: sensor_data_public })
             this._addMarker(sensor_data_public);
         }
 
@@ -192,10 +199,22 @@ class View extends Component {
         }
     };
 
-    // Send Route to Broker
     sendtoBroker = () => {
         let featureGroup = this.getFeatureGroup();
         this._publishMQTT(JSON.stringify(featureGroup),"messungen")
+    }
+
+    handleSave = () => {
+        const self=this;
+        const object= this.getFeatureGroup();
+        console.log(object)
+        this.setState({saving: true})
+        axios.post('http://giv-project2:9000/api/course', {route: object})
+            .then(res => {
+                console.log(res);
+                this.setState({saving:false})
+            })
+
     }
 
     _addCommentToGeoJson(e, comment) {
@@ -209,6 +228,51 @@ class View extends Component {
         })
         this.setState({ featureGroup: newFeatureGroup })
     }
+    handleStartStop = () => {
+        if (this.state.recordingRoute) {
+            // If Route is already being recorded
+            this.setState({
+                recordingRoute: false,
+                recordedRoute: true,
+                endpoint: this.state.lastMeasurement,
+                startStopVal: <IoIosPlay className="svg_icons" />
+            })
+        } else {
+            // If Route is NOT being recorded 
+            this.setState({
+                recordingRoute: true,
+                startpoint: this.state.lastMeasurement,
+                startStopVal: <IoIosPause className="svg_icons" />
+            })
+        }
+    }
+
+    confirmDelete = () => {
+        confirmAlert({
+            message: 'Soll die aktuelle Route wirklich gelöscht werden?',
+            buttons: [
+                {
+                    label: 'Ja',
+                    onClick: () => this.handleClear()
+                },
+                {
+                    label: 'Abbrechen',
+                    onClick: () => null
+                }
+            ]
+        })
+    };
+
+    handleClear = () => {
+        this.setState({
+            startpoint: null,
+            endpoint: null,
+            recordingRoute: false,
+            recordedRoute: false,
+            startStopVal: <IoIosPlay className="svg_icons" />
+        })
+    }
+
     // Get Features between Start and End-Feature
     getFeatureGroup = () => {
         let featureGroup = {
@@ -225,7 +289,7 @@ class View extends Component {
             let currFeatureTime = feature.properties.time;
 
             // Looks stupid but works as long as time is in 24h format...
-            if (startTime < currFeatureTime && endTime > currFeatureTime) {
+            if (startTime <= currFeatureTime && endTime >= currFeatureTime) {
                 featureGroup.geoJson.features.push(feature)
             }
         })
@@ -245,6 +309,7 @@ class View extends Component {
         element.click();
     }
 
+
     render() {
         return (
             <ErrorBoundary>
@@ -260,13 +325,13 @@ class View extends Component {
                             variant="fullWidth"
                             aria-label="full width tabs example"
                         >
-                            <Tab label="Live View"/>
+                            <Tab label="Live View" />
                             <Tab label="Explore View" />
-                            <Tab className="chatTab" style={this.state.unread?{"color":"orange"}:null} label="Chat View" />
+                            <Tab className="chatTab" style={this.state.unread ? { "color": "orange" } : null} label="Chat View" />
                         </Tabs>
                         {this.state.value === 0 &&
-                            <Live                                 _addCommentToGeoJson={this._addCommentToGeoJson}
-                            liveRoute={this.state.featureGroup} />
+                            <Live _addCommentToGeoJson={this._addCommentToGeoJson}
+                                liveRoute={this.state.featureGroup} />
                         }
                         {this.state.value === 1 &&
                             <Explore
@@ -277,7 +342,15 @@ class View extends Component {
                             />
                         }
                         {this.state.value === 2 &&
-                            <Chat _readMessages={this._readMessages} messages={this.state.messages}_publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
+                            <Chat _readMessages={this._readMessages} messages={this.state.messages} _publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
+                        <Footer>
+                            <ButtonGroup fullWidth color="primary" >
+                                <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
+                                <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
+                                <Button onClick={this.handleSave} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}><IoIosCloudUpload className="svg_icons" /></Button>
+                                <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
+                            </ButtonGroup>
+                        </Footer>
                     </div>
                 }
             </ErrorBoundary>
