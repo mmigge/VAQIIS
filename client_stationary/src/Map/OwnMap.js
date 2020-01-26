@@ -42,7 +42,6 @@ var goldIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
-
 class OwnMap extends React.Component {
     constructor(props) {
         super(props);
@@ -53,8 +52,7 @@ class OwnMap extends React.Component {
 
     componentDidMount(){
         map= this.refs.map
-    }
-
+    };
 
     handleClickMarker(e) {
         // uses time string as id for the markers
@@ -63,13 +61,14 @@ class OwnMap extends React.Component {
             selectedMarker: time_string
         })
         this.props._toggleSelected(time_string);
-    }
+    };
+
     deselect(e) {
         this.setState({
             selectedMarker: ''
         })
         this.props._toggleSelected('')
-    }
+    };
 
     render() {
         const position = [51.9688129, 7.5922197];
@@ -83,8 +82,7 @@ class OwnMap extends React.Component {
                 {this.props.liveRoute.geoJson.features.map((marker, i) => {
                     return <Marker value={marker.properties.time} onClick={this.handleClickMarker} key={"marker" + i}
                         icon={ // if clause that checks if the marker is selected
-                            this.state.selectedMarker == marker.properties.time ?
-                                greenIcon : redIcon
+                            this.state.selectedMarker === marker.properties.time ? greenIcon : redIcon
                         } position={marker.geometry.coordinates} />
                 })}
                 {/* Polyline extracted from the geoJSON */}
