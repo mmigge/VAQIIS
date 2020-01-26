@@ -9,8 +9,10 @@ res.send("API is working properly");
 
 
 router.post("/course", async function (req, res){
-    const route = req.body.route
+    
     try {
+        response= JSON.parse(req.body)
+        const route = response.route
         var newCourse = new Course({
             date: route.date,
             geoJson: route.geoJson
