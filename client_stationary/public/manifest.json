@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Sensorbike",
+  "name": "Sensorbike - supporting bike missions",
   "icons": [
     {
       "src": "img/favicon.ico",
