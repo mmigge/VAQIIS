@@ -110,7 +110,6 @@ class View extends Component {
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.unshift(marker);
         const route_coordinates = this.connectTheDots(newFeatureGroup.geoJson);
-        console.log(route_coordinates)
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker,
