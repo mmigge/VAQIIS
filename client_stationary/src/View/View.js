@@ -43,8 +43,7 @@ class View extends Component {
                 "Ts",
                 "CPC_aux",
                 "CO2",
-                "H2O",        //this._addMarker();
-
+                "H2O",       
                 "diag_LI75"
             ],
             server_ip: '10.6.4.7',
@@ -191,7 +190,7 @@ class View extends Component {
             json.head.fields.map((field, index) => {
                 if (field.name == "rmclatitude") sensor_data_public.rmclatitude = this._convertLat(json.data[0].vals[index]);
                 else if (field.name == "rmclongitude") sensor_data_public.rmclongitude = this._convertLon(json.data[0].vals[index]);
-                else sensor_data_public[field.name] = json.data[0].vals[index]
+                else if (this.state.sensors.includes(field.name)) sensor_data_public[field.name] = json.data[0].vals[index]
             })
             this.setState({ sensor_data_public })
         }
@@ -201,7 +200,7 @@ class View extends Component {
             json.head.fields.map((field, index) => {
                 if (field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
                 else if (field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
-                else sensor_data_fasttable[field.name] = json.data[0].vals[index]
+                else if (this.state.sensors.includes(field.name)) sensor_data_fasttable[field.name] = json.data[0].vals[index]
             })
             this.setState({ sensor_data_fasttable })
         }
