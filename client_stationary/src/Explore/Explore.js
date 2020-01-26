@@ -21,6 +21,7 @@ class Explore extends Component {
         this.state = { date: "null", 
         route: featureGroup, 
         data:[], 
+        route_coordinates: [],
         dates : [{ value: "null", label: "dd-mm-yyyy" }],
         shortcuts: {
             AirTC_Avg: "°C",
@@ -82,6 +83,7 @@ class Explore extends Component {
 
         const value = e.target.value
         let route;
+        let route_coordinates
         if (value == "null") {
             this.handleSelected();
             route = featureGroup;
@@ -89,11 +91,12 @@ class Explore extends Component {
         else {
         for (var data of this.state.data) {
               if (data.date === value) {
-                 route = data
+                 route = data;
+                route_coordinates = this.props.connectTheDots(data.geoJson)
                 }
-      }
         }
-        this.setState({ date: value, route: route })
+        }
+        this.setState({ date: value, route: route, route_coordinates })
     }
 
     uploadRoute = (route) =>{
@@ -144,7 +147,7 @@ class Explore extends Component {
         return (
             <Container fluid>
                 <div>
-                    <OwnMap _toggleSelected={this._toggleSelected} liveRoute={this.state.route} route_coordinates={this.props.route_coordinates}/>
+                    <OwnMap _toggleSelected={this._toggleSelected} liveRoute={this.state.route} route_coordinates={this.state.route_coordinates}/>
                 </div>
                 <Row>
                     <Col md={8}>

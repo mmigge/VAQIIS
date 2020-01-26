@@ -109,11 +109,24 @@ class View extends Component {
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.unshift(marker);
+        const route_coordinates = this.connectTheDots(newFeatureGroup.geoJson);
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker,
+            route_coordinates,
         })
     }
+
+    connectTheDots(data) {
+        var c = [];
+        for (var i of data.features) {
+            var x = i.geometry.coordinates[0];
+            var y = i.geometry.coordinates[1];
+            c.push([x, y]);
+        }
+        return c;
+    }
+
     _addCommentToGeoJson(e, comment) {
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.forEach(function (feature) {
@@ -388,6 +401,7 @@ class View extends Component {
                                 route_coordinates={this.state.route_coordinates}
                                 lastMeasurement={this.state.lastMeasurement}
                                 _addCommentToGeoJson={this._addCommentToGeoJson}
+                                connectTheDots={this.connectTheDots}
                             />
                         }
                         {this.state.value === 2 &&

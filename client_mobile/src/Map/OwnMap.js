@@ -83,7 +83,7 @@ class OwnMap extends React.Component {
                         } position={marker.geometry.coordinates} />
                 })}
                 {/* Polyline extracted from the geoJSON */}
-                <Polyline positions={this.props.route_coordinates} />
+                {this.props.route_coordinates.length > 0 ? <Polyline positions={this.props.route_coordinates} /> : ""}
             </Map>
         );
     }

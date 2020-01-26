@@ -107,10 +107,22 @@ class View extends Component {
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.unshift(marker);
+        const route_coordinates = this.connectTheDots(newFeatureGroup.geoJson);
         this.setState({
             featureGroup: newFeatureGroup,
-            lastMeasurement: marker
+            lastMeasurement: marker,
+            route_coordinates
         })
+    }
+
+    connectTheDots(data) {
+        var c = [];
+        for (var i of data.features) {
+            var x = i.geometry.coordinates[0];
+            var y = i.geometry.coordinates[1];
+            c.push([x, y]);
+        }
+        return c;
     }
 
     _getFasttable() {

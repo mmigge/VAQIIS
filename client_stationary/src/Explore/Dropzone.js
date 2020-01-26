@@ -169,7 +169,7 @@ class OwnDropzone extends Component {
                              </Button>
 
                             </DialogActions> </div> :
-                        <DialogContent style={{ textAlign: "center", "overflow-y": "unset" }}>
+                        <DialogContent style={{ textAlign: "center", overflowY: "unset" }}>
                             <Dropzone onDrop={acceptedFiles => this.handleChange(acceptedFiles)}>
                                 {({ getRootProps, getInputProps }) => (
                                     <section>
