@@ -82,20 +82,22 @@ class View extends Component {
         this.setState({ value: newValue })
     };
 
-    _addMarker(sensor_data) {
+    _addMarker() {
         let marker = {
             "type": "Feature",
-            "properties": sensor_data,
+            "properties": this.state.sensor_data,
             "geometry": {
                 "type": "Point",
-                "coordinates": [sensor_data.rmclatitude, sensor_data.rmclongitude]
+                "coordinates": [this.state.sensor_data.rmclatitude, this.state.sensor_data.rmclongitude]
             }
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.unshift(marker);
         this.setState({
             featureGroup: newFeatureGroup,
-            lastMeasurement: marker
+            lastMeasurement: marker,
+            sensor_data_fasttable:null,
+            sensor_data_public:null
         })
     }
     _convertLat(lat) {
@@ -152,12 +154,18 @@ class View extends Component {
             console.log(_message)
         }
     }
-
+    componentDidUpdate() {
+        if (this.state.sensor_data_fasttable && this.state.sensor_data_public) {
+            const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
+            this.setState({ sensor_data },this._addMarker)
+        }
+    }
     // Connected: Set Subscription
     onConnect() {
         console.log("MQTT Broker Connect: Success");
         client.subscribe("message");
         this._subscribeToTopic("messwerte");
+        this._subscribeToTopic("messwerte_fasttable");
         this._subscribeToTopic("chat_mobile");
         this._subscribeToTopic("chat_stationary");
         this.setState({
@@ -183,10 +191,20 @@ class View extends Component {
                 else if (field.name == "rmclongitude") sensor_data_public.rmclongitude = this._convertLon(json.data[0].vals[index]);
                 else sensor_data_public[field.name] = json.data[0].vals[index]
             })
-            this.setState({ sensor_datas: sensor_data_public })
-            this._addMarker(sensor_data_public);
+            this.setState({ sensor_data_public })
         }
-
+        if (message.destinationName === "messwerte_fasttable") {
+            let json = JSON.parse(message.payloadString)
+            let sensor_data_fasttable = {};
+            let date = new Date(json.data[0].time);
+            sensor_data_fasttable.time = date.toLocaleTimeString();
+            json.head.fields.map((field, index) => {
+                if (field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
+                else if (field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
+                else sensor_data_fasttable[field.name] = json.data[0].vals[index]
+            })
+            this.setState({ sensor_data_fasttable })
+        }
     }
     // Connection-Lost: Set 
     onConnectionLost = (responseObject) => {
@@ -201,18 +219,18 @@ class View extends Component {
 
     sendtoBroker = () => {
         let featureGroup = this.getFeatureGroup();
-        this._publishMQTT(JSON.stringify(featureGroup),"messungen")
+        this._publishMQTT(JSON.stringify(featureGroup), "messungen")
     }
 
     handleSave = () => {
-        const self=this;
-        const object= this.getFeatureGroup();
+        const self = this;
+        const object = this.getFeatureGroup();
         console.log(object)
-        this.setState({saving: true})
-        axios.post('http://giv-project2:9000/api/course', {route: object})
+        this.setState({ saving: true })
+        axios.post('http://giv-project2:9000/api/course', { route: object })
             .then(res => {
                 console.log(res);
-                this.setState({saving:false})
+                this.setState({ saving: false })
             })
 
     }
