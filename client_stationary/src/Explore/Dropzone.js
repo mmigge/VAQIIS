@@ -49,8 +49,9 @@ class OwnDropzone extends Component {
         this.setState({ loading: true, errorMessage: null })
         var reader = new FileReader();
         reader.onload = async function () {
-            const csvString = reader.result
-            const jsonArray = await csv({ output: "json" }).fromString(csvString);
+            let csvStr = reader.result;
+            csvStr = csvStr.substring(csvStr.indexOf("\n") + 1);
+            const jsonArray = await csv({ output: "json" }).fromString(csvStr)
             console.log(jsonArray)
             self.transformJson(jsonArray)
         }
@@ -76,7 +77,6 @@ class OwnDropzone extends Component {
                 "features": []
             }
             for (var i = 2; i < json.length; i += this.state.steps) {
-                console.log(i)
                 const coordinates = [json[i].rmclatitude, json[i].rmclongitude]
                 const transformedCoordinates = this.convertGPSData(coordinates)
                 const feature = {
@@ -99,6 +99,7 @@ class OwnDropzone extends Component {
             setTimeout(function () { self.handleClose(); }, 3000);
         }
         catch (e) {
+            console.log(e)
             this.setState({ failed: true, loading: false })
         }
         setTimeout(function () { self.handleClose(); }, 3000);
