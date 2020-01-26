@@ -148,7 +148,6 @@ class View extends Component {
             .then((json) => {
                 let sensor_data_public = {}
                 let date = new Date(json.data[0].time);
-                sensor_data_public.timeStamp= date;
                 sensor_data_public.time = date.toLocaleTimeString();
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
