@@ -419,13 +419,15 @@ class View extends Component {
                         }
                         {this.state.value === 2 &&
                             <Chat _readMessages={this._readMessages} messages={this.state.messages} _publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
-                        <Footer>
-                            <ButtonGroup fullWidth color="primary" >
-                                <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
-                                <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
-                                <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
-                            </ButtonGroup>
-                        </Footer>
+                        {this.state.value === 0 ?
+                            <Footer>
+                                <ButtonGroup fullWidth color="primary" >
+                                    <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
+                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
+                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
+                                </ButtonGroup>
+                            </Footer>
+                        : "" }
                     </div>
                 }
             </ErrorBoundary>

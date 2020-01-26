@@ -82,7 +82,7 @@ class View extends Component {
                 const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
                 this.setState({ sensor_data })
             }).then(() => this._addMarker());
-        }, 2000,
+        }, 1000,
         );
     };
 
@@ -95,6 +95,16 @@ class View extends Component {
     handleChange = (e, newValue) => {
         this.setState({ value: newValue })
     };
+
+    connectTheDots(data) {
+        var c = [];
+        for (var i of data.features) {
+            var x = i.geometry.coordinates[0];
+            var y = i.geometry.coordinates[1];
+            c.push([x, y]);
+        }
+        return c;
+    }
 
     _addMarker() {
         let marker = {
@@ -148,7 +158,6 @@ class View extends Component {
                     }
                 })
                 this.setState({ sensor_data_public })
-
             })
     };
 
@@ -403,14 +412,14 @@ class View extends Component {
                         }
                         {this.state.value === 2 &&
                             <ChatView _readMessages={this._readMessages} messages={this.state.messages} _publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
-                        <Footer>
-                            <ButtonGroup fullWidth color="primary" >
-                                <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
-                                <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
-                                <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute }><IoIosCloudUpload className="svg_icons" /></Button>
-                                <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
-                            </ButtonGroup>
-                        </Footer>
+                            <Footer>
+                                <ButtonGroup fullWidth color="primary" >
+                                    <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
+                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
+                                    <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosCloudUpload className="svg_icons" /></Button>
+                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
+                                </ButtonGroup>
+                                </Footer>
                     </div>
                 }
             </ErrorBoundary>

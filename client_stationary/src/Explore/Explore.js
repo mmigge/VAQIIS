@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { TextField, MenuItem } from '@material-ui/core'
+import { TextField, MenuItem, Button, Divider } from '@material-ui/core'
 import OwnMap, { map } from '../Map/OwnMap'
-import { Container, Row, Col, Card, Table, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
 import L from 'leaflet'
@@ -83,12 +83,12 @@ class Explore extends Component {
     handlechange = (e) => {
         const value = e.target.value;
         let route;
-        let route_coordinates
+        let route_coordinates;
         if (value === "null") {
             this._toggleSelected();
             route = featureGroup;
+            route_coordinates = [];
         } else {
-            console.log(this.state)
             for (var data of this.state.data) {
                 if (data.date === value) {
                     route = data;
@@ -122,8 +122,17 @@ class Explore extends Component {
                 for (var date of self.state.data) {
                     dates.push({ value: date.date, label: this.transfromDate(date.date) })
                 }
-                console.log(value[value.length - 1])
-                this.setState({ dates: dates, date: value[value.length - 1].date, route: { geoJson: value[value.length - 1].geoJson } })
+                let route_coordinates = this.props.connectTheDots(value[value.length - 1]);
+                const geojson = L.polyline(route_coordinates);
+                map.leafletElement.fitBounds(geojson.getBounds());
+                this.setState({
+                    dates: dates,
+                    date: value[value.length - 1].date,
+                    route: {
+                        geoJson: value[value.length - 1].geoJson
+                    },
+                    route_coordinates: route_coordinates
+                })
             }
         })
     };
@@ -155,7 +164,7 @@ class Explore extends Component {
                     <OwnMap _toggleSelected={this._toggleSelected} liveRoute={this.state.route} route_coordinates={this.state.route_coordinates} />
                 </div>
                 <Row>
-                    <Col md={8}>
+                    <Col md={10}>
                         <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
@@ -197,37 +206,39 @@ class Explore extends Component {
                                             </tbody>
                                         </Table> : ""}
                                 </div>
-
                             </Card.Body>
                         </Card>
-
                     </Col>
-                    <Col md={4}>
+                    <Col md={2}>
                         <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
-                                <Card.Title>Wähle eine vorherige Route aus um sie auf der Karte anzuzeigen.</Card.Title>
-                                <TextField
-                                    id="standard-select-date"
-                                    select
-                                    label=""
-                                    value={this.state.date}
-                                    onChange={this.handlechange.bind(this)}
-                                    margin="normal"
-                                    variant="outlined"
-                                    placholder="dd-mm-yyyy"
-                                >
-                                    {this.state.dates.map((option, i) => (
-                                        <MenuItem key={"keyMenu" + i} value={option.value}>
-                                            {option.label}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                                <br></br>
-                                <Button onClick={this.downloadSelectedRoute} variant="primary">Diese Route herunterladen</Button>
-                                <div>
-                                    <h3>Upload csv Data of Route</h3>
-                                    <OwnDropzone data={this.state.data} updateState={this.updateState} sc={this.state.shortcuts} />
+                                <Card.Title>Routen Controller</Card.Title>
+                                <div style={{ marginTop: 30 }}>
+                                    Routen Auswahl
+                                    <TextField
+                                        id="standard-select-date"
+                                        select
+                                        value={this.state.date}
+                                        onChange={this.handlechange.bind(this)}
+                                        margin="normal"
+                                        variant="outlined"
+                                        placholder="dd-mm-yyyy"
+                                        style={{ marginTop: -15, marginLeft: 10 }}
+                                    >
+                                        {this.state.dates.map((option, i) => (
+                                            <MenuItem key={"keyMenu" + i} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
                                 </div>
+                                <br />
+                                <Button  variant="contained" color="primary"  onClick={this.downloadSelectedRoute}> Route herunterladen</Button>
+                                <br />
+                                <br />
+                                <Divider/>
+                                <br />
+                                <OwnDropzone data={this.state.data} updateState={this.updateState} sc={this.state.shortcuts} />
                             </Card.Body>
                         </Card>
                     </Col>
