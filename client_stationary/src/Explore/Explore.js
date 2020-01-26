@@ -211,7 +211,7 @@ selected
                                 <Button onClick={this.downloadSelectedRoute} variant="primary">Diese Route herunterladen</Button>
                                 <div>
                                     <h3>Upload csv Data of Route</h3>
-                                    <OwnDropzone data={this.state.data}  updateState={this.updateState}/>
+                                    <OwnDropzone data={this.state.data}  updateState={this.updateState} sc={this.state.shortcuts}/>
                                 </div>
                             </Card.Body>
                         </Card>
