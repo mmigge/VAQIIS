@@ -110,13 +110,13 @@ class ExploreMap extends React.Component {
         catch (e) {
             console.log(e)
         }
-        if(this.props.lastMeasurement){
-            let GeoJSON = this.props.lastMeasurement;
-            let leafletGeoJSON = new L.GeoJSON(GeoJSON);
-            leafletGeoJSON.eachLayer(layer => {last = layer._latlng});
-        }
         const self = this;
         let GeoJSON = this.getGeoJson();
+        for (var i of GeoJSON.features){
+            const lat = i.geometry.coordinates[0];
+            i.geometry.coordinates[0] = i.geometry.coordinates[1];
+            i.geometry.coordinates[1] = lat
+        }
         let leafletGeoJSON = new L.GeoJSON(GeoJSON);
         leafletGeoJSON.on('click', function (e) { self.handleClick(e.layer, leafletGeoJSON) })
         leafletFG.clearLayers();

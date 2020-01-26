@@ -81,12 +81,12 @@ class OwnDropzone extends Component {
                 const transformedCoordinates = this.convertGPSData(coordinates)
                 const feature = {
                     "type": "Feature",
-                    "properties": { temp: json[i].AirTC_Avg, humi: json[i].RH_Avg, pm10: json[i].LiveBin_10dM, time: new Date(json[i].TIMESTAMP) },
+                    "properties": { temp: json[i].AirTC_Avg, humi: json[i].RH_Avg, pm10: json[i].LiveBin_10dM, time: new Date(json[i].TIMESTAMP).toLocaleTimeString() },
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            transformedCoordinates.longitude,
-                            transformedCoordinates.latitude
+                            transformedCoordinates.latitude,
+                            transformedCoordinates.longitude
                         ]
                     }
                 }

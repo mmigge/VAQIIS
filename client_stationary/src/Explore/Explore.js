@@ -18,7 +18,23 @@ const featureGroup = {geoJson: {
 class Explore extends Component {
     constructor(props) {
         super(props);
-        this.state = { date: "null", route: featureGroup, data:[], dates : [{ value: "null", label: "dd-mm-yyyy" }] }
+        this.state = { date: "null", 
+        route: featureGroup, 
+        data:[], 
+        dates : [{ value: "null", label: "dd-mm-yyyy" }],
+        shortcuts: {
+            AirTC_Avg: "°C",
+            LiveBin_1dM: "P10",
+            RH_Avg: "%",
+            compass_heading: "S/N/W/E",
+            CPC_aux: "CPC",
+            CO2: "CO2",
+            u: 'u',
+            v: 'v',
+            w: 'w',
+            Ts: 'Ts',
+            time:'Time'
+        }, }
         this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this)
     }
 
@@ -39,13 +55,9 @@ class Explore extends Component {
         console.log(this.dates)
     }
 
-    handleSelected= (selectedTemp, selectedHumi, selectedPm10, selectedTime) =>{
-        console.log(selectedHumi)
+    handleSelected= (selected) =>{
         this.setState({
-            selectedTemp,
-            selectedHumi,
-            selectedPm10,
-            selectedTime,
+selected
         })
     }
 
@@ -95,7 +107,8 @@ class Explore extends Component {
             for (var date of self.state.data) {
                 dates.push({ value: date.date, label: this.transfromDate(date.date) })
             }
-            this.setState({dates : dates, date: value[value.length -1].date, route: value[value.length -1]})
+            console.log(value[value.length -1])
+            this.setState({dates : dates, date: value[value.length -1].date, route:{geoJson: value[value.length -1].geoJson}})
         }
         })
     }
@@ -131,40 +144,43 @@ class Explore extends Component {
                         <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
-                                <div style={{maxHeight : "300px", overflow: "auto"}}>
-                        <Table striped bordered hover style={{ width: "100%"}}>
-                            <thead>
-                                <tr >
-                                    <th>#</th>
-                                    <th>Temp °C</th>
-                                    <th>PM10 µg/m³</th>
-                                    <th>r.F. %</th>
-                                    <th>Zeit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                
-                                <tr >
-                                    <td>Selected</td>
-                                    <td>{this.state.selectedTemp}</td>
-                                    <td>{this.state.selectedPm10}</td>
-                                    <td>{this.state.selectedHumi}</td>
-                                    <td>{this.transfromDate(this.state.selectedTime)}</td>
-                                </tr>
-                                {this.state.route.geoJson.features.map((item, i) => {
-                                    return (<tr key={"key"+i}>
-                                        <td>{i}</td>
-                                        <td>{item.properties.temp}</td>
-                                        <td>{item.properties.pm10}</td>
-                                        <td>{item.properties.humi}</td>
-                                        <td>{this.transfromDate(item.properties.time)}</td>
-                                    </tr>)
-                                })}
-                                
-                               
-                            </tbody>
-                          
-                        </Table>
+                         <div style={{ maxHeight: "300px", overflow: "auto" }}>
+                             {this.state.route.geoJson.features.length > 0? 
+                            <Table striped bordered hover style={{ width: "100%", fontSize: "x-small" }}>
+                                <thead>
+                                    <tr>
+                                        {Object.keys(this.state.route.geoJson.features[0].properties).map((key, index) => {
+                                            if (this.state.shortcuts[key]) {
+                                                return <th key={"id" + index}>{this.state.shortcuts[key]}</th>
+                                            }
+                                            else return
+                                        })}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {this.state.selected ?
+                                        <tr>
+                                            {Object.keys(this.state.selectedMeasurement.properties).map((key, i) => {
+                                                if (this.state.shortcuts[key]) {
+                                                    return <td className="customtd selected" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>
+                                                }
+                                            })}
+                                        </tr>
+                                        : null}
+                                    {this.state.route.geoJson.features.map((item, i) => {
+                                            return (
+                                                <tr key={"id2" + i}>
+                                                    {Object.keys(item.properties).map((key, index) => {
+                                                        if (this.state.shortcuts[key]) {
+                                                            return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>
+                                                        }
+                                                    })
+                                                    }
+                                                </tr>
+                                            )
+                                        })}
+                                </tbody>
+                            </Table>: ""}
                         </div>
                         
                             </Card.Body>
