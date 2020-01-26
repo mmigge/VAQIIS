@@ -96,8 +96,6 @@ class View extends Component {
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker,
-            sensor_data_fasttable:null,
-            sensor_data_public:null
         })
     }
     _convertLat(lat) {
@@ -157,7 +155,11 @@ class View extends Component {
     componentDidUpdate() {
         if (this.state.sensor_data_fasttable && this.state.sensor_data_public) {
             const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
-            this.setState({ sensor_data },this._addMarker)
+            this.setState({
+                sensor_data_fasttable:null,
+                sensor_data_public:null,
+                sensor_data
+            },this._addMarker)   
         }
     }
     // Connected: Set Subscription
@@ -196,8 +198,6 @@ class View extends Component {
         if (message.destinationName === "messwerte_fasttable") {
             let json = JSON.parse(message.payloadString)
             let sensor_data_fasttable = {};
-            let date = new Date(json.data[0].time);
-            sensor_data_fasttable.time = date.toLocaleTimeString();
             json.head.fields.map((field, index) => {
                 if (field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
                 else if (field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
