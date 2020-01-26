@@ -379,7 +379,7 @@ class View extends Component {
                             <ButtonGroup fullWidth color="primary" >
                                 <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
                                 <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
-                                <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute || !this.state.connected}><IoIosCloudUpload className="svg_icons" /></Button>
+                                <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute }><IoIosCloudUpload className="svg_icons" /></Button>
                                 <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
                             </ButtonGroup>
                         </Footer>
