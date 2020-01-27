@@ -27,6 +27,7 @@ class Explore extends Component {
             route_coordinates: [],
             dates: [{ value: "null", label: "dd-mm-yyyy" }],
             shortcuts: {
+                time: 'Time',
                 AirTC_Avg: "°C",
                 LiveBin_1dM: "P10",
                 RH_Avg: "%",
@@ -36,8 +37,7 @@ class Explore extends Component {
                 u: 'u',
                 v: 'v',
                 w: 'w',
-                Ts: 'Ts',
-                time: 'Time'
+                Ts: 'Ts'
             },
         }
         this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this);
@@ -122,7 +122,7 @@ class Explore extends Component {
                 for (var date of self.state.data) {
                     dates.push({ value: date.date, label: this.transfromDate(date.date) })
                 }
-                let route_coordinates = this.props.connectTheDots(value[value.length - 1]);
+                let route_coordinates = this.props.connectTheDots(value[value.length - 1].geoJson);
                 const geojson = L.polyline(route_coordinates);
                 map.leafletElement.fitBounds(geojson.getBounds());
                 this.setState({
@@ -170,7 +170,7 @@ class Explore extends Component {
                                 <Card.Title>Hier kannst du Details zu der ausgewählten Route betrachten.</Card.Title>
                                 <div style={{ maxHeight: "300px", overflow: "auto" }}>
                                     {this.state.route.geoJson.features.length > 0 ?
-                                        <Table striped bordered hover style={{ width: "100%", fontSize: "x-small" }}>
+                                        <Table striped bordered hover style={{ width: "100%", fontSize: "medium" }}>
                                             <thead>
                                                 <tr>
                                                     {Object.keys(this.state.route.geoJson.features[0].properties).map((key, index) => {
@@ -213,9 +213,11 @@ class Explore extends Component {
                         <Card style={{ 'marginTop': '5px' }}>
                             <Card.Body>
                                 <Card.Title>Routen Controller</Card.Title>
-                                <div style={{ marginTop: 30 }}>
-                                    Routen Auswahl
+                                <Divider/>
+                                <br />
+                                <div >
                                     <TextField
+                                        label="Routen Auswahl"
                                         id="standard-select-date"
                                         select
                                         value={this.state.date}
@@ -223,7 +225,6 @@ class Explore extends Component {
                                         margin="normal"
                                         variant="outlined"
                                         placholder="dd-mm-yyyy"
-                                        style={{ marginTop: -15, marginLeft: 10 }}
                                     >
                                         {this.state.dates.map((option, i) => (
                                             <MenuItem key={"keyMenu" + i} value={option.value}>
@@ -236,6 +237,7 @@ class Explore extends Component {
                                 <Button  variant="contained" color="primary"  onClick={this.downloadSelectedRoute}> Route herunterladen</Button>
                                 <br />
                                 <br />
+
                                 <Divider/>
                                 <br />
                                 <OwnDropzone data={this.state.data} updateState={this.updateState} sc={this.state.shortcuts} />
