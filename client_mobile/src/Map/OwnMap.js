@@ -3,8 +3,6 @@ import { Map, TileLayer, Marker, Polyline } from 'react-leaflet'
 // icon creation
 import L from 'leaflet'
 
-let firstTime = true
-
 var greenIcon = new L.Icon({
     iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -69,7 +67,7 @@ class OwnMap extends React.Component {
     render() {
         const position = [51.9688129, 7.5922197];
         return (
-            <Map onClick={this.deselect} style={{ height: "50vh" }} center={position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
+            <Map onClick={this.deselect} style={{ height: "50vh" }} center={this.props.route_coordinates.length > 0 ? this.props.route_coordinates[this.props.route_coordinates.length - 1 ] : position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
                 <TileLayer
                     attribution="Using Mapnik-Tiles"
                     url="map-tiles/{z}/{x}/{y}.png"
@@ -83,7 +81,7 @@ class OwnMap extends React.Component {
                         } position={marker.geometry.coordinates} />
                 })}
                 {/* Polyline extracted from the geoJSON */}
-                <Polyline positions={this.props.route_coordinates} />
+                {this.props.route_coordinates.length > 0 ? <Polyline positions={this.props.route_coordinates} /> : ""}
             </Map>
         );
     }

@@ -23,7 +23,7 @@ class View extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: 2,
+            value: 1,
             startpoint: null,
             endpoint: null,
             loading: true,
@@ -58,15 +58,15 @@ class View extends Component {
             },
             route_coordinates: [],
             counter: 0,
-            messages:[],
-            unread:false
+            messages: [],
+            unread: false
         }
         this._addCommentToGeoJson = this._addCommentToGeoJson.bind(this);
         this.download = this.download.bind(this);
         this._publishMQTT = this._publishMQTT.bind(this);
         this._subscribeToTopic = this._subscribeToTopic.bind(this);
         this._readMessages = this._readMessages.bind(this);
-    }
+    };
 
     componentDidMount = () => {
         this.connectMQTT();
@@ -82,19 +82,29 @@ class View extends Component {
                 const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
                 this.setState({ sensor_data })
             }).then(() => this._addMarker());
-        }, 2000,
+        }, 1000,
         );
-    }
+    };
 
     componentWillUnmount() {
         clearInterval(this.timer)
-    }
-    _readMessages(){
-        this.setState({unread:false})
-    }
+    };
+    _readMessages() {
+        this.setState({ unread: false })
+    };
     handleChange = (e, newValue) => {
         this.setState({ value: newValue })
     };
+
+    connectTheDots(data) {
+        var c = [];
+        for (var i of data.features) {
+            var x = i.geometry.coordinates[0];
+            var y = i.geometry.coordinates[1];
+            c.push([x, y]);
+        }
+        return c;
+    }
 
     _addMarker() {
         let marker = {
@@ -107,11 +117,12 @@ class View extends Component {
         }
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.unshift(marker);
+        const route_coordinates = this.connectTheDots(newFeatureGroup.geoJson);
         this.setState({
             featureGroup: newFeatureGroup,
             lastMeasurement: marker
         })
-    }
+    };
 
     _getFasttable() {
         let url_fasttable = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
@@ -128,7 +139,8 @@ class View extends Component {
                 })
                 this.setState({ sensor_data_fasttable })
             })
-    }
+    };
+
     _getPublicTable() {
         let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
         return fetch(url_public)
@@ -136,7 +148,6 @@ class View extends Component {
             .then((json) => {
                 let sensor_data_public = {}
                 let date = new Date(json.data[0].time);
-                sensor_data_public.timeStamp= date;
                 sensor_data_public.time = date.toLocaleTimeString();
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
@@ -146,12 +157,13 @@ class View extends Component {
                     }
                 })
                 this.setState({ sensor_data_public })
-
             })
-    }
+    };
+
     _getSensors() {
         return Promise.all([this._getFasttable(), this._getPublicTable()])
-    }
+    };
+
     _convertLat(lat) {
         if (!lat || lat == "") {
             return 51.9688129// dummy coordinates or last known coordinates
@@ -162,7 +174,8 @@ class View extends Component {
             let lat = lat_temp_1 + lat_temp_2;
             return lat
         }
-    }
+    };
+
     _convertLon(lon) {
         if (!lon || lon == "") {
             return 7.5922197// dummy coordinates or last known coordinates
@@ -173,8 +186,8 @@ class View extends Component {
             let long = long_temp_1 + long_temp_2;
             return long;
         }
+    };
 
-    }
     connectMQTT() {
         // generating random clientID
         var randLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
@@ -190,13 +203,14 @@ class View extends Component {
         client.connect({
             onSuccess: this.onConnect.bind(this)
         });
-        
     };
-    _subscribeToTopic(topic){
-        console.log("Subscribing to topic",topic);
+
+    _subscribeToTopic(topic) {
+        console.log("Subscribing to topic", topic);
         client.subscribe(topic);
-    }
-    _publishMQTT(_message,topic) {
+    };
+
+    _publishMQTT(_message, topic) {
         if (this.state.connected) {
             const message = new Paho.Message(_message);
             message.destinationName = topic;
@@ -205,7 +219,7 @@ class View extends Component {
         else {
             console.log(_message)
         }
-    }
+    };
 
     // Connected: Set Subscription
     onConnect() {
@@ -217,16 +231,18 @@ class View extends Component {
             connected: true,
         })
     };
-    onMessageArrived(message){
-        if(message.destinationName=="chat_mobile" || message.destinationName=="chat_stationary"){
+
+    onMessageArrived(message) {
+        if (message.destinationName == "chat_mobile" || message.destinationName == "chat_stationary") {
             this.setState({
-                messages: [...this.state.messages,{destinationName:message.destinationName,payloadString:message.payloadString,time:new Date()}]
+                messages: [...this.state.messages, { destinationName: message.destinationName, payloadString: message.payloadString, time: new Date() }]
             })
-            if(this.state.value!=2){
-                this.setState({unread:true})
+            if (this.state.value != 2) {
+                this.setState({ unread: true })
             }
         }
-    }
+    };
+
     // Connection-Lost: Set 
     onConnectionLost = (responseObject) => {
         if (responseObject.errorCode !== 0) {
@@ -240,25 +256,32 @@ class View extends Component {
 
     // Send Route to Broker
     sendtoBroker = () => {
-        let featureGroup = this.getFeatureGroup();
-        const self=this;
-        const object= {geoJson: featureGroup.geoJson, date: featureGroup.geoJson.features[0].properties.timeStamp}
-        axios.post('http://giv-project2:9000/api/course', {route: object})
-            .then(res => {
-            })
-    }
+        if (!this.state.startpoint || !this.state.endpoint || this.state.startpoint === this.state.endpoint) {
+            this.confirmNotEnoughData();
+        } else {
+            let featureGroup = this.getFeatureGroup();
+            const self = this;
+            let date = new Date();
+            const object = { geoJson: featureGroup.geoJson, date: date}
+            object.date = date.toISOString();   
+            axios.post('http://giv-project2:9000/api/course', { route: object })
+                .then(res => {
+                })
+        }
+    };
 
     _addCommentToGeoJson(e, comment) {
         let newFeatureGroup = this.state.featureGroup;
 
         newFeatureGroup.geoJson.features.forEach(function (feature) {
             let timeString = e;
+            console.log(e)
             if (feature.properties.time === timeString) {
                 feature.properties.comment = comment
             }
         })
         this.setState({ featureGroup: newFeatureGroup })
-    }
+    };
 
     handleStartStop = () => {
         if (this.state.recordingRoute) {
@@ -278,6 +301,18 @@ class View extends Component {
             })
         }
     }
+
+    confirmNotEnoughData = () => {
+        confirmAlert({
+            message: 'Aktion nicht möglich, solang nicht mindestens eine Messung empfangen wurde.',
+            buttons: [
+                {
+                    label: 'Schließen',
+                    onClick: () => null
+                }
+            ]
+        })
+    };
 
     confirmDelete = () => {
         confirmAlert({
@@ -321,25 +356,29 @@ class View extends Component {
             let currFeatureTime = feature.properties.time;
 
             // Looks stupid but works as long as time is in 24h format...
-            if (startTime < currFeatureTime && endTime > currFeatureTime) {
+            if (startTime <= currFeatureTime && endTime > currFeatureTime) {
                 featureGroup.geoJson.features.push(feature)
             }
         })
         return featureGroup;
-    }
+    };
 
     // Save current route to device
     download() {
-        let featureGroup = this.getFeatureGroup();
+        if (!this.state.startpoint || !this.state.endpoint || this.state.startpoint === this.state.endpoint) {
+            this.confirmNotEnoughData();
+        } else {
+            let featureGroup = this.getFeatureGroup();
 
-        const element = document.createElement("a");
-        let recordingRoute = JSON.stringify(featureGroup)
-        const file = new Blob([recordingRoute], { type: 'text/plain' });
-        element.href = URL.createObjectURL(file);
-        element.download = "measurements.json";
-        document.body.appendChild(element); // Required for this to work in FireFox
-        element.click();
-    }
+            const element = document.createElement("a");
+            let recordingRoute = JSON.stringify(featureGroup)
+            const file = new Blob([recordingRoute], { type: 'text/plain' });
+            element.href = URL.createObjectURL(file);
+            element.download = "measurements.json";
+            document.body.appendChild(element); // Required for this to work in FireFox
+            element.click();
+        }
+    };
 
     render() {
         return (
@@ -356,9 +395,9 @@ class View extends Component {
                             variant="fullWidth"
                             aria-label="full width tabs example"
                         >
-                            <Tab label="Table View"/>
-                            <Tab label="Map View" />
-                            <Tab className="chatTab" style={this.state.unread?{"color":"orange"}:null} label="Chat View" />
+                            <Tab label="Tabelle" />
+                            <Tab label="Karte" />
+                            <Tab className="chatTab" style={this.state.unread ? { "color": "orange" } : null} label="Chat" />
                         </Tabs>
                         {this.state.value === 0 &&
                             <TableView liveRoute={this.state.featureGroup} />
@@ -374,15 +413,15 @@ class View extends Component {
                             />
                         }
                         {this.state.value === 2 &&
-                            <ChatView _readMessages={this._readMessages} messages={this.state.messages}_publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
-                        <Footer>
-                            <ButtonGroup fullWidth color="primary" >
-                                <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
-                                <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
-                                <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute }><IoIosCloudUpload className="svg_icons" /></Button>
-                                <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
-                            </ButtonGroup>
-                        </Footer>
+                            <ChatView _readMessages={this._readMessages} messages={this.state.messages} _publishMQTT={this._publishMQTT} _subscribeToTopic={this._subscribeToTopic} />}
+                            <Footer>
+                                <ButtonGroup fullWidth color="primary" >
+                                    <Button onClick={this.handleStartStop}>{this.state.startStopVal}</Button>
+                                    <Button onClick={this.confirmDelete} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosTrash className="svg_icons" /></Button>
+                                    <Button onClick={this.sendtoBroker} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoIosCloudUpload className="svg_icons" /></Button>
+                                    <Button onClick={this.download} disabled={!this.state.recordedRoute || this.state.recordingRoute}><IoMdDownload className="svg_icons" /></Button>
+                                </ButtonGroup>
+                                </Footer>
                     </div>
                 }
             </ErrorBoundary>

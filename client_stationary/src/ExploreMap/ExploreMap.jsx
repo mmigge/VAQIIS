@@ -50,7 +50,6 @@ class ExploreMap extends React.Component {
         firstTime = true
     }
 
-
     _onFeatureGroupReady = (ref) => {
 
         if (!firstTime) {
@@ -72,8 +71,8 @@ class ExploreMap extends React.Component {
     }
 
     handleClick = (selectedLayer, allLayers) => {
-        allLayers.eachLayer(layer => {if(JSON.stringify(last) == JSON.stringify(layer._latlng)){layer.setIcon(goldIcon)} else{layer.setIcon(blueIcon)}});
-        if (JSON.stringify(selected) == JSON.stringify(selectedLayer._latlng)) {
+        allLayers.eachLayer(layer => {if(JSON.stringify(last) === JSON.stringify(layer._latlng)){layer.setIcon(goldIcon)} else{layer.setIcon(blueIcon)}});
+        if (JSON.stringify(selected) === JSON.stringify(selectedLayer._latlng)) {
             this.props.handleSelected();
             selected = null;
         }
@@ -126,8 +125,6 @@ class ExploreMap extends React.Component {
 
     }
 
-
-
     getGeoJson = () => {
         if (this.props.route) {
             console.log("test2")
@@ -145,10 +142,6 @@ class ExploreMap extends React.Component {
         }
         return c;
     }
-
-
-
-
 
     render() {
         const position = [51.9688129, 7.5922197];
