@@ -125,7 +125,7 @@ class View extends Component {
     };
 
     _getFasttable() {
-        let url_fasttable = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
+        let url_fasttable = "http://203.0.176.1:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
         return fetch(url_fasttable)
             .then(response => response.json())
             .then((json) => {
@@ -142,7 +142,7 @@ class View extends Component {
     };
 
     _getPublicTable() {
-        let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
+        let url_public = "http://203.0.176.1:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
         return fetch(url_public)
             .then(response => response.json())
             .then((json) => {
@@ -171,8 +171,8 @@ class View extends Component {
         else {
             let lat_temp_1 = parseFloat(lat.split('.')[0].substring(0, 2));
             let lat_temp_2 = parseFloat(lat.split(lat_temp_1)[1]) / 60;
-            let lat = lat_temp_1 + lat_temp_2;
-            return lat
+            let lat_return = lat_temp_1 + lat_temp_2;
+            return lat_return
         }
     };
 
