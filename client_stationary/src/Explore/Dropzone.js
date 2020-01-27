@@ -58,6 +58,31 @@ class OwnDropzone extends Component {
         reader.readAsText(this.state.file);
     }
 
+    uploadJSON() {
+        const self = this;
+        const data = this.props.data
+        try {
+            this.setState({ loading: true, errorMessage: null })
+            var reader = new FileReader();
+            reader.onload = async function () {
+                let jsonStr = reader.result;
+                const json = JSON.parse(jsonStr);
+                const time = json.geoJson.features[0].properties.time
+                const label = new Date();
+                label.setUTCHours(time.substring(0,2));
+                label.setUTCMinutes(time.substring(3,5));
+                data.push({ date: label, geoJson: json.geoJson })
+                self.props.updateState("data", data);
+                self.setState({ success: true, loading: false })
+            }
+            reader.readAsText(this.state.file)
+        }
+        catch (e) {
+            console.log(e)
+            this.setState({ failed: true, loading: false })
+        }
+    }
+
     onChange(value){
         value= parseInt(value)
         let error = false;
@@ -205,9 +230,14 @@ class OwnDropzone extends Component {
                             <br />
                             <br/>
                             <Button
-                                className="uploadButton" variant="contained" color="primary" 
+                                className="uploadButton" variant="contained" color="primary" style={{marginRight:30}}
                                 onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
-                                Load
+                                Load CSV
+                             </Button>
+                             <Button
+                                className="uploadButton" variant="contained" color="primary" 
+                                onClick={this.uploadJSON.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
+                                Load JSON
                              </Button>
                             <br />
                             <br />
