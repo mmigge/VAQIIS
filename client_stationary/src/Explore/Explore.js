@@ -27,6 +27,7 @@ class Explore extends Component {
             route_coordinates: [],
             dates: [{ value: "null", label: "dd-mm-yyyy" }],
             shortcuts: {
+                time: 'Time',
                 AirTC_Avg: "°C",
                 LiveBin_1dM: "P10",
                 RH_Avg: "%",
@@ -37,7 +38,7 @@ class Explore extends Component {
                 v: 'v',
                 w: 'w',
                 Ts: 'Ts',
-                time: 'Time'
+                
             },
         }
         this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this);
@@ -122,7 +123,7 @@ class Explore extends Component {
                 for (var date of self.state.data) {
                     dates.push({ value: date.date, label: this.transfromDate(date.date) })
                 }
-                let route_coordinates = this.props.connectTheDots(value[value.length - 1]);
+                let route_coordinates = this.props.connectTheDots(value[value.length - 1].geoJson);
                 const geojson = L.polyline(route_coordinates);
                 map.leafletElement.fitBounds(geojson.getBounds());
                 this.setState({

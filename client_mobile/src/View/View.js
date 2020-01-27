@@ -256,12 +256,14 @@ class View extends Component {
 
     // Send Route to Broker
     sendtoBroker = () => {
-        if (!this.state.startpoint || !this.state.endpoint) {
+        if (!this.state.startpoint || !this.state.endpoint || this.state.startpoint === this.state.endpoint) {
             this.confirmNotEnoughData();
         } else {
             let featureGroup = this.getFeatureGroup();
             const self = this;
-            const object = { geoJson: featureGroup.geoJson, date: featureGroup.geoJson.features[0].properties.timeStamp }
+            let date = new Date();
+            const object = { geoJson: featureGroup.geoJson, date: date}
+            object.date = date.toISOString();   
             axios.post('http://giv-project2:9000/api/course', { route: object })
                 .then(res => {
                 })
@@ -273,6 +275,7 @@ class View extends Component {
 
         newFeatureGroup.geoJson.features.forEach(function (feature) {
             let timeString = e;
+            console.log(e)
             if (feature.properties.time === timeString) {
                 feature.properties.comment = comment
             }
@@ -362,7 +365,7 @@ class View extends Component {
 
     // Save current route to device
     download() {
-        if (!this.state.startpoint || !this.state.endpoint) {
+        if (!this.state.startpoint || !this.state.endpoint || this.state.startpoint === this.state.endpoint) {
             this.confirmNotEnoughData();
         } else {
             let featureGroup = this.getFeatureGroup();
@@ -392,7 +395,7 @@ class View extends Component {
                             variant="fullWidth"
                             aria-label="full width tabs example"
                         >
-                            <Tab label="Tabelle A" />
+                            <Tab label="Tabelle" />
                             <Tab label="Karte" />
                             <Tab className="chatTab" style={this.state.unread ? { "color": "orange" } : null} label="Chat" />
                         </Tabs>
