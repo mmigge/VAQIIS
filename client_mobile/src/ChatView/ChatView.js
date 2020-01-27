@@ -12,7 +12,6 @@ class ChatView extends Component {
     }
 
     componentDidMount() {
-        console.log("Mounted chat view");
         this.props._readMessages();
     }
     _onChange(e) {

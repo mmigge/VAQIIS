@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
-import {Container,Row,Col} from 'react-bootstrap'
+import React, { Component } from 'react';
+import { Container } from 'react-bootstrap'
 import './Chat.css'
-class Chat extends Component{
-    constructor(props){
+class Chat extends Component {
+    constructor(props) {
         super(props)
         this.state = {
-            chatBox:''
+            chatBox: ''
 
         }
         this._onChange = this._onChange.bind(this);
@@ -25,7 +25,7 @@ class Chat extends Component{
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         console.log("Mounted status view");
         this.props._readMessages();
     }
@@ -59,9 +59,9 @@ class Chat extends Component{
                     </div>
 
                 </div>
-                <input placeholder="Schreibe eine Nachricht..."className="input_chatbox" type="text" onChange={this._onChange} value={this.state.chatBox} onKeyDown={this._onKeyDown} />
+                <input placeholder="Schreibe eine Nachricht..." className="input_chatbox" type="text" onChange={this._onChange} value={this.state.chatBox} onKeyDown={this._onKeyDown} />
             </Container>
-            )
+        )
     }
 
 }

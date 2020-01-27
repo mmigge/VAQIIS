@@ -154,7 +154,7 @@ class OwnDropzone extends Component {
                 <Button
                     className="uploadButton" variant="contained" color="primary"
                     onClick={this.openDialog.bind(this)}>
-                    Upload CSV
+                    Routen-Upload
                 </Button>
                 <Dialog open={this.state.open} onClose={() => this.handleClose()} >
                     <DialogTitle> {this.state.title}</DialogTitle>
