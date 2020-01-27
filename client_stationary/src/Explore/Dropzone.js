@@ -39,12 +39,23 @@ class OwnDropzone extends Component {
     }
 
     handleChange(files) {
+        console.log(files)
         this.setState({
             file: files[files.length - 1]
         });
+
     }
 
     uploadFolder() {
+        if(this.state.file.name.includes(".dat") || this.state.file.name.includes(".csv")){
+            this.readCSV();
+        }
+        else{
+            this.readJSON()
+        }
+    }
+
+    readCSV() {
         const self = this;
         this.setState({ loading: true, errorMessage: null })
         var reader = new FileReader();
@@ -52,35 +63,47 @@ class OwnDropzone extends Component {
             let csvStr = reader.result;
             csvStr = csvStr.substring(csvStr.indexOf("\n") + 1);
             const jsonArray = await csv({ output: "json" }).fromString(csvStr)
-            console.log(jsonArray)
             self.transformJson(jsonArray)
         }
         reader.readAsText(this.state.file);
     }
 
-    uploadJSON() {
+    readJSON() {
         const self = this;
-        const data = this.props.data
+        
         try {
             this.setState({ loading: true, errorMessage: null })
             var reader = new FileReader();
-            reader.onload = async function () {
-                let jsonStr = reader.result;
+            reader.onload =  function () {
+                console.log(reader.result)
+                const jsonStr = reader.result;
+                self.uploadJSON(jsonStr);
+            }
+            reader.readAsText(this.state.file);
+        }
+        catch (e) {
+            console.log(e)
+            this.setState({ failed: true, loading: false })
+        }
+    }
+
+    uploadJSON(jsonStr) {
+        const data = this.props.data;
+        console.log(jsonStr)
+        try {
                 const json = JSON.parse(jsonStr);
                 const time = json.geoJson.features[0].properties.time
                 const label = new Date();
                 label.setUTCHours(time.substring(0,2));
                 label.setUTCMinutes(time.substring(3,5));
                 data.push({ date: label, geoJson: json.geoJson })
-                self.props.updateState("data", data);
-                self.setState({ success: true, loading: false })
+                this.props.updateState("data", data);
+                this.setState({ success: true, loading: false })
+        }
+            catch (e) {
+                console.log(e)
+                this.setState({ failed: true, loading: false })
             }
-            reader.readAsText(this.state.file)
-        }
-        catch (e) {
-            console.log(e)
-            this.setState({ failed: true, loading: false })
-        }
     }
 
     onChange(value){
@@ -230,14 +253,9 @@ class OwnDropzone extends Component {
                             <br />
                             <br/>
                             <Button
-                                className="uploadButton" variant="contained" color="primary" style={{marginRight:30}}
-                                onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
-                                Load CSV
-                             </Button>
-                             <Button
                                 className="uploadButton" variant="contained" color="primary" 
-                                onClick={this.uploadJSON.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
-                                Load JSON
+                                onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
+                                Load (CSV/JSON)
                              </Button>
                             <br />
                             <br />
