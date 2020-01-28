@@ -54,7 +54,6 @@ class Explore extends Component {
                     dates.push({ value: date.date, label: self.transfromDate(date.date) })
                 }
                 self.setState({ data: res.data, dates: dates })
-                console.log(this.dates)
             })
     }
 
