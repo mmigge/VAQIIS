@@ -5,7 +5,7 @@ import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
 import L from 'leaflet'
-
+import ReactTooltip from 'react-tooltip'
 import '../index.css'
 
 
@@ -37,7 +37,8 @@ class Explore extends Component {
                 u: 'u',
                 v: 'v',
                 w: 'w',
-                Ts: 'Ts'
+                Ts: 'Ts',
+                comment:"Comment"
             },
         }
         this.downloadSelectedRoute = this.downloadSelectedRoute.bind(this);
@@ -193,7 +194,7 @@ class Explore extends Component {
                                                     : null}
                                                 {this.state.route.geoJson.features.map((item, i) => {
                                                     return (
-                                                        <tr key={"id2" + i}>
+                                                        <tr data-tip="tooltip" key={"id2" + i}>
                                                             {Object.keys(item.properties).map((key, index) => {
                                                                 if (this.state.shortcuts[key]) {
                                                                     return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>
@@ -208,6 +209,7 @@ class Explore extends Component {
                                 </div>
                             </Card.Body>
                         </Card>
+
                     </Col>
                     <Col md={2}>
                         <Card style={{ 'marginTop': '5px' }}>

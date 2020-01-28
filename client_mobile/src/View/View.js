@@ -125,7 +125,7 @@ class View extends Component {
     };
 
     _getFasttable() {
-        let url_fasttable = "http://203.0.176.1:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
+        let url_fasttable = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
         return fetch(url_fasttable)
             .then(response => response.json())
             .then((json) => {
@@ -142,7 +142,7 @@ class View extends Component {
     };
 
     _getPublicTable() {
-        let url_public = "http://203.0.176.1:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
+        let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
         return fetch(url_public)
             .then(response => response.json())
             .then((json) => {
@@ -166,6 +166,7 @@ class View extends Component {
 
     _convertLat(lat) {
         if (!lat || lat == "") {
+            console.log("No or false latitude; setting standard longitude 51.9688129")
             return 51.9688129// dummy coordinates or last known coordinates
         }
         else {
@@ -178,6 +179,7 @@ class View extends Component {
 
     _convertLon(lon) {
         if (!lon || lon == "") {
+            console.log("No or false longitude; setting standard longitude 7.5922197")
             return 7.5922197// dummy coordinates or last known coordinates
         }
         else {
@@ -275,7 +277,6 @@ class View extends Component {
 
         newFeatureGroup.geoJson.features.forEach(function (feature) {
             let timeString = e;
-            console.log(e)
             if (feature.properties.time === timeString) {
                 feature.properties.comment = comment
             }
