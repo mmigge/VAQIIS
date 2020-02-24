@@ -35,3 +35,11 @@
 .react-confirm-alert-button-group {
     display: block;
 }
+
+.MuiTabs-fixed {
+    position: fixed !important;
+}
+
+.PrivateTabIndicator-colorPrimary-26 {
+    background-color: white !important;
+}

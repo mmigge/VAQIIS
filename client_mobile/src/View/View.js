@@ -400,7 +400,7 @@ class View extends Component {
                             <Tab className="chatTab" style={this.state.unread ? { "color": "orange" } : null} label="Chat" />
                         </Tabs>
                         {this.state.value === 0 &&
-                            <TableView liveRoute={this.state.featureGroup} />
+                            <TableView liveRoute={this.state.featureGroup} startpoint={this.state.startpoint} endpoint={this.state.endpoint} />
                         }
                         {this.state.value === 1 &&
                             <MapView

@@ -14,6 +14,30 @@ class TableView extends Component {
     componentDidMount() {
     }
 
+    isRecorded = (time) => {
+        var startTime;
+        var endTime;
+        if (this.props.startpoint) {
+            startTime = this.props.startpoint.properties.time;
+            if (this.props.endpoint) {
+                endTime = this.props.endpoint.properties.time;
+            }
+        }
+        else {
+            return false;
+        }
+        // Looks stupid but works as long as time is in 24h format...
+        if (startTime <= time) {
+            if (endTime) {
+                if (endTime > time) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     render() {
         if (!this.state.loading) {
             return (
@@ -36,7 +60,7 @@ class TableView extends Component {
                         <tbody>
                             {this.props.liveRoute.geoJson.features.map((item, i) => {
                                 return (
-                                    <tr key={"id2" + i}>
+                                    <tr key={"id2" + i} class={this.isRecorded(item.properties.time) ? "highlighted" : ""} >
                                         {Object.keys(item.properties).map((key, index) => {
                                             return <td key={"ad2" + index}>{item.properties[key]}</td>
                                         })}
