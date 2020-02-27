@@ -19,12 +19,17 @@ const customStyles = {
         zIndex: 1000
     }
 };
-
+/** Live  
+ * Child component to View 
+ * Everytime a new measurement comes in the Live component gets refreshed
+ * It only refreshes if the View component provides new probs
+ */
 class Live extends Component {
     constructor(props) {
         super(props);
         this.state = {
             connected: false,
+            // sensors which should be displayed on the table and map and their respective shortcuts
             shortcuts: {
                 AirTC_Avg: "°C",
                 LiveBin_1dM: "P10",
@@ -109,6 +114,7 @@ class Live extends Component {
                             <Table striped bordered hover style={{ width: "100%", fontSize: "x-small" }}>
                                 <thead>
                                     <tr>
+                                        {/* print field name and field value for every property in the geoJson */}
                                         {Object.keys(this.props.liveRoute.geoJson.features[0].properties).map((key, index) => {
                                             if (this.state.shortcuts[key]) {
                                                 return <th key={"id" + index}>{this.state.shortcuts[key]}</th>
@@ -120,6 +126,7 @@ class Live extends Component {
                                 <tbody>
                                     {this.state.selected ?
                                         <tr>
+                                {/* print field name and field value for every property in the geoJson */}
                                             {Object.keys(this.state.selectedMeasurement.properties).map((key, i) => {
                                                 if (this.state.shortcuts[key]) {
                                                     return <td className="customtd selected" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>

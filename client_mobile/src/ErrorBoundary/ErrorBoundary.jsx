@@ -1,4 +1,9 @@
 import React, {Component} from 'react';
+/**
+ * ErrorBoundary
+ * This component gets displayed everytime the app encounters an error
+ */
+
 class ErrorBoundary extends Component{
     constructor(props){
         super(props);

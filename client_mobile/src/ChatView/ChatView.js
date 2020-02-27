@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
 import './ChatView.css'
+/**
+ * Chat class 
+ * provides the chat view and functionality
+ * The chat works via MQTT. The chat component listens to one MQTT topic
+ * while it also pushes new messages to one MQTT topic
+ */
 class ChatView extends Component {
     constructor(props) {
         super(props)

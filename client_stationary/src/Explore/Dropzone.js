@@ -39,12 +39,23 @@ class OwnDropzone extends Component {
     }
 
     handleChange(files) {
+        console.log(files)
         this.setState({
             file: files[files.length - 1]
         });
+
     }
 
     uploadFolder() {
+        if(this.state.file.name.includes(".dat") || this.state.file.name.includes(".csv")){
+            this.readCSV();
+        }
+        else{
+            this.readJSON()
+        }
+    }
+
+    readCSV() {
         const self = this;
         this.setState({ loading: true, errorMessage: null })
         var reader = new FileReader();
@@ -52,10 +63,47 @@ class OwnDropzone extends Component {
             let csvStr = reader.result;
             csvStr = csvStr.substring(csvStr.indexOf("\n") + 1);
             const jsonArray = await csv({ output: "json" }).fromString(csvStr)
-            console.log(jsonArray)
             self.transformJson(jsonArray)
         }
         reader.readAsText(this.state.file);
+    }
+
+    readJSON() {
+        const self = this;
+        
+        try {
+            this.setState({ loading: true, errorMessage: null })
+            var reader = new FileReader();
+            reader.onload =  function () {
+                console.log(reader.result)
+                const jsonStr = reader.result;
+                self.uploadJSON(jsonStr);
+            }
+            reader.readAsText(this.state.file);
+        }
+        catch (e) {
+            console.log(e)
+            this.setState({ failed: true, loading: false })
+        }
+    }
+
+    uploadJSON(jsonStr) {
+        const data = this.props.data;
+        console.log(jsonStr)
+        try {
+                const json = JSON.parse(jsonStr);
+                const time = json.geoJson.features[0].properties.time
+                const label = new Date();
+                label.setUTCHours(time.substring(0,2));
+                label.setUTCMinutes(time.substring(3,5));
+                data.push({ date: label, geoJson: json.geoJson })
+                this.props.updateState("data", data);
+                this.setState({ success: true, loading: false })
+        }
+            catch (e) {
+                console.log(e)
+                this.setState({ failed: true, loading: false })
+            }
     }
 
     onChange(value){
@@ -127,7 +175,11 @@ class OwnDropzone extends Component {
     openDialog() {
         this.setState({ open: true })
     }
-
+    /**
+     * Helper function to convert Lat/Lon Objects provided by the datalogger
+     * the function is provided by Bastian Paas and translated to JavaScript
+     * @param {} coordinateObjectString 
+     */
     convertGPSData(coordinateObjectString) {
         // Leading zeros not allowed --> string
         const position = coordinateObjectString;
@@ -150,7 +202,6 @@ class OwnDropzone extends Component {
     render() {
         return (
             <div>
-
                 <Button
                     className="uploadButton" variant="contained" color="primary"
                     onClick={this.openDialog.bind(this)}>
@@ -207,7 +258,7 @@ class OwnDropzone extends Component {
                             <Button
                                 className="uploadButton" variant="contained" color="primary" 
                                 onClick={this.uploadFolder.bind(this)} disabled={!this.state.file || this.state.success || this.state.loading || this.state.failed|| this.state.error}>
-                                Load
+                                Load (CSV/JSON)
                              </Button>
                             <br />
                             <br />

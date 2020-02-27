@@ -18,7 +18,11 @@ import './View.css'
 var Paho = require('paho-mqtt');
 
 var client;
-
+/** Class View
+ * Serves as parent component to all tabs (table,live,chat)
+ * Queries new measurements from the logger or mqtt and forwards it to child components 
+ * 
+ */
 class View extends Component {
     constructor(props) {
         super(props);
@@ -67,7 +71,10 @@ class View extends Component {
         this._subscribeToTopic = this._subscribeToTopic.bind(this);
         this._readMessages = this._readMessages.bind(this);
     };
-
+    /**
+     * On component load an initial request to the logger is made 
+     * additionally a timer is setup to query new data every second
+     */
     componentDidMount = () => {
         this.connectMQTT();
         this._getSensors()
@@ -89,6 +96,7 @@ class View extends Component {
     componentWillUnmount() {
         clearInterval(this.timer)
     };
+    // Handler if chat message has been read
     _readMessages() {
         this.setState({ unread: false })
     };
@@ -105,6 +113,10 @@ class View extends Component {
         }
         return c;
     }
+    /**
+     * GeoJSON Building
+     * On new measurement create a new marker, which gets added to the geojson
+     */
 
     _addMarker() {
         let marker = {
@@ -123,7 +135,9 @@ class View extends Component {
             lastMeasurement: marker
         })
     };
-
+    /**
+     * Handlers to query the data logger for new data
+     */
     _getFasttable() {
         let url_fasttable = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
         return fetch(url_fasttable)
@@ -132,15 +146,17 @@ class View extends Component {
                 let sensor_data_fasttable = {}
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
-                        if (field.name == "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
-                        else if (field.name == "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
+                        if (field.name === "rmclatitude") sensor_data_fasttable.rmclatitude = this._convertLat(json.data[0].vals[index]);
+                        else if (field.name === "rmclongitude") sensor_data_fasttable.rmclongitude = this._convertLon(json.data[0].vals[index]);
                         else sensor_data_fasttable[field.name] = json.data[0].vals[index]
                     }
                 })
                 this.setState({ sensor_data_fasttable })
             })
     };
-
+    /**
+     * Handlers to query the data logger for new data
+     */
     _getPublicTable() {
         let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
         return fetch(url_public)
@@ -151,21 +167,27 @@ class View extends Component {
                 sensor_data_public.time = date.toLocaleTimeString();
                 json.head.fields.map((field, index) => {
                     if (this.state.sensors.includes(field.name)) {
-                        if (field.name == "rmclatitude") return;
-                        else if (field.name == "rmclongitude") return;
+                        if (field.name === "rmclatitude") return;
+                        else if (field.name === "rmclongitude") return;
                         else sensor_data_public[field.name] = json.data[0].vals[index]
                     }
                 })
                 this.setState({ sensor_data_public })
             })
     };
-
+    /**
+     * Wrapper for both requests
+     * returns only when both requests are finished
+     */
     _getSensors() {
         return Promise.all([this._getFasttable(), this._getPublicTable()])
-    };
+    };/**
+     * helper functions for coordinates
+     *  
+     */
 
     _convertLat(lat) {
-        if (!lat || lat == "") {
+        if (!lat || lat === "") {
             console.log("No or false latitude; setting standard longitude 51.9688129")
             return 51.9688129// dummy coordinates or last known coordinates
         }
@@ -178,7 +200,7 @@ class View extends Component {
     };
 
     _convertLon(lon) {
-        if (!lon || lon == "") {
+        if (!lon || lon === "") {
             console.log("No or false longitude; setting standard longitude 7.5922197")
             return 7.5922197// dummy coordinates or last known coordinates
         }
@@ -233,13 +255,16 @@ class View extends Component {
             connected: true,
         })
     };
-
+    /**
+     * handle incoming messages depending on the topic it got sent to
+     *  
+     */
     onMessageArrived(message) {
-        if (message.destinationName == "chat_mobile" || message.destinationName == "chat_stationary") {
+        if (message.destinationName === "chat_mobile" || message.destinationName === "chat_stationary") {
             this.setState({
                 messages: [...this.state.messages, { destinationName: message.destinationName, payloadString: message.payloadString, time: new Date() }]
             })
-            if (this.state.value != 2) {
+            if (this.state.value !== 2) {
                 this.setState({ unread: true })
             }
         }
@@ -262,7 +287,6 @@ class View extends Component {
             this.confirmNotEnoughData();
         } else {
             let featureGroup = this.getFeatureGroup();
-            const self = this;
             let date = new Date();
             const object = { geoJson: featureGroup.geoJson, date: date}
             object.date = date.toISOString();   
@@ -401,7 +425,7 @@ class View extends Component {
                             <Tab className="chatTab" style={this.state.unread ? { "color": "orange" } : null} label="Chat" />
                         </Tabs>
                         {this.state.value === 0 &&
-                            <TableView liveRoute={this.state.featureGroup} />
+                            <TableView liveRoute={this.state.featureGroup} startpoint={this.state.startpoint} endpoint={this.state.endpoint} />
                         }
                         {this.state.value === 1 &&
                             <MapView

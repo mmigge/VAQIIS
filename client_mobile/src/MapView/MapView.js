@@ -20,6 +20,11 @@ const customStyles = {
     }
 };
 
+/**
+ * Class MapView 
+ * Parent component to OwnMap 
+ * Handles new measurements and forwards newly build geoJSON to the OwnMap component for display
+ */
 class MapView extends Component {
     constructor(props) {
         super(props);
@@ -36,7 +41,7 @@ class MapView extends Component {
                 v: 'v',
                 w: 'w',
                 Ts: 'Ts',
-                time:'Time'
+                time: 'Time'
             },
             liveRoute: {
                 geoJson: {
@@ -53,7 +58,6 @@ class MapView extends Component {
     }
 
     componentDidMount = () => {
-        // this.setState(this.props)
         Modal.setAppElement('body');
     }
     handleSubmit = (event) => {
@@ -80,7 +84,7 @@ class MapView extends Component {
     _toggleSelected(e) {
         // compare timestring if found push that whole measurement (feature) to the state
         let that = this;
-        if(e=='') this.setState({selectedMeasurement:'',selected:false})
+        if (e === '') this.setState({ selectedMeasurement: '', selected: false })
         this.props.liveRoute.geoJson.features.forEach(function (feature) {
             if (feature.properties.time === e) {
                 that.setState({ selectedMeasurement: feature, selected: true })
@@ -92,6 +96,33 @@ class MapView extends Component {
         this.setState({
             selectedComment: e.target.value
         })
+    }
+    // handling of recording a route
+    isRecorded = (time) => {
+        var startTime;
+        var endTime;
+        if (this.props.startpoint) {
+            startTime = this.props.startpoint.properties.time;
+            if (this.props.endpoint) {
+                endTime = this.props.endpoint.properties.time;
+            }
+        }
+        else {
+            return false;
+        }
+        // Looks stupid but works as long as time is in 24h format...
+        if (startTime <= time) {
+            if (endTime) {
+                if (endTime > time) {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     render() {
@@ -116,7 +147,7 @@ class MapView extends Component {
                                 </thead>
                                 <tbody>
                                     {this.state.selected ?
-                                        <tr>
+                                        <tr >
                                             {Object.keys(this.state.selectedMeasurement.properties).map((key, i) => {
                                                 if (this.state.shortcuts[key]) {
                                                     return <td className="customtd selected" key={"selected" + i}>{this.state.selectedMeasurement.properties[key]}</td>
@@ -126,18 +157,18 @@ class MapView extends Component {
                                         </tr>
                                         : null}
                                     {this.props.liveRoute.geoJson.features.map((item, i) => {
-                                            return (
-                                                <tr key={"id2" + i}>
-                                                    {Object.keys(item.properties).map((key, index) => {
-                                                        if (this.state.shortcuts[key]) {
-                                                            return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>
-                                                        }
-                                                    })
+                                        return (
+                                            <tr key={"id2" + i} class={this.isRecorded(item.properties.time) ? "highlighted" : ""}>
+                                                {Object.keys(item.properties).map((key, index) => {
+                                                    if (this.state.shortcuts[key]) {
+                                                        return <td className="customtd" key={"ad2" + index} >{item.properties[key]}</td>
                                                     }
-                                                    <td className="customtd editButton"><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
-                                                </tr>
-                                            )
-                                        })}
+                                                })
+                                                }
+                                                <td className="customtd editButton"><Button value={item.properties.time} onClick={this.openModal}><FaRegEdit /></Button></td>
+                                            </tr>
+                                        )
+                                    })}
                                 </tbody>
                             </Table>
                         </div>

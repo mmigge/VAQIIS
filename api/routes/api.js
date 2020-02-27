@@ -3,9 +3,11 @@ var router = express.Router();
 
 const Course = require('../models/course')
 
-router.get("/", function(req, res, next) {
-res.send("API is working properly");
-});
+/* GET home page. */
+router.get('/', function(req, res, next) {
+    res.render('index', { title: 'Express' });
+  });
+
 
 
 router.post("/course", async function (req, res){

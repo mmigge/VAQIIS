@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import { Container } from 'react-bootstrap'
 import './Chat.css'
+/**
+ * Chat class 
+ * provides the chat view and functionality
+ * The chat works via MQTT. The chat component listens to one MQTT topic
+ * while it also pushes new messages to one MQTT topic
+ */
 class Chat extends Component {
     constructor(props) {
         super(props)
@@ -18,7 +24,6 @@ class Chat extends Component {
         })
     }
     _onKeyDown(e) {
-
         if (e.key === 'Enter') {
             this.props._publishMQTT(this.state.chatBox, "chat_stationary");
             this.setState({ chatBox: "" })
@@ -34,6 +39,9 @@ class Chat extends Component {
         this.scrollToBottom();
       }
 
+    /** 
+     * Automatic scroll to bottom on new chat message and overflow
+     */
       scrollToBottom = () => {
         this.messagesEnd.scrollIntoView({ behavior: "smooth" });
       }

@@ -5,7 +5,6 @@ import { Container, Row, Col, Card, Table } from 'react-bootstrap';
 import OwnDropzone from './Dropzone';
 import axios from 'axios';
 import L from 'leaflet'
-import ReactTooltip from 'react-tooltip'
 import '../index.css'
 
 
@@ -104,7 +103,9 @@ class Explore extends Component {
             route_coordinates: route_coordinates
         })
     };
-
+    /**
+     * Send route to api
+     */
     uploadRoute = (route) => {
         axios.post('http://giv-project2:9000/api/course', { route })
             .then(res => {

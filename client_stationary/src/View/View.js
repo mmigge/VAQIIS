@@ -18,7 +18,7 @@ var Paho = require('paho-mqtt');
 var client;
 /**
  * View class that holds and edits the GeoJSON 
- * Serves as a parent class to Map/Explore and Chat
+ * Serves as a parent class to Map/Explore/Live and Chat
  * 
  */
 class View extends Component {
@@ -50,6 +50,7 @@ class View extends Component {
                 "H2O",
                 "diag_LI75"
             ],
+            // server config variables, can and should be edited depending on the endpoints
             server_ip: '10.6.4.7',
             server_port: 9001,
             featureGroup: {
@@ -96,6 +97,7 @@ class View extends Component {
     }
     /**
      * GeoJSON Building
+     * On new measurement create a new marker, which gets added to the geojson
      */
 
     _addMarker() {
@@ -126,7 +128,13 @@ class View extends Component {
         }
         return c;
     };f
-
+    /** 
+     * Iterates through the geoJson, e is used to look for the selected measurement 
+     * adds comment as property to the geojson
+     * 
+     * @param {e} id of the comment that should be added  
+     * @param {*} comment comment content
+     */
     _addCommentToGeoJson(e, comment) {
         let newFeatureGroup = this.state.featureGroup;
         newFeatureGroup.geoJson.features.forEach(function (feature) {
@@ -182,6 +190,7 @@ class View extends Component {
     onConnect() {
         console.log("MQTT Broker Connect: Success");
         client.subscribe("message");
+        // subscribe to all topics 
         this._subscribeToTopic("messwerte");
         this._subscribeToTopic("messwerte_fasttable");
         this._subscribeToTopic("chat_mobile");
@@ -190,7 +199,12 @@ class View extends Component {
             connected: true,
         })
     };
-
+    /**
+     * Because the measurements in the logger from 2 tables 
+     * listeners are set up to sort incoming mqtt messsages 
+     * 
+     * @param {} message 
+     */
     onMessageArrived(message) {
         // Depending on the incoming message it gets handled differently
         if (message.destinationName === "chat_mobile" || message.destinationName === "chat_stationary") {
@@ -235,7 +249,9 @@ class View extends Component {
             this.connectMQTT();
         }
     };
-
+    /**
+     * Push recorded route to mqtt for further processing
+     */
     sendtoBroker = () => {
         if (!this.state.startpoint || !this.state.endpoint) {
             this.confirmNotEnoughData();

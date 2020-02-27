@@ -1,4 +1,4 @@
 npm-debug.log
 node_modules/
-
+client_mobile/public/static/map-tiles/*
 package-lock.json
