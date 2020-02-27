@@ -1,68 +1,31 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Supporting Bike Missions : Visualising air quality information in situ : Client Stationary
 
-## Available Scripts
+The Client Stationary corresponds to the application running on the university server. <br> This repository contains all resources needed to use the webserver as well as instructions on which services need to be started before it can be used. 
 
-In the project directory, you can run:
+## Project setup
+* Cloning the Github project with  `git clone https://github.com/mmigge/VAQIIS.git` <br>
+**_Warning:_** We recommend to clone the project into the "home" folder of your current user,  so that paths in this tutorial match yours (Full-Path: /home/)
 
-### `npm start`
+* Install MongoDB by following the official guide: [MongoDB](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/)
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+* Install the MQTT-Broker with `sudo apt install mosquitto`
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
 
-### `npm test`
+## How to run the webserver and database
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+* Connect to the university server (giv-project2) and login (you have to be inside the university network). <br> Continue by running `sudo service mongod start`
+    
+* Navigate into the VAQIIS/api folder and start the webserver with `npm start`
 
-### `npm run build`
+## Automations via crontab
+Before all implemented functionalities are available to the user after a successful boot procedure, 2 different commands must be executed: 
+* `sudo service mongod start`
+* `cd VAQIIS/api` followed `npm start`
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+You can automate the execution of these scripts with a crontab job. <br> To create a crontab job for the local user (! not sudo or root!) just type `crontab -e` and add the followling lines <br>
+`@reboot sleep 30 && sudo service mongod start &` <br>
+`@reboot sleep 45 && cd /home/pi/VAQIIS/api/ && npm start &`<br>
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+## Troubleshooting
+It can happen that messages sent to the MQTT server are not accepted by the service. This is a problem of using websockets under Ubuntu, which are (unfortunately) necessary. This problem can be solved by simply restarting the server.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
