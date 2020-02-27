@@ -84,7 +84,10 @@ class MapView extends Component {
     _toggleSelected(e) {
         // compare timestring if found push that whole measurement (feature) to the state
         let that = this;
+        if (e == '') this.setState({ selectedMeasurement: '', selected: false })
+
         if (e === '') this.setState({ selectedMeasurement: '', selected: false })
+
         this.props.liveRoute.geoJson.features.forEach(function (feature) {
             if (feature.properties.time === e) {
                 that.setState({ selectedMeasurement: feature, selected: true })
@@ -98,6 +101,33 @@ class MapView extends Component {
         })
     }
     // handling of recording a route
+    isRecorded = (time) => {
+        var startTime;
+        var endTime;
+        if (this.props.startpoint) {
+            startTime = this.props.startpoint.properties.time;
+            if (this.props.endpoint) {
+                endTime = this.props.endpoint.properties.time;
+            }
+        }
+        else {
+            return false;
+        }
+        // Looks stupid but works as long as time is in 24h format...
+        if (startTime <= time) {
+            if (endTime) {
+                if (endTime > time) {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     isRecorded = (time) => {
         var startTime;
         var endTime;

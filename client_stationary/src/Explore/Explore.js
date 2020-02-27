@@ -46,19 +46,26 @@ class Explore extends Component {
 
     componentWillMount() {
         const self = this;
+        //Get al saved routes in the database
         axios.get('http://giv-project2:9000/api/course')
             .then(res => {
                 const dates = self.state.dates
                 for (var date of res.data) {
                     dates.push({ value: date.date, label: self.transfromDate(date.date) })
                 }
+                //add routes to selection 
                 self.setState({ data: res.data, dates: dates })
             })
     }
 
+    /**
+     * Searches for the selected Marker or deletees Selection
+     * @param {*} e selection
+     */
     _toggleSelected(e) {
         // compare timestring if found push that whole measurement (feature) to the state
         let that = this;
+        //delete selection if no marker is selected
         if (e === '') {
             this.setState({ selectedMeasurement: '', selected: false })
         }
@@ -69,7 +76,13 @@ class Explore extends Component {
         })
     };
 
+    /**
+     * Downloads a object as JSON
+     * @param {*} exportObj to download
+     * @param {*} exportName name of object
+     */
     downloadObjectAsJson(exportObj, exportName) {
+        //create download link, exectute it, remove it at the end
         var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj));
         var downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
@@ -79,6 +92,9 @@ class Explore extends Component {
         downloadAnchorNode.remove();
     };
 
+    /**
+     * Handle a change of the selected route to display
+     */
     handlechange = (e) => {
         const value = e.target.value;
         let route;
@@ -91,6 +107,7 @@ class Explore extends Component {
             for (var data of this.state.data) {
                 if (data.date === value) {
                     route = data;
+                    //create connection line between the measurements
                     route_coordinates = this.props.connectTheDots(data.geoJson);
                     const geojson = L.polyline(route_coordinates);
                     map.leafletElement.fitBounds(geojson.getBounds());
@@ -103,8 +120,10 @@ class Explore extends Component {
             route_coordinates: route_coordinates
         })
     };
+
     /**
-     * Send route to api
+     * Upload a route to the webserver
+     * web server saves it in the database
      */
     uploadRoute = (route) => {
         axios.post('http://giv-project2:9000/api/course', { route })
@@ -114,9 +133,13 @@ class Explore extends Component {
             })
     };
 
+    /**
+     * Function to update parents state from child component
+     */
     updateState = (state, value) => {
         const self = this;
         this.setState({ [state]: value }, () => {
+            //if a new route was uploaded display ot automaticly
             if (state === "data") {
                 self.uploadRoute(value[value.length - 1])
                 const dates = [{ value: "null", label: "dd-mm-yyyy" }]
@@ -138,6 +161,9 @@ class Explore extends Component {
         })
     };
 
+    /**
+     * Transform the date in a human-readable version
+     */
     transfromDate = function (date) {
 
         if (!date) { return "" }
@@ -150,6 +176,9 @@ class Explore extends Component {
         return (dd > 9 ? '' : '0') + dd + "-" + (mm > 9 ? '' : '0') + mm + "-" + date.getFullYear() + " " + (hours > 9 ? '' : '0') + hours + ":" + (min > 9 ? '' : '0') + min;
     };
 
+    /**
+     * Starts the download of the selected route
+     */
     downloadSelectedRoute() {
         if (JSON.stringify(this.state.route) === JSON.stringify(featureGroup) || this.state.route === null) {
             alert("Please select Route to download");
