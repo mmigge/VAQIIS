@@ -188,12 +188,8 @@ class View extends Component {
      */
 
     _convertLat(lat) {
-<<<<<<< Updated upstream
         if (!lat || lat === "") {
             console.log("No or false latitude; setting standard longitude 51.9688129")
-=======
-        if (!lat || lat == "") {
->>>>>>> Stashed changes
             return 51.9688129// dummy coordinates or last known coordinates
         }
         else {
@@ -205,12 +201,8 @@ class View extends Component {
     };
 
     _convertLon(lon) {
-<<<<<<< Updated upstream
         if (!lon || lon === "") {
             console.log("No or false longitude; setting standard longitude 7.5922197")
-=======
-        if (!lon || lon == "") {
->>>>>>> Stashed changes
             return 7.5922197// dummy coordinates or last known coordinates
         }
         else {
