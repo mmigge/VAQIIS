@@ -1,4 +1,4 @@
-# Supporting Bike Missions : Visualising air quality information in situ : Client Stationary
+# Supporting Bike Missions : Client Stationary
 
 The Client Stationary corresponds to the application running on the university server. <br> This repository contains all resources needed to use the webserver as well as instructions on which services need to be started before it can be used. 
 
