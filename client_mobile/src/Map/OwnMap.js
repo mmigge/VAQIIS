@@ -17,8 +17,8 @@ var greenIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 var redIcon = new L.Icon({
-    iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconUrl: '/static/img/marker-icon-red.png',
+    shadowUrl: '/static/marker-shadow.png',
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
@@ -63,7 +63,7 @@ class OwnMap extends React.Component {
             <Map onClick={this.deselect} style={{ height: "50vh" }} center={this.props.route_coordinates.length > 0 ? this.props.route_coordinates[this.props.route_coordinates.length - 1 ] : position} zoom={15} ref="map" minZoom={12} maxZoom={17}>
                 <TileLayer
                     attribution="Using Mapnik-Tiles"
-                    url="/map-tiles/{z}/{x}/{y}.png"
+                    url="/static/map-tiles/{z}/{x}/{y}.png"
                 />
                 {/* Map markers on the Map,if marker was clicked turn green */}
                 {this.props.liveRoute.geoJson.features.map((marker, i) => {

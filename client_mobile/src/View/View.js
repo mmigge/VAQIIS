@@ -52,6 +52,7 @@ class View extends Component {
 
                 "diag_LI75"
             ],
+            ip:'http://128.176.146.233:3134',
             server_ip: '10.6.4.7',
             server_port: 9001,
             featureGroup: {
@@ -89,7 +90,7 @@ class View extends Component {
                 const sensor_data = { ...this.state.sensor_data_public, ...this.state.sensor_data_fasttable }
                 this.setState({ sensor_data })
             }).then(() => this._addMarker());
-        }, 1000,
+        }, 3000,
         );
     };
 
@@ -139,7 +140,7 @@ class View extends Component {
      * Handlers to query the data logger for new data
      */
     _getFasttable() {
-        let url_fasttable = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
+        let url_fasttable = this.state.ip+"/logger/command=dataquery&uri=dl:fasttable&mode=most-recent&format=json";
         return fetch(url_fasttable)
             .then(response => response.json())
             .then((json) => {
@@ -158,7 +159,7 @@ class View extends Component {
      * Handlers to query the data logger for new data
      */
     _getPublicTable() {
-        let url_public = "http://128.176.146.233:3134/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
+        let url_public = this.state.ip+"/logger/command=dataquery&uri=dl:Public&mode=most-recent&format=json";
         return fetch(url_public)
             .then(response => response.json())
             .then((json) => {
@@ -187,8 +188,12 @@ class View extends Component {
      */
 
     _convertLat(lat) {
+<<<<<<< Updated upstream
         if (!lat || lat === "") {
             console.log("No or false latitude; setting standard longitude 51.9688129")
+=======
+        if (!lat || lat == "") {
+>>>>>>> Stashed changes
             return 51.9688129// dummy coordinates or last known coordinates
         }
         else {
@@ -200,8 +205,12 @@ class View extends Component {
     };
 
     _convertLon(lon) {
+<<<<<<< Updated upstream
         if (!lon || lon === "") {
             console.log("No or false longitude; setting standard longitude 7.5922197")
+=======
+        if (!lon || lon == "") {
+>>>>>>> Stashed changes
             return 7.5922197// dummy coordinates or last known coordinates
         }
         else {
