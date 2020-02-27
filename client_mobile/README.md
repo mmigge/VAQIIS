@@ -1,4 +1,4 @@
-# Supporting Bike Missions : Visualising air quality information in situ : Client Mobile
+# Supporting Bike Missions : Client Mobile
 
 The Client Stationary corresponds to the application running on the sensorbike. <br> This repository contains all resources needed to use the webserver as well as instructions how they have to be deployed. 
 
