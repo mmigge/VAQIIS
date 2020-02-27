@@ -38,6 +38,10 @@ class OwnDropzone extends Component {
         };
     }
 
+    /**
+     * save file that was uploaded over the dropzone
+     * @param {*} files that were uploaded
+     */
     handleChange(files) {
         console.log(files)
         this.setState({
@@ -46,6 +50,9 @@ class OwnDropzone extends Component {
 
     }
 
+    /**
+     * extract the data of the file
+     */
     uploadFolder() {
         if(this.state.file.name.includes(".dat") || this.state.file.name.includes(".csv")){
             this.readCSV();
@@ -55,6 +62,9 @@ class OwnDropzone extends Component {
         }
     }
 
+    /**
+     * tries to read the uploaded csv and transforms it into json
+     */
     readCSV() {
         const self = this;
         this.setState({ loading: true, errorMessage: null })
@@ -68,6 +78,9 @@ class OwnDropzone extends Component {
         reader.readAsText(this.state.file);
     }
 
+    /**
+     * read a JSON file
+     */
     readJSON() {
         const self = this;
         
@@ -87,6 +100,10 @@ class OwnDropzone extends Component {
         }
     }
 
+    /**
+     * Add the route to the explore view
+     * @param {*} jsonStr route as string parseable to JSON
+     */
     uploadJSON(jsonStr) {
         const data = this.props.data;
         console.log(jsonStr)
@@ -97,6 +114,7 @@ class OwnDropzone extends Component {
                 label.setUTCHours(time.substring(0,2));
                 label.setUTCMinutes(time.substring(3,5));
                 data.push({ date: label, geoJson: json.geoJson })
+                //send data to explore view
                 this.props.updateState("data", data);
                 this.setState({ success: true, loading: false })
         }
@@ -106,6 +124,10 @@ class OwnDropzone extends Component {
             }
     }
 
+    /**
+     * Save the changes the timesteps input
+     * @param {*} value timesteps
+     */
     onChange(value){
         value= parseInt(value)
         let error = false;
@@ -115,11 +137,15 @@ class OwnDropzone extends Component {
         this.setState({steps: value, error})
     }
 
+    /**
+     * build out of the JSON a valid geoJson, which is consisten with measuremnt routes
+     */
     transformJson = (json) => {
         const self = this;
         try {
             const data = this.props.data;
             const label = new Date(json[2].TIMESTAMP);
+            //create geoJSON
             const geoJson = {
                 "type": "FeatureCollection",
                 "features": []
@@ -151,10 +177,12 @@ class OwnDropzone extends Component {
             console.log(e)
             this.setState({ failed: true, loading: false })
         }
-        setTimeout(function () { self.handleClose(); }, 3000);
 
     }
 
+    /**
+     * extract the interisting properties (specified in View.js)
+     */
     extractProperties= (json) => {
         const prop={}
         Object.keys(this.props.sc).map((sc) => {
@@ -164,18 +192,31 @@ class OwnDropzone extends Component {
         return prop;
     }
 
+    /**
+     * closes the dropzone window
+     */
     handleClose() {
         this.setState({ open: false, file: null, loading: false, success: false, failed: false })
     }
 
+    /**
+     * handle file deleted from dropzone
+     */
     handleDelete() {
         this.setState({ file: null })
     }
 
+    /**
+     * opens the dropzone window
+     */
     openDialog() {
         this.setState({ open: true })
     }
 
+    /**
+     * converts the GPS data from the logger into lat and long
+     * @param {*} coordinateObjectString 
+     */
     convertGPSData(coordinateObjectString) {
         // Leading zeros not allowed --> string
         const position = coordinateObjectString;
