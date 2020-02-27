@@ -3,7 +3,9 @@ import {HashRouter, Route} from "react-router-dom";
 import './App.css';
 
 import View from '../View/View'
-
+/**
+ * App component which provides basic routing
+ */
 class App extends  Component{
     constructor(props){
         super(props);

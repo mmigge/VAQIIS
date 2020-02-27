@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import { Container, Table } from 'react-bootstrap'
 import ReactLoading from 'react-loading'
 
+/**
+ * Class TableView 
+ * Child component to View 
+ * Everytime a new measurement arrives the table view is updated and a new row is added to the table
+ */
 class TableView extends Component {
     constructor(props) {
         super(props);

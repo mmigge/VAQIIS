@@ -62,9 +62,11 @@ class OwnDropzone extends Component {
         }
     }
 
+
     /**
      * reads the uploaded csv and transforms it into json
      */
+
     readCSV() {
         const self = this;
         this.setState({ loading: true, errorMessage: null })
@@ -78,9 +80,11 @@ class OwnDropzone extends Component {
         reader.readAsText(this.state.file);
     }
 
+
     /**
      * read a JSON file
      */
+
     readJSON() {
         const self = this;
         
@@ -100,10 +104,12 @@ class OwnDropzone extends Component {
         }
     }
 
+
     /**
      * Add the route to the explore view
      * @param {*} jsonStr route as string parseable to JSON
      */
+
     uploadJSON(jsonStr) {
         const data = this.props.data;
         console.log(jsonStr)
@@ -114,7 +120,9 @@ class OwnDropzone extends Component {
                 label.setUTCHours(time.substring(0,2));
                 label.setUTCMinutes(time.substring(3,5));
                 data.push({ date: label, geoJson: json.geoJson })
+
                 //send data to explore view
+
                 this.props.updateState("data", data);
                 this.setState({ success: true, loading: false })
         }
@@ -124,10 +132,12 @@ class OwnDropzone extends Component {
             }
     }
 
+
     /**
      * Save the changes the timesteps input
      * @param {*} value timesteps
      */
+
     onChange(value){
         value= parseInt(value)
         let error = false;
@@ -212,10 +222,13 @@ class OwnDropzone extends Component {
     openDialog() {
         this.setState({ open: true })
     }
+ram {*} coordinateObjectString 
 
     /**
-     * converts the GPS data from the logger into lat and long
-     * @param {*} coordinateObjectString 
+     * Helper function to convert Lat/Lon Objects provided by the datalogger
+     * the function is provided by Bastian Paas and translated to JavaScript
+     * @param {} coordinateObjectString 
+
      */
     convertGPSData(coordinateObjectString) {
         // Leading zeros not allowed --> string
@@ -239,7 +252,6 @@ class OwnDropzone extends Component {
     render() {
         return (
             <div>
-
                 <Button
                     className="uploadButton" variant="contained" color="primary"
                     onClick={this.openDialog.bind(this)}>

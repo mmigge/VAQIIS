@@ -20,6 +20,11 @@ const customStyles = {
     }
 };
 
+/**
+ * Class MapView 
+ * Parent component to OwnMap 
+ * Handles new measurements and forwards newly build geoJSON to the OwnMap component for display
+ */
 class MapView extends Component {
     constructor(props) {
         super(props);
@@ -53,7 +58,6 @@ class MapView extends Component {
     }
 
     componentDidMount = () => {
-        // this.setState(this.props)
         Modal.setAppElement('body');
     }
     handleSubmit = (event) => {
@@ -81,6 +85,9 @@ class MapView extends Component {
         // compare timestring if found push that whole measurement (feature) to the state
         let that = this;
         if (e == '') this.setState({ selectedMeasurement: '', selected: false })
+
+        if (e === '') this.setState({ selectedMeasurement: '', selected: false })
+
         this.props.liveRoute.geoJson.features.forEach(function (feature) {
             if (feature.properties.time === e) {
                 that.setState({ selectedMeasurement: feature, selected: true })
@@ -92,6 +99,33 @@ class MapView extends Component {
         this.setState({
             selectedComment: e.target.value
         })
+    }
+    // handling of recording a route
+    isRecorded = (time) => {
+        var startTime;
+        var endTime;
+        if (this.props.startpoint) {
+            startTime = this.props.startpoint.properties.time;
+            if (this.props.endpoint) {
+                endTime = this.props.endpoint.properties.time;
+            }
+        }
+        else {
+            return false;
+        }
+        // Looks stupid but works as long as time is in 24h format...
+        if (startTime <= time) {
+            if (endTime) {
+                if (endTime > time) {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     isRecorded = (time) => {
