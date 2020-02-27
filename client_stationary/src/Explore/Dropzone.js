@@ -63,7 +63,7 @@ class OwnDropzone extends Component {
     }
 
     /**
-     * tries to read the uploaded csv and transforms it into json
+     * reads the uploaded csv and transforms it into json
      */
     readCSV() {
         const self = this;
@@ -138,7 +138,7 @@ class OwnDropzone extends Component {
     }
 
     /**
-     * build out of the JSON a valid geoJson, which is consisten with measuremnt routes
+     * build out of the JSON a valid geoJSON, which is consisten with measuremnt routes
      */
     transformJson = (json) => {
         const self = this;
