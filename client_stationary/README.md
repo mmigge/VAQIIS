@@ -24,7 +24,7 @@ Before all implemented functionalities are available to the user after a success
 
 You can automate the execution of these scripts with a crontab job. <br> To create a crontab job for the local user (! not sudo or root!) just type `crontab -e` and add the followling lines <br>
 `@reboot sleep 30 && sudo service mongod start &` <br>
-`@reboot sleep 45 && cd /home/pi/VAQIIS/api/ && npm start &`<br>
+`@reboot sleep 45 && cd ~/VAQIIS/api/ && npm start &`<br>
 
 ## Troubleshooting
 It can happen that messages sent to the MQTT server are not accepted by the service. This is a problem of using websockets under Ubuntu, which are (unfortunately) necessary. This problem can be solved by simply restarting the server.
